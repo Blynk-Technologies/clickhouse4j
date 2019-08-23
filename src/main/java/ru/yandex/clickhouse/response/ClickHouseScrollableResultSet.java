@@ -5,17 +5,26 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 
 public class ClickHouseScrollableResultSet extends ClickHouseResultSet {
     
     private List<ByteFragment[]> lines;
 
-    public ClickHouseScrollableResultSet(InputStream is, int bufferSize, String db, String table, boolean usesWithTotals, ClickHouseStatement statement, TimeZone timezone, ClickHouseProperties properties) throws IOException {
+    public ClickHouseScrollableResultSet(InputStream is,
+										 int bufferSize,
+										 String db,
+										 String table,
+										 boolean usesWithTotals,
+										 ClickHouseStatement statement,
+										 TimeZone timezone,
+										 ClickHouseProperties properties) throws IOException {
         super(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
-        lines = new ArrayList<ByteFragment[]>();
+        lines = new ArrayList<>();
     }
 
     public boolean hasNext() throws SQLException {

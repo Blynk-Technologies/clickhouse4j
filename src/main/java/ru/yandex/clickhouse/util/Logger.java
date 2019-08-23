@@ -11,7 +11,7 @@ import java.util.logging.Level;
  */
 public class Logger {
 
-    private static Level currentLevel = Level.FINE; // todo configuration
+    private static Level currentLevel = Level.FINE;
 
     private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -31,18 +31,6 @@ public class Logger {
 
     public static Logger of(Object object) {
         return new Logger(object.getClass().getSimpleName());
-    }
-
-    public void info(String message) {
-        log(message, Level.INFO);
-    }
-
-    public void debug(String message) {
-        log(message, Level.FINE);
-    }
-
-    public void warn(String message) {
-        log(message, Level.WARNING);
     }
 
     public void error(String message) {

@@ -6,7 +6,6 @@ public class ClickHouseUnknownException extends ClickHouseException {
         super(ClickHouseErrorCode.UNKNOWN_EXCEPTION.code, cause, host, port);
     }
 
-
     public ClickHouseUnknownException(String message, Throwable cause, String host, int port) {
         super(ClickHouseErrorCode.UNKNOWN_EXCEPTION.code, message, cause, host, port);
     }

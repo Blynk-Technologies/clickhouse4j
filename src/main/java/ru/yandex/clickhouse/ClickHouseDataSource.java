@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 
 public class ClickHouseDataSource implements DataSource {
+
     protected final ClickHouseDriver driver = new ClickHouseDriver();
     protected final String url;
     protected PrintWriter printWriter;

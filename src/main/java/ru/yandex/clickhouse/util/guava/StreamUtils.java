@@ -36,16 +36,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.util.Utils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class StreamUtils {
+public final class StreamUtils {
+
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     private static final int BUF_SIZE = 0x1000; // 4K
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
+
+    private StreamUtils() {
+    }
 
     public static String toString(InputStream in) throws IOException {
         return new String(toByteArray(in), UTF_8);
@@ -57,7 +66,7 @@ public class StreamUtils {
         return out.toByteArray();
     }
 
-    public static long copy(InputStream from, OutputStream to) throws IOException {
+    private static long copy(InputStream from, OutputStream to) throws IOException {
         byte[] buf = new byte[BUF_SIZE];
         long total = 0;
         while (true) {

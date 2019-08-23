@@ -9,7 +9,11 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -25,6 +29,7 @@ import static ru.yandex.clickhouse.ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFI
  * which test hosts for availability. By default, this option is turned off.
  */
 public class BalancedClickhouseDataSource implements DataSource {
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(BalancedClickhouseDataSource.class);
     private static final Pattern URL_TEMPLATE = Pattern.compile(JDBC_CLICKHOUSE_PREFIX + "" +
             "//([a-zA-Z0-9_:,.-]+)" +
@@ -35,7 +40,7 @@ public class BalancedClickhouseDataSource implements DataSource {
     private PrintWriter printWriter;
     private int loginTimeoutSeconds = 0;
 
-    private final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<Random>();
+    private final ThreadLocal<Random> randomThreadLocal = new ThreadLocal<>();
     private final List<String> allUrls;
     private volatile List<String> enabledUrls;
 
@@ -153,8 +158,8 @@ public class BalancedClickhouseDataSource implements DataSource {
      *
      * @return number of avaliable clickhouse urls
      */
-    public synchronized int actualize() {
-        List<String> enabledUrls = new ArrayList<String>(allUrls.size());
+    synchronized int actualize() {
+        List<String> enabledUrls = new ArrayList<>(allUrls.size());
 
         for (String url : allUrls) {
             log.debug("Pinging disabled url: {}", url);

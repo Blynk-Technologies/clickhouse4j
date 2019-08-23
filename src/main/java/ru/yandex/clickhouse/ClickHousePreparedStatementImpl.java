@@ -15,10 +15,34 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Date;
-import java.sql.*;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLXML;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,8 +65,12 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     private List<byte[]> batchRows = new ArrayList<byte[]>();
 
 
-    public ClickHousePreparedStatementImpl(CloseableHttpClient client, ClickHouseConnection connection,
-                                           ClickHouseProperties properties, String sql, TimeZone timezone, int resultSetType) throws SQLException {
+    public ClickHousePreparedStatementImpl(CloseableHttpClient client,
+                                           ClickHouseConnection connection,
+                                           ClickHouseProperties properties,
+                                           String sql,
+                                           TimeZone timezone,
+                                           int resultSetType) throws SQLException {
         super(client, connection, properties, resultSetType);
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
@@ -273,15 +301,15 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
             } else if (x instanceof BigDecimal) {
                 setBigDecimal(parameterIndex, (BigDecimal) x);
             } else if (x instanceof Short) {
-                setShort(parameterIndex, ((Short) x).shortValue());
+                setShort(parameterIndex, (Short) x);
             } else if (x instanceof Integer) {
-                setInt(parameterIndex, ((Integer) x).intValue());
+                setInt(parameterIndex, (Integer) x);
             } else if (x instanceof Long) {
-                setLong(parameterIndex, ((Long) x).longValue());
+                setLong(parameterIndex, (Long) x);
             } else if (x instanceof Float) {
-                setFloat(parameterIndex, ((Float) x).floatValue());
+                setFloat(parameterIndex, (Float) x);
             } else if (x instanceof Double) {
-                setDouble(parameterIndex, ((Double) x).doubleValue());
+                setDouble(parameterIndex, (Double) x);
             } else if (x instanceof byte[]) {
                 setBytes(parameterIndex, (byte[]) x);
             } else if (x instanceof Date) {
@@ -291,7 +319,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
             } else if (x instanceof Timestamp) {
                 setTimestamp(parameterIndex, (Timestamp) x);
             } else if (x instanceof Boolean) {
-                setBoolean(parameterIndex, ((Boolean) x).booleanValue());
+                setBoolean(parameterIndex, (Boolean) x);
             } else if (x instanceof InputStream) {
                 setBinaryStream(parameterIndex, (InputStream) x, -1);
             } else if (x instanceof Blob) {
@@ -319,7 +347,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
 
     private List<byte[]> buildBatch() throws SQLException {
         checkBinded();
-        List<byte[]> newBatches = new ArrayList<byte[]>(parameterList.size());
+        List<byte[]> newBatches = new ArrayList<>(parameterList.size());
         StringBuilder sb = new StringBuilder();
         for (int i = 0, p = 0; i < parameterList.size(); i++) {
             List<String> pList = parameterList.get(i);
@@ -362,7 +390,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         sendStream(entity, insertSql, additionalDBParams);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
-        batchRows = new ArrayList<byte[]>();
+        batchRows = new ArrayList<>();
         return result;
     }
 

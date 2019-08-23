@@ -12,6 +12,7 @@ import java.util.Map;
  * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
  */
 public class ClickHouseArray implements Array {
+
     private int elementType;
     private boolean isUnsigned;
     private Object array;
@@ -38,7 +39,7 @@ public class ClickHouseArray implements Array {
     }
 
     @Override
-    public int getBaseType() throws SQLException {
+    public int getBaseType() {
         return elementType;
     }
 
@@ -86,7 +87,7 @@ public class ClickHouseArray implements Array {
     }
 
     @Override
-    public void free() throws SQLException {
+    public void free() {
         array = null;
     }
 }

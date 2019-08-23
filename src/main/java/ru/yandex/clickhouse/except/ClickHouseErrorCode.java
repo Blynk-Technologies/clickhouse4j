@@ -1,7 +1,5 @@
 package ru.yandex.clickhouse.except;
 
-import java.util.*;
-
 public enum ClickHouseErrorCode {
     OK(0),
     UNSUPPORTED_METHOD(1),
@@ -453,21 +451,8 @@ public enum ClickHouseErrorCode {
 
     public final Integer code;
 
-    private static final Map<Integer, ClickHouseErrorCode> byCodes;
-    static {
-        Map<Integer, ClickHouseErrorCode> map = new HashMap<Integer, ClickHouseErrorCode>();
-        for (ClickHouseErrorCode errorCode : values())
-            map.put(errorCode.code, errorCode);
-        byCodes = Collections.unmodifiableMap(map);
-    }
-
     ClickHouseErrorCode(Integer code) {
         this.code = code;
-    }
-
-
-    public static ClickHouseErrorCode fromCode(Integer code) {
-        return byCodes.get(code);
     }
 
     @Override

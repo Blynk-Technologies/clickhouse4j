@@ -1,23 +1,22 @@
 package ru.yandex.clickhouse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.settings.ClickHouseProperties;
+import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
-
 public class ClickhouseJdbcUrlParser {
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseJdbcUrlParser.class);
-    public static final String JDBC_PREFIX = "jdbc:";
-    public static final String JDBC_CLICKHOUSE_PREFIX = JDBC_PREFIX + "clickhouse:";
-    public static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_*\\-]+)");
-    protected final static String DEFAULT_DATABASE = "default";
+    static final String JDBC_PREFIX = "jdbc:";
+    static final String JDBC_CLICKHOUSE_PREFIX = JDBC_PREFIX + "clickhouse:";
+    private static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_*\\-]+)");
+    private final static String DEFAULT_DATABASE = "default";
 
     private ClickhouseJdbcUrlParser(){
     }
@@ -64,9 +63,9 @@ public class ClickhouseJdbcUrlParser {
             return defaults;
         }
         Properties urlProps = new Properties(defaults);
-        String queryKeyValues[] = query.split("&");
+        String[] queryKeyValues = query.split("&");
         for (String keyValue : queryKeyValues) {
-            String keyValueTokens[] = keyValue.split("=");
+            String[] keyValueTokens = keyValue.split("=");
             if (keyValueTokens.length == 2) {
                 urlProps.put(keyValueTokens[0], keyValueTokens[1]);
             } else {

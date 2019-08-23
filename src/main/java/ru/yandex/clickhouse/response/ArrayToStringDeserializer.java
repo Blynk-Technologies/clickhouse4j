@@ -24,7 +24,7 @@ class ArrayToStringDeserializer extends JsonDeserializer<List<String>> {
             .weakKeys()
             .concurrencyLevel(16)
             .maximumSize(10000)
-            .build(new CacheLoader<DeserializationContext, JsonDeserializer<Object>>() {
+            .build(new CacheLoader<>() {
         @Override
         public JsonDeserializer<Object> load(DeserializationContext ctxt) throws Exception {
             return  ctxt.findContextualValueDeserializer(TypeFactory.defaultInstance()
@@ -48,7 +48,7 @@ class ArrayToStringDeserializer extends JsonDeserializer<List<String>> {
         }
         //noinspection unchecked
         final List<Object> deserializedList = (List) deserialized;
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Object x : deserializedList) {
             String v = null;
             if (x instanceof List) {

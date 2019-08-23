@@ -1,5 +1,11 @@
 package ru.yandex.clickhouse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.response.ClickHouseResultBuilder;
+import ru.yandex.clickhouse.util.ClickHouseVersionNumberUtil;
+import ru.yandex.clickhouse.util.TypeUtils;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -12,19 +18,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.yandex.clickhouse.response.ClickHouseResultBuilder;
-import ru.yandex.clickhouse.util.ClickHouseVersionNumberUtil;
-import ru.yandex.clickhouse.util.TypeUtils;
-
 import static ru.yandex.clickhouse.util.TypeUtils.NULLABLE_YES;
 
 
 public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
 
-    static final String DEFAULT_CAT = "default";
+    private static final String DEFAULT_CAT = "default";
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseDatabaseMetadata.class);
 

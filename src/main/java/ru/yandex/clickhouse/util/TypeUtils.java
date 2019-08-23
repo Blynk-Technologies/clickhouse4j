@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class TypeUtils {
 
     public static final String NULLABLE_YES = "YES";
-    public static final String NULLABLE_NO = "NO";
+    static final String NULLABLE_NO = "NO";
 
     private static final Pattern DECIMAL_PATTERN = Pattern.compile(
         "Decimal\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");

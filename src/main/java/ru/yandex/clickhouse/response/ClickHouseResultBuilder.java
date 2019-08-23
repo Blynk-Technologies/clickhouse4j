@@ -19,7 +19,7 @@ public class ClickHouseResultBuilder {
     private final int columnsNum;
     private List<String> names;
     private List<String> types;
-    private List<List<?>> rows = new ArrayList<List<?>>();
+    private List<List<?>> rows = new ArrayList<>();
     private TimeZone timezone = TimeZone.getTimeZone("UTC");
     private boolean usesWithTotals;
     private ClickHouseProperties properties = new ClickHouseProperties();

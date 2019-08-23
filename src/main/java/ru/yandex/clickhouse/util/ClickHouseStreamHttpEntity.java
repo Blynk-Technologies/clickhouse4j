@@ -36,7 +36,7 @@ public class ClickHouseStreamHttpEntity extends AbstractHttpEntity {
     }
 
     @Override
-    public InputStream getContent() throws IOException, UnsupportedOperationException {
+    public InputStream getContent() throws UnsupportedOperationException {
         return null;
     }
 

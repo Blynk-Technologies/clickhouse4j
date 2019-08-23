@@ -293,7 +293,7 @@ public class ClickHouseRowBinaryStream {
      * @param isNullable if it's true, 1 will be written otherwise 0
      * @throws IOException in case if an I/O error occurs
      */
-    public void markNextNullable(boolean isNullable) throws IOException {
+    void markNextNullable(boolean isNullable) throws IOException {
         writeByte(isNullable ? (byte) 1 : (byte) 0);
     }
 

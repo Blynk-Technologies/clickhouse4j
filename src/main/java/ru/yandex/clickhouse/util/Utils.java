@@ -3,7 +3,10 @@ package ru.yandex.clickhouse.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+    }
 
     public static boolean startsWithIgnoreCase(String haystack, String pattern) {
         return haystack.substring(0, pattern.length()).equalsIgnoreCase(pattern);
@@ -29,12 +32,12 @@ public class Utils {
      * @param retainEmpty if it is true, result can contain empty strings
      * @return string array
      */
-    public static String[] splitWithoutEscaped(String str, char separatorChar, boolean retainEmpty) {
+    private static String[] splitWithoutEscaped(String str, char separatorChar, boolean retainEmpty) {
         int len = str.length();
         if (len == 0) {
             return new String[0];
         }
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         int i = 0;
         int start = 0;
         boolean match = false;

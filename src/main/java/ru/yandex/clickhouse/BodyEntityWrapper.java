@@ -1,14 +1,13 @@
 package ru.yandex.clickhouse;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
-
 import ru.yandex.clickhouse.util.guava.StreamUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Allow to inject sql query in the body, followed by row data
@@ -17,7 +16,7 @@ public class BodyEntityWrapper extends AbstractHttpEntity {
     private final StringEntity sql;
     private final HttpEntity delegate;
 
-	public BodyEntityWrapper(String sql, HttpEntity content) {
+	BodyEntityWrapper(String sql, HttpEntity content) {
 		this.sql = new StringEntity(sql+"\n", StreamUtils.UTF_8);
 		this.delegate = content;
 	}
@@ -33,7 +32,7 @@ public class BodyEntityWrapper extends AbstractHttpEntity {
 	}
 
 	@Override
-	public InputStream getContent() throws IOException, UnsupportedOperationException {
+	public InputStream getContent() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
 	}
 

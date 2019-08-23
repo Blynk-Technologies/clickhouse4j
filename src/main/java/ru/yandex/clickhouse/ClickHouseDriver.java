@@ -3,17 +3,25 @@ package ru.yandex.clickhouse;
 import com.google.common.collect.MapMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.settings.DriverPropertyCreator;
 import ru.yandex.clickhouse.util.LogProxy;
-import java.sql.*;
+
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -76,7 +84,7 @@ public class ClickHouseDriver implements Driver {
             properties = copy;
             logger.error("could not parse url {}", url, ex);
         }
-        List<DriverPropertyInfo> result = new ArrayList<DriverPropertyInfo>(ClickHouseQueryParam.values().length
+        List<DriverPropertyInfo> result = new ArrayList<>(ClickHouseQueryParam.values().length
                 + ClickHouseConnectionSettings.values().length);
         result.addAll(dumpProperties(ClickHouseQueryParam.values(), properties));
         result.addAll(dumpProperties(ClickHouseConnectionSettings.values(), properties));
@@ -84,7 +92,7 @@ public class ClickHouseDriver implements Driver {
     }
 
     private List<DriverPropertyInfo> dumpProperties(DriverPropertyCreator[] creators, Properties info) {
-        List<DriverPropertyInfo> result = new ArrayList<DriverPropertyInfo>(creators.length);
+        List<DriverPropertyInfo> result = new ArrayList<>(creators.length);
         for (DriverPropertyCreator creator : creators) {
             result.add(creator.createDriverPropertyInfo(info));
         }
@@ -118,16 +126,13 @@ public class ClickHouseDriver implements Driver {
      * @param timeUnit time unit of rate
      */
     public void scheduleConnectionsCleaning(int rate, TimeUnit timeUnit){
-        ScheduledConnectionCleaner.INSTANCE.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    for (ClickHouseConnectionImpl connection : connections.keySet()) {
-                        connection.cleanConnections();
-                    }
-                } catch (Exception e){
-                    logger.error("error evicting connections: " + e);
+        ScheduledConnectionCleaner.INSTANCE.scheduleAtFixedRate(() -> {
+            try {
+                for (ClickHouseConnectionImpl connection : connections.keySet()) {
+                    connection.cleanConnections();
                 }
+            } catch (Exception e){
+                logger.error("error evicting connections: " + e);
             }
         }, 0, rate, timeUnit);
     }

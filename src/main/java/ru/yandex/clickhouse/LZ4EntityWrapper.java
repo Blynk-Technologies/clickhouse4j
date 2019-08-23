@@ -9,8 +9,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class LZ4EntityWrapper extends AbstractHttpEntity {
+
     private final HttpEntity delegate;
     private final int maxCompressBlockSize;
+
     public LZ4EntityWrapper(AbstractHttpEntity content, int maxCompressBlockSize) {
         this.delegate = content;
         this.maxCompressBlockSize = maxCompressBlockSize;

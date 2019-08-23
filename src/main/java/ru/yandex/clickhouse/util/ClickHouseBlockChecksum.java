@@ -19,7 +19,11 @@ public class ClickHouseBlockChecksum {
         return new ClickHouseBlockChecksum(buffer.getLong(), buffer.getLong());
     }
 
-    public static ClickHouseBlockChecksum calculateForBlock(byte magic, int compressedSizeWithHeader, int uncompressedSize, byte[] data, int length) {
+    public static ClickHouseBlockChecksum calculateForBlock(byte magic,
+                                                            int compressedSizeWithHeader,
+                                                            int uncompressedSize,
+                                                            byte[] data,
+                                                            int length) {
         ByteBuffer buffer = ByteBuffer.allocate(compressedSizeWithHeader).order(ByteOrder.LITTLE_ENDIAN).put((byte)magic).putInt(compressedSizeWithHeader)
                 .putInt(uncompressedSize).put(data, 0, length);
         ((Buffer) buffer).flip();

@@ -108,7 +108,7 @@ public class ClickHouseHttpClientBuilder {
     }
 
     private Collection<Header> getDefaultHeaders() {
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         if (properties.getHttpAuthorization() != null) {
             headers.add(new BasicHeader(HttpHeaders.AUTHORIZATION, properties.getHttpAuthorization()));
         }

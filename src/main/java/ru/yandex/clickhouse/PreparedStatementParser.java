@@ -1,12 +1,12 @@
 package ru.yandex.clickhouse;
 
+import ru.yandex.clickhouse.util.apache.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ru.yandex.clickhouse.util.apache.StringUtils;
 
 /**
  * Parser for JDBC SQL Strings
@@ -25,8 +25,8 @@ final class PreparedStatementParser  {
     private boolean valuesMode;
 
     private PreparedStatementParser() {
-        parameters = new ArrayList<List<String>>();
-        parts = new ArrayList<String>();
+        parameters = new ArrayList<>();
+        parts = new ArrayList<>();
         valuesMode = false;
     }
 
@@ -59,7 +59,7 @@ final class PreparedStatementParser  {
 
     private void parseSQL(String sql) {
         reset();
-        List<String> currentParamList = new ArrayList<String>();
+        List<String> currentParamList = new ArrayList<>();
         boolean afterBackSlash = false;
         boolean inQuotes = false;
         boolean inBackQuotes = false;
@@ -139,7 +139,7 @@ final class PreparedStatementParser  {
                        }
                        if (!currentParamList.isEmpty()) {
                            parameters.add(currentParamList);
-                           currentParamList = new ArrayList<String>(currentParamList.size());
+                           currentParamList = new ArrayList<>(currentParamList.size());
                        }
                    }
                 } else if (Character.isWhitespace(c)) {
@@ -158,7 +158,7 @@ final class PreparedStatementParser  {
         if (!valuesMode && !currentParamList.isEmpty()) {
             parameters.add(currentParamList);
         }
-        String lastPart = sql.substring(partStart, sql.length());
+        String lastPart = sql.substring(partStart);
         parts.add(lastPart);
     }
 
