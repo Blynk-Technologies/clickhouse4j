@@ -2,6 +2,7 @@ package ru.yandex.clickhouse.util;
 
 import ru.yandex.clickhouse.ClickHouseUtil;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -34,72 +35,23 @@ public final class ClickHouseArrayUtil {
 
     private static String primitiveArrayToString(Object array) {
         if (array instanceof int[]) {
-            return toString((int[]) array);
+            return Arrays.toString((int[]) array);
         } else if (array instanceof long[]) {
-            return toString((long[]) array);
+            return Arrays.toString((long[]) array);
         } else if (array instanceof float[]) {
-            return toString((float[]) array);
+            return Arrays.toString((float[]) array);
         } else if (array instanceof double[]) {
-            return toString((double[]) array);
+            return Arrays.toString((double[]) array);
         } else if (array instanceof char[]) {
             return toString((char[]) array);
         } else if (array instanceof byte[]) {
-            return toString((byte[]) array);
+            return Arrays.toString((byte[]) array);
         } else if (array instanceof short[]) {
-            return toString((short[]) array);
+            return Arrays.toString((short[]) array);
         } else {
             throw new IllegalArgumentException("Wrong primitive type: " + array.getClass().getComponentType());
         }
     }
-
-    public static String toString(int[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (int value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
-    public static String toString(long[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (long value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
-    public static String toString(float[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (float value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
-    public static String toString(double[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (double value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
-    public static String toString(byte[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (byte value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
-    public static String toString(short[] values) {
-        ArrayBuilder builder = new ArrayBuilder(false, true);
-        for (short value : values) {
-            builder.append(value);
-        }
-        return builder.build();
-    }
-
 
     public static String toString(char[] values) {
         ArrayBuilder builder = new ArrayBuilder(true, true);

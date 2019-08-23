@@ -38,12 +38,12 @@ public class ClickHouseArrayUtilTest {
 
         Assert.assertEquals(
                 ClickHouseArrayUtil.arrayToString(new int[]{21, 42}),
-                "[21,42]"
+                "[21, 42]"
         );
 
         Assert.assertEquals(
                 ClickHouseArrayUtil.arrayToString(new double[]{0.1, 1.2}),
-                "[0.1,1.2]"
+                "[0.1, 1.2]"
         );
 
         Assert.assertEquals(
@@ -68,18 +68,23 @@ public class ClickHouseArrayUtilTest {
 
         Assert.assertEquals(
                 ClickHouseArrayUtil.arrayToString(new double[][]{{0.1, 1.2}, {0.2, 2.2}}),
-                "[[0.1,1.2],[0.2,2.2]]"
+                "[[0.1, 1.2],[0.2, 2.2]]"
         );
 
         Assert.assertEquals(
                 ClickHouseArrayUtil.arrayToString(new int[][]{{1, 2}, {3, 4}}),
-                "[[1,2],[3,4]]"
+                "[[1, 2],[3, 4]]"
         );
 
         Assert.assertEquals(
                 ClickHouseArrayUtil.arrayToString(new char[][]{{'a', 'b'}, {'c', 'd'}}),
                 "[['a','b'],['c','d']]"
         );
+
+        Assert.assertEquals(ClickHouseArrayUtil.arrayToString(new short[] { 1,2,3 }), "[1, 2, 3]");
+        Assert.assertEquals(ClickHouseArrayUtil.arrayToString(new float[] { 1.2f, 2.3f, 3.4f }), "[1.2, 2.3, 3.4]");
+        Assert.assertEquals(ClickHouseArrayUtil.arrayToString(new byte[] {1, 2}), "[1, 2]");
+
 
     }
 
