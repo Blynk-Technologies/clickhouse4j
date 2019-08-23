@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.yandex.clickhouse</groupId>
-    <artifactId>clickhouse-jdbc</artifactId>
+    <artifactId>clickhousej4</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>clickhouse-jdbc</name>
     <description>JDBC driver for ClickHouse</description>
-    <url>https://github.com/yandex/clickhouse-jdbc</url>
+    <url>https://github.com/blynkkk/clickhouse4j.git</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -18,9 +18,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/yandex/clickhouse-jdbc</url>
-        <connection>scm:git@github.com:yandex/clickhouse-jdbc.git</connection>
-        <developerConnection>scm:git@github.com:yandex/clickhouse-jdbc.git</developerConnection>
+        <url>https://github.com/blynkkk/clickhouse4j.git</url>
+        <connection>scm:git@github.com:blynkkk/clickhouse4j.git</connection>
+        <developerConnection>scm:git@github.com:blynkkk/clickhouse4j.git</developerConnection>
     </scm>
 
     <developers>
@@ -140,10 +140,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.8.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>11</source>
+                    <target>11</target>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <fork>true</fork>
