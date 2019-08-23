@@ -1,19 +1,30 @@
 package ru.yandex.clickhouse.response;
 
-
-import com.google.common.primitives.Primitives;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.Objects;
 
 final class ByteFragmentUtils {
 
     private static final char ARRAY_ELEMENTS_SEPARATOR = ',';
     private static final char STRING_QUOTATION = '\'';
+
+    private static Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = Map.of(
+            Boolean.class, boolean.class,
+            Byte.class, byte.class,
+            Character.class, char.class,
+            Double.class, double.class,
+            Float.class, float.class,
+            Integer.class, int.class,
+            Long.class, long.class,
+            Short.class, short.class,
+            Void.class, void.class
+    );
 
     private ByteFragmentUtils() {
     }
@@ -172,7 +183,7 @@ final class ByteFragmentUtils {
 
         int index = 0;
         Object array = java.lang.reflect.Array.newInstance(
-            useObjects ? elementClass : Primitives.unwrap(elementClass),
+                useObjects ? elementClass : unwrap(elementClass),
             getArrayLength(trim)
         );
         int fieldStart = 0;
@@ -304,5 +315,11 @@ final class ByteFragmentUtils {
             }
         }
         return length;
+    }
+
+    private static Class unwrap(Class type) {
+        Objects.requireNonNull(type);
+        Class unwrapped = WRAPPER_TO_PRIMITIVE_TYPE.get(type);
+        return (unwrapped == null) ? type : unwrapped;
     }
 }
