@@ -1,5 +1,18 @@
 package ru.yandex.clickhouse.integration;
 
+import com.google.common.io.BaseEncoding;
+import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import ru.yandex.clickhouse.ClickHouseArray;
+import ru.yandex.clickhouse.ClickHouseConnection;
+import ru.yandex.clickhouse.ClickHouseDataSource;
+import ru.yandex.clickhouse.ClickHousePreparedStatement;
+import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
+import ru.yandex.clickhouse.response.ClickHouseResponse;
+import ru.yandex.clickhouse.settings.ClickHouseProperties;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
@@ -10,24 +23,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
-import com.google.common.io.BaseEncoding;
-
-import ru.yandex.clickhouse.ClickHouseArray;
-import ru.yandex.clickhouse.ClickHouseConnection;
-import ru.yandex.clickhouse.ClickHouseDataSource;
-import ru.yandex.clickhouse.ClickHousePreparedStatement;
-import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
-import ru.yandex.clickhouse.response.ClickHouseResponse;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import static java.util.Collections.singletonList;
 
@@ -576,4 +575,16 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(rs.getString(2), "oof");
         Assert.assertFalse(rs.next());
     }
+
+    @Test
+    public void testInClause() throws Exception {
+        String unbindedStatement = "SELECT test.example WHERE id IN (?)";
+        ClickHousePreparedStatement statement = (ClickHousePreparedStatement)
+                connection.prepareStatement(unbindedStatement);
+        Assert.assertEquals(statement.asSql(), unbindedStatement);
+
+        statement.setObject(1, Arrays.asList(123, 456));
+        Assert.assertEquals(statement.asSql(), "SELECT test.example WHERE id IN (123,456)");
+    }
+
 }
