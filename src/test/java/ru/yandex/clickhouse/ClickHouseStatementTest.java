@@ -1,27 +1,25 @@
 package ru.yandex.clickhouse;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Properties;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
-
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
+
+import java.net.URI;
+import java.sql.ResultSet;
+import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class ClickHouseStatementTest {
+
     @Test
-    public void testClickhousify() throws Exception {
+    public void testClickhousify() {
         String sql = "SELECT ololo FROM ololoed;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql));
 
@@ -39,13 +37,16 @@ public class ClickHouseStatementTest {
 
         String sql6 = " show ololo FROM ololoed;";
         assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql6));
+
+        String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;";
+        assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;", ClickHouseStatementImpl.clickhousifySql(sql7));
     }
 
     @Test
-    public void testCredentials() throws SQLException, URISyntaxException {
+    public void testCredentials() {
         ClickHouseProperties properties = new ClickHouseProperties(new Properties());
         ClickHouseProperties withCredentials = properties.withCredentials("test_user", "test_password");
-        assertTrue(withCredentials != properties);
+        assertNotSame(withCredentials, properties);
         assertNull(properties.getUser());
         assertNull(properties.getPassword());
         assertEquals(withCredentials.getUser(), "test_user");
@@ -78,7 +79,7 @@ public class ClickHouseStatementTest {
     }
     
     @Test
-    public void testMaxMemoryUsage() throws Exception {
+    public void testMaxMemoryUsage() {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setMaxMemoryUsage(41L);
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpClientBuilder.create().build(), null,
@@ -90,7 +91,7 @@ public class ClickHouseStatementTest {
     }
 
     @Test
-    public void testAdditionalRequestParams() throws Exception {
+    public void testAdditionalRequestParams() {
         ClickHouseProperties properties = new ClickHouseProperties();
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
                 HttpClientBuilder.create().build(),

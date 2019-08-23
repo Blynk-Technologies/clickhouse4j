@@ -5,10 +5,17 @@ package ru.yandex.clickhouse.util;
  */
 public enum ClickHouseFormat {
 
-    TabSeparated,
-    TabSeparatedWithNamesAndTypes,
-    JSONCompact,
-    RowBinary,
-    Native
+    TabSeparated("TabSeparated"),
+    TabSeparatedWithNamesAndTypes("TabSeparatedWithNamesAndTypes"),
+    JSONCompact("JSONCompact"),
+    RowBinary("RowBinary"),
+    Native("Native"),
+    CSVWithNames("CSVWithNames");
+
+    public final String name;
+
+    ClickHouseFormat(String name) {
+        this.name = name;
+    }
 
 }
