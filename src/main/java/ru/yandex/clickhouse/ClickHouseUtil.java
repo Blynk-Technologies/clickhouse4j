@@ -1,38 +1,49 @@
 package ru.yandex.clickhouse;
 
-
-import com.google.common.escape.Escaper;
-import com.google.common.escape.Escapers;
+import java.util.Map;
 
 public final class ClickHouseUtil {
 
+    private static final Map<Character, String> CHARS_MAP = Map.of(
+            '\\', "\\\\",
+            '\n', "\\n",
+            '\t', "\\t",
+            '\b', "\\b",
+            '\f', "\\f",
+            '\r', "\\r",
+            '\0', "\\0",
+            '\'', "\\'",
+            '`', "\\`"
+    );
+
     private ClickHouseUtil() {
     }
-
-    private final static Escaper CLICKHOUSE_ESCAPER = Escapers.builder()
-        .addEscape('\\', "\\\\")
-        .addEscape('\n', "\\n")
-        .addEscape('\t', "\\t")
-        .addEscape('\b', "\\b")
-        .addEscape('\f', "\\f")
-        .addEscape('\r', "\\r")
-        .addEscape('\0', "\\0")
-        .addEscape('\'', "\\'")
-        .addEscape('`', "\\`")
-        .build();
 
     public static String escape(String s) {
         if (s == null) {
             return "\\N";
         }
-        return CLICKHOUSE_ESCAPER.escape(s);
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < s.length(); i++) {
+            char currentChar = s.charAt(i);
+            if (CHARS_MAP.containsKey(currentChar)) {
+                String replacement = CHARS_MAP.get(currentChar);
+                builder.append(replacement);
+            } else {
+                builder.append(currentChar);
+            }
+        }
+
+        return builder.toString();
     }
 
     static String quoteIdentifier(String s) {
         if (s == null) {
             throw new IllegalArgumentException("Can't quote null as identifier");
         }
-        String escaped = CLICKHOUSE_ESCAPER.escape(s);
+        String escaped = escape(s);
         return '`' + escaped + '`';
     }
 
