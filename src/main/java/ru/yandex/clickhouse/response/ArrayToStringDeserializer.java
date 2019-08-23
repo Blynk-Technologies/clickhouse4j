@@ -4,50 +4,28 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import ru.yandex.clickhouse.Jackson;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 
 class ArrayToStringDeserializer extends JsonDeserializer<List<String>> {
 
-    private static final LoadingCache<DeserializationContext, JsonDeserializer<Object>> deserializers
-            = CacheBuilder.newBuilder()
-            .weakKeys()
-            .concurrencyLevel(16)
-            .maximumSize(10000)
-            .build(new CacheLoader<>() {
-        @Override
-        public JsonDeserializer<Object> load(DeserializationContext ctxt) throws Exception {
-            return  ctxt.findContextualValueDeserializer(TypeFactory.defaultInstance()
-                    .constructType(new TypeReference<List<Object>>() {
-                    }), null);
-        }
-    });
-
     @Override
     public List<String> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonDeserializer<Object> deserializer;
-        try {
-             deserializer = deserializers.get(ctxt);
-        } catch (ExecutionException e){
-            throw new RuntimeException(e);
-        }
+        JsonDeserializer<Object> deserializer = getJsonDeserializer(ctxt);
 
         final Object deserialized = deserializer.deserialize(jp, ctxt);
         if (!(deserialized instanceof List)){
             throw new IllegalStateException();
         }
-        //noinspection unchecked
-        final List<Object> deserializedList = (List) deserialized;
+
+        final List deserializedList = (List) deserialized;
         List<String> result = new ArrayList<>();
         for (Object x : deserializedList) {
             String v = null;
@@ -65,4 +43,15 @@ class ArrayToStringDeserializer extends JsonDeserializer<List<String>> {
         return result;
     }
 
+    private JsonDeserializer<Object> getJsonDeserializer(DeserializationContext ctxt) {
+        try {
+            TypeReference<List<Object>> typeRef = new TypeReference<>() {
+            };
+            JavaType type = TypeFactory.defaultInstance().constructType(typeRef);
+
+            return ctxt.findContextualValueDeserializer(type, null);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
