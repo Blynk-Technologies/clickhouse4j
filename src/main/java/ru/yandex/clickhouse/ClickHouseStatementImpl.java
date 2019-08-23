@@ -1,6 +1,5 @@
 package ru.yandex.clickhouse;
 
-import com.google.common.base.Strings;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -725,14 +724,14 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         setStatementPropertiesToParams(params);
 
         for (Map.Entry<ClickHouseQueryParam, String> entry : params.entrySet()) {
-            if (!Strings.isNullOrEmpty(entry.getValue())) {
+            if (!Utils.isStringEmpty(entry.getValue())) {
                 result.add(new BasicNameValuePair(entry.getKey().toString(), entry.getValue()));
             }
         }
 
         if (additionalRequestParams != null) {
             for (Map.Entry<String, String> entry : additionalRequestParams.entrySet()) {
-                if (!Strings.isNullOrEmpty(entry.getValue())) {
+                if (!Utils.isStringEmpty(entry.getValue())) {
                     result.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                 }
             }

@@ -1,6 +1,5 @@
 package ru.yandex.clickhouse;
 
-import com.google.common.base.Strings;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -11,6 +10,7 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.ClickHouseHttpClientBuilder;
 import ru.yandex.clickhouse.util.LogProxy;
 import ru.yandex.clickhouse.util.TypeUtils;
+import ru.yandex.clickhouse.util.Utils;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.IOException;
@@ -79,10 +79,10 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     private void initTimeZone(ClickHouseProperties properties) {
-        if (properties.isUseServerTimeZone() && !Strings.isNullOrEmpty(properties.getUseTimeZone())) {
+        if (properties.isUseServerTimeZone() && !Utils.isStringEmpty(properties.getUseTimeZone())) {
             throw new IllegalArgumentException(String.format("only one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
-        if (!properties.isUseServerTimeZone() && Strings.isNullOrEmpty(properties.getUseTimeZone())) {
+        if (!properties.isUseServerTimeZone() && Utils.isStringEmpty(properties.getUseTimeZone())) {
             throw new IllegalArgumentException(String.format("one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (properties.isUseServerTimeZone()) {
@@ -98,7 +98,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             } finally {
                 StreamUtils.close(rs);
             }
-        } else if (!Strings.isNullOrEmpty(properties.getUseTimeZone())) {
+        } else if (!Utils.isStringEmpty(properties.getUseTimeZone())) {
             timezone = TimeZone.getTimeZone(properties.getUseTimeZone());
         }
     }
