@@ -1,5 +1,10 @@
 0.2.0
-  * Java 11 compilation
+  * Driver now compiled with Java 11
+  * Allow to set unknown number of values for IN clause
+  * Unnecessary dependency excluded;
+  * Allow to perform CSV selects (response is still not processed correctly)
+  * Faster toString() fucntion for primitive arrays
+  * Cleanup
 
 0.1.54
   * added error codes
