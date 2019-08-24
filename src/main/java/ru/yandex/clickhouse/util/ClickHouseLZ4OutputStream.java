@@ -1,9 +1,9 @@
 package ru.yandex.clickhouse.util;
 
-import com.google.common.io.LittleEndianDataOutputStream;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import ru.yandex.clickhouse.response.ClickHouseLZ4Stream;
+import ru.yandex.clickhouse.util.guava.LittleEndianDataOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;

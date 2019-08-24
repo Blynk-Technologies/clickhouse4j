@@ -1,11 +1,5 @@
 package ru.yandex.clickhouse.response;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Floats;
-import com.google.common.primitives.Longs;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
@@ -15,6 +9,9 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -106,14 +103,11 @@ public class ByteFragmentUtilsTest {
     }
 
     @Test(dataProvider = "doubleArrayWithNan")
-    public void testDoubleNan(String[] source, double[] expected) throws Exception
-    {
-        String sourceString = source.length == 0 ? "[]" : "['" + Joiner.on("','").join(Iterables.transform(Arrays.asList(source), new Function<String, String>() {
-            @Override
-            public String apply(String s) {
-                return s.replace("'", "\\'");
-            }
-        })) + "']";
+    public void testDoubleNan(String[] source, double[] expected) throws Exception {
+        String sourceString = source.length == 0 ? "[]" : "['" + Stream.of(source)
+                .map(s -> s.replace("'", "\\'"))
+                .collect(Collectors.joining("','")) + "']";
+
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         double[] arr= (double[]) ByteFragmentUtils.parseArray(fragment, Double.class);
@@ -121,14 +115,11 @@ public class ByteFragmentUtilsTest {
     }
 
     @Test(dataProvider = "floatArrayWithNan")
-    public void testFloatNan(String[] source, float[] expected) throws Exception
-    {
-        String sourceString = source.length == 0 ? "[]" : "['" + Joiner.on("','").join(Iterables.transform(Arrays.asList(source), new Function<String, String>() {
-            @Override
-            public String apply(String s) {
-                return s.replace("'", "\\'");
-            }
-        })) + "']";
+    public void testFloatNan(String[] source, float[] expected) throws Exception {
+        String sourceString = source.length == 0 ? "[]" : "['" + Stream.of(source)
+                .map(s -> s.replace("'", "\\'"))
+                .collect(Collectors.joining("','")) + "']";
+
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         float[] arr= (float[]) ByteFragmentUtils.parseArray(fragment, Float.class);
@@ -137,12 +128,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "stringArray")
     public void testParseArray(String[] array) throws Exception {
-        String sourceString = array.length == 0 ? "[]" : "['" + Joiner.on("','").join(Iterables.transform(Arrays.asList(array), new Function<String, String>() {
-            @Override
-            public String apply(String s) {
-                return s.replace("'", "\\'");
-            }
-        })) + "']";
+        String sourceString = array.length == 0 ? "[]" : "['" + Stream.of(array)
+                .map(s -> s.replace("'", "\\'"))
+                .collect(Collectors.joining("','")) + "']";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -157,12 +145,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "intBoxedArray")
     public void testParseBoxedArray(Integer[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Arrays.asList(array), new Function<Integer, String>() {
-            @Override
-            public String apply(Integer s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + Stream.of(array)
+                .map(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -176,12 +161,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "longArray")
     public void testParseArray(long[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Longs.asList(array), new Function<Long, String>() {
-            @Override
-            public String apply(Long s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + Arrays.stream(array)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -195,12 +177,10 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "floatArray")
     public void testParseArray(float[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Floats.asList(array), new Function<Float, String>() {
-            @Override
-            public String apply(Float s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + IntStream.range(0, array.length)
+                .mapToDouble(i -> array[i])
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -214,12 +194,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "doubleArray")
     public void testParseArray(double[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Doubles.asList(array), new Function<Double, String>() {
-            @Override
-            public String apply(Double s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + Arrays.stream(array)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -235,12 +212,10 @@ public class ByteFragmentUtilsTest {
     public void testParseArray(Date[] array) throws Exception {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Arrays.asList(array), new Function<Date, String>() {
-            @Override
-            public String apply(Date s) {
-                return dateFormat.format(s);
-            }
-        })) + "]";
+
+        String sourceString = "[" + Stream.of(array)
+                .map(dateFormat::format)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -254,13 +229,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "decimalArray")
     public void testParseArray(BigDecimal[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Arrays.asList(array), new Function<BigDecimal, String>() {
-
-            @Override
-            public String apply(BigDecimal s) {
-                return s.toPlainString();
-            }
-        })) + "]";
+        String sourceString = "[" + Stream.of(array)
+                .map(BigDecimal::toPlainString)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);

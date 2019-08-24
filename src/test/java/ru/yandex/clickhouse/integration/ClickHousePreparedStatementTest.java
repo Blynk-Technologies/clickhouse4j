@@ -1,6 +1,5 @@
 package ru.yandex.clickhouse.integration;
 
-import com.google.common.io.BaseEncoding;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -40,7 +39,7 @@ public class ClickHousePreparedStatementTest {
                 .putLong(uuid.getMostSignificantBits())
                 .putLong(uuid.getLeastSignificantBits())
                 .array();
-        return "\\x" + BaseEncoding.base16().withSeparator("\\x", 2).encode(bts);
+        return "\\x" + encode(bts);
     }
 
     @BeforeTest
@@ -587,4 +586,18 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(statement.asSql(), "SELECT test.example WHERE id IN (123,456)");
     }
 
+    private final static char[] HEX = new char[]{
+            '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+
+    private static String encode(byte[] byteArray) {
+        StringBuffer hexBuffer = new StringBuffer(byteArray.length * 2);
+        for (byte aByteArray : byteArray) {
+            for (int j = 1; j >= 0; j--) {
+                hexBuffer.append(HEX[(aByteArray >> (j * 4)) & 0xF]);
+            }
+        }
+        return hexBuffer.toString().substring(0,16);
+    }
 }

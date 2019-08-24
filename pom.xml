@@ -47,7 +47,6 @@
         <lz4.version>1.3.0</lz4.version>
         <jackson-core.version>2.9.9</jackson-core.version>
         <jackson-databind.version>2.9.9.3</jackson-databind.version>
-        <guava.version>28.0-jre</guava.version>
         <slf4j-api.version>1.7.28</slf4j-api.version>
 
         <!-- test dependencies -->
@@ -91,12 +90,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson-core.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
@@ -240,7 +233,6 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>com.google.guava:*</include>
                                     <include>com.fasterxml.jackson.core:*</include>
                                     <include>org.apache.httpcomponents:*</include>
                                     <include>commons-logging:*</include>

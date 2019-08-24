@@ -1,7 +1,5 @@
 package ru.yandex.clickhouse.integration;
 
-import com.google.common.primitives.UnsignedLong;
-import com.google.common.primitives.UnsignedLongs;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -138,67 +136,65 @@ public class RowBinaryStreamTest {
 
         statement.sendRowBinaryStream(
                 "INSERT INTO test.raw_binary " +
-                        "(date, dateTime, string, int8, uInt8, int16, uInt16, int32, uInt32, int64, uInt64, float32, float64, dateArray, dateTimeArray, stringArray, int8Array, uInt8Array, int16Array, uInt16Array, int32Array, uInt32Array, int64Array, uInt64Array, float32Array, float64Array, uuid)",
-                new ClickHouseStreamCallback() {
-                    @Override
-                    public void writeTo(ClickHouseRowBinaryStream stream) throws IOException {
+                        "(date, dateTime, string, int8, uInt8, int16, uInt16, int32, uInt32, int64, uInt64, float32, " +
+                        "float64, dateArray, dateTimeArray, stringArray, int8Array, uInt8Array, int16Array, uInt16Array, " +
+                        "int32Array, uInt32Array, int64Array, uInt64Array, float32Array, float64Array, uuid)",
+                stream -> {
+                    stream.writeDate(date1);
+                    stream.writeDateTime(date1);
+                    stream.writeString("string\n1");
+                    stream.writeInt8(Byte.MIN_VALUE);
+                    stream.writeUInt8(0);
+                    stream.writeInt16(Short.MIN_VALUE);
+                    stream.writeUInt16(0);
+                    stream.writeInt32(Integer.MIN_VALUE);
+                    stream.writeUInt32(0);
+                    stream.writeInt64(Long.MIN_VALUE);
+                    stream.writeUInt64(0);
+                    stream.writeFloat32((float) 123.456);
+                    stream.writeFloat64(42.21);
+                    stream.writeDateArray(dates1);
+                    stream.writeDateTimeArray(dateTimes1);
+                    stream.writeStringArray(strings1);
+                    stream.writeInt8Array(int8s1);
+                    stream.writeUInt8Array(uint8s1);
+                    stream.writeInt16Array(int16s1);
+                    stream.writeUInt16Array(uint16s1);
+                    stream.writeInt32Array(int32s1);
+                    stream.writeUInt32Array(uint32s1);
+                    stream.writeInt64Array(int64s1);
+                    stream.writeUInt64Array(uint64s1);
+                    stream.writeFloat32Array(float32s1);
+                    stream.writeFloat64Array(float64s1);
+                    stream.writeUUID(uuid1);
 
-                        stream.writeDate(date1);
-                        stream.writeDateTime(date1);
-                        stream.writeString("string\n1");
-                        stream.writeInt8(Byte.MIN_VALUE);
-                        stream.writeUInt8(0);
-                        stream.writeInt16(Short.MIN_VALUE);
-                        stream.writeUInt16(0);
-                        stream.writeInt32(Integer.MIN_VALUE);
-                        stream.writeUInt32(0);
-                        stream.writeInt64(Long.MIN_VALUE);
-                        stream.writeUInt64(0);
-                        stream.writeFloat32((float) 123.456);
-                        stream.writeFloat64(42.21);
-                        stream.writeDateArray(dates1);
-                        stream.writeDateTimeArray(dateTimes1);
-                        stream.writeStringArray(strings1);
-                        stream.writeInt8Array(int8s1);
-                        stream.writeUInt8Array(uint8s1);
-                        stream.writeInt16Array(int16s1);
-                        stream.writeUInt16Array(uint16s1);
-                        stream.writeInt32Array(int32s1);
-                        stream.writeUInt32Array(uint32s1);
-                        stream.writeInt64Array(int64s1);
-                        stream.writeUInt64Array(uint64s1);
-                        stream.writeFloat32Array(float32s1);
-                        stream.writeFloat64Array(float64s1);
-                        stream.writeUUID(uuid1);
-
-                        stream.writeDate(date2);
-                        stream.writeDateTime(date2);
-                        stream.writeString("a\tbdasd''a");
-                        stream.writeInt8(Byte.MAX_VALUE);
-                        stream.writeUInt8(255);
-                        stream.writeInt16(Short.MAX_VALUE);
-                        stream.writeUInt16(42000);
-                        stream.writeInt32(Integer.MAX_VALUE);
-                        stream.writeUInt32(Integer.MAX_VALUE + 100L);
-                        stream.writeInt64(Long.MAX_VALUE);
-                        stream.writeUInt64(UnsignedLong.fromLongBits(UnsignedLongs.MAX_VALUE));
-                        stream.writeFloat32((float) 21.21);
-                        stream.writeFloat64(77.77);
-                        stream.writeDateArray(new Date[]{date2});
-                        stream.writeDateTimeArray(new Date[]{date2});
-                        stream.writeStringArray(new String[]{});
-                        stream.writeInt8Array(new byte[]{});
-                        stream.writeUInt8Array(new int[]{});
-                        stream.writeInt16Array(new short[]{});
-                        stream.writeUInt16Array(new int[]{});
-                        stream.writeInt32Array(new int[]{});
-                        stream.writeUInt32Array(new long[]{});
-                        stream.writeInt64Array(new long[]{});
-                        stream.writeUInt64Array(new long[]{});
-                        stream.writeFloat32Array(new float[]{});
-                        stream.writeFloat64Array(new double[]{});
-                        stream.writeUUID(uuid2);
-                    }
+                    stream.writeDate(date2);
+                    stream.writeDateTime(date2);
+                    stream.writeString("a\tbdasd''a");
+                    stream.writeInt8(Byte.MAX_VALUE);
+                    stream.writeUInt8(255);
+                    stream.writeInt16(Short.MAX_VALUE);
+                    stream.writeUInt16(42000);
+                    stream.writeInt32(Integer.MAX_VALUE);
+                    stream.writeUInt32(Integer.MAX_VALUE + 100L);
+                    stream.writeInt64(Long.MAX_VALUE);
+                    stream.writeUInt64(new BigInteger("18446744073709551615"));
+                    stream.writeFloat32((float) 21.21);
+                    stream.writeFloat64(77.77);
+                    stream.writeDateArray(new Date[]{date2});
+                    stream.writeDateTimeArray(new Date[]{date2});
+                    stream.writeStringArray(new String[]{});
+                    stream.writeInt8Array(new byte[]{});
+                    stream.writeUInt8Array(new int[]{});
+                    stream.writeInt16Array(new short[]{});
+                    stream.writeUInt16Array(new int[]{});
+                    stream.writeInt32Array(new int[]{});
+                    stream.writeUInt32Array(new long[]{});
+                    stream.writeInt64Array(new long[]{});
+                    stream.writeUInt64Array(new long[]{});
+                    stream.writeFloat32Array(new float[]{});
+                    stream.writeFloat64Array(new double[]{});
+                    stream.writeUUID(uuid2);
                 }
         );
 
@@ -317,7 +313,7 @@ public class RowBinaryStreamTest {
             Assert.assertEquals(is.readInt32(), Integer.MAX_VALUE);
             Assert.assertEquals(is.readUInt32(), ((long) Integer.MAX_VALUE) + 100L);
             Assert.assertEquals(is.readInt64(), Long.MAX_VALUE);
-            Assert.assertEquals(is.readUInt64AsUnsignedLong(), UnsignedLong.fromLongBits(UnsignedLongs.MAX_VALUE));
+            Assert.assertEquals(is.readUInt64(), new BigInteger("18446744073709551615"));
             Assert.assertEquals(is.readFloat32(), (float) 21.21);
             Assert.assertEquals(is.readFloat64(), 77.77);
 
