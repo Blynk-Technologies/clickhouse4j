@@ -1,8 +1,5 @@
 package ru.yandex.clickhouse.integration;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -19,6 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.testng.Assert.assertEquals;
 
@@ -40,12 +40,9 @@ public class ArrayTest {
     @Test
     public void testStringArray() throws SQLException {
         String[] array = {"a'','sadf',aa", "", ",", "юникод,'юникод'", ",2134,saldfk"};
-        String arrayString = "'" + Joiner.on("','").join(Iterables.transform(Arrays.asList(array), new Function<String, String>() {
-            @Override
-            public String apply(String s) {
-                return s.replace("'", "\\'");
-            }
-        })) + "'";
+        String arrayString = "'" + Stream.of(array)
+                .map(s -> s.replace("'", "\\'"))
+                .collect(Collectors.joining("','")) + "'";
 
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("select array(" + arrayString + ")");
@@ -62,17 +59,19 @@ public class ArrayTest {
 
     @Test
     public void testLongArray() throws SQLException {
-        Long[] array = {-12345678987654321L, 23325235235L, -12321342L};
-        String arrayString = "toInt64(" + Joiner.on("),toInt64(").join(array) + ")";
+        List<Long> list = Arrays.asList(-12345678987654321L, 23325235235L, -12321342L);
+        String arrayString = "toInt64(" + list.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining("),toInt64(")) + ")";
 
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("select array(" + arrayString + ")");
         while (rs.next()) {
             assertEquals(rs.getArray(1).getBaseType(), Types.BIGINT);
             long[] longArray = (long[]) rs.getArray(1).getArray();
-            assertEquals(longArray.length, array.length);
+            assertEquals(longArray.length, list.size());
             for (int i = 0; i < longArray.length; i++) {
-                assertEquals(longArray[i], array[i].longValue());
+                assertEquals(longArray[i], list.get(i).longValue());
             }
         }
         statement.close();
