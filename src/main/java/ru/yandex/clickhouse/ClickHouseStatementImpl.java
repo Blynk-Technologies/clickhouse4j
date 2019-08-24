@@ -470,7 +470,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * adds format only to select queries
      */
     private static String addFormatIfAbsent(String sql, ClickHouseFormat format) {
-        sql = sql.trim();
         String woSemicolon = sql.replace(";", "").trim();
         if (isSelect(sql)
             && !woSemicolon.endsWith(" " + TabSeparatedWithNamesAndTypes)
