@@ -18,8 +18,8 @@ final class PreparedStatementParser  {
         "(?i)INSERT\\s+INTO\\s+.+VALUES\\s*\\(",
         Pattern.MULTILINE | Pattern.DOTALL);
 
-    private List<List<String>> parameters;
-    private List<String> parts;
+    private final List<List<String>> parameters;
+    private final List<String> parts;
     private boolean valuesMode;
 
     private PreparedStatementParser() {

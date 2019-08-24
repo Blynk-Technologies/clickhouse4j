@@ -58,9 +58,7 @@ public class ByteFragment {
             }
         }
         b.append(']');
-        b.append(", start=" + start +
-                ", len=" + len +
-                '}');
+        b.append(", start=").append(start).append(", len=").append(len).append('}');
         return b.toString();
     }
 
@@ -129,7 +127,7 @@ public class ByteFragment {
         ByteFragment[] res = new ByteFragment[c];
         try {
             int i = 0;
-            ByteFragment next = null;
+            ByteFragment next;
             while((next = ss.next())!=null) {
                 res[i++] = next;
             }

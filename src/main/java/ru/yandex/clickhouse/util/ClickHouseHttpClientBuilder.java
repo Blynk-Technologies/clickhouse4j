@@ -78,7 +78,6 @@ public class ClickHouseHttpClientBuilder {
             registry.register("https", new SSLConnectionSocketFactory(getSSLContext(), verifier));
         }
 
-        //noinspection resource
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
             registry.build(),
             null,

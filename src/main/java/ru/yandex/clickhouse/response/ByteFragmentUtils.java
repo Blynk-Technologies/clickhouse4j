@@ -14,7 +14,7 @@ final class ByteFragmentUtils {
     private static final char ARRAY_ELEMENTS_SEPARATOR = ',';
     private static final char STRING_QUOTATION = '\'';
 
-    private static Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = Map.of(
+    private static final Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = Map.of(
             Boolean.class, boolean.class,
             Byte.class, byte.class,
             Character.class, char.class,

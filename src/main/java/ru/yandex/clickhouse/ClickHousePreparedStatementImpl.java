@@ -62,7 +62,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     private final List<List<String>> parameterList;
     private final boolean insertBatchMode;
     private final boolean[] valuesQuote;
-    private List<byte[]> batchRows = new ArrayList<byte[]>();
+    private List<byte[]> batchRows = new ArrayList<>();
 
 
     public ClickHousePreparedStatementImpl(CloseableHttpClient client,

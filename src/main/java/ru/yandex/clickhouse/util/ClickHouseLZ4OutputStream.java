@@ -9,12 +9,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class ClickHouseLZ4OutputStream extends OutputStream {
+
     private static final LZ4Factory factory = LZ4Factory.safeInstance();
     private final LittleEndianDataOutputStream dataWrapper;
 
-    private byte[] currentBlock;
+    private final byte[] currentBlock;
     private int pointer;
-    private byte[] compressedBlock;
+    private final byte[] compressedBlock;
     private final LZ4Compressor compressor;
 
     public ClickHouseLZ4OutputStream(OutputStream stream, int maxCompressBlockSize) {

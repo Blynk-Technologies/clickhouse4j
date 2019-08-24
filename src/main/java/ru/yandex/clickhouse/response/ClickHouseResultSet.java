@@ -68,7 +68,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
 
     private final ClickHouseProperties properties;
 
-    private boolean usesWithTotals;
+    private final boolean usesWithTotals;
 
     // NOTE this can't be used for `isLast` impl because
     // it does not do prefetch. It is effectively a witness

@@ -125,7 +125,7 @@ public final class LittleEndianDataInputStream extends FilterInputStream impleme
         return readUnsignedByte() != 0;
     }
 
-    private byte readAndCheckByte() throws IOException, EOFException {
+    private byte readAndCheckByte() throws IOException {
         int b1 = in.read();
 
         if (-1 == b1) {

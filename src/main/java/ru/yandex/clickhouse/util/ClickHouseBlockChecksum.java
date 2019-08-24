@@ -24,14 +24,21 @@ public class ClickHouseBlockChecksum {
                                                             int uncompressedSize,
                                                             byte[] data,
                                                             int length) {
-        ByteBuffer buffer = ByteBuffer.allocate(compressedSizeWithHeader).order(ByteOrder.LITTLE_ENDIAN).put((byte)magic).putInt(compressedSizeWithHeader)
-                .putInt(uncompressedSize).put(data, 0, length);
+        ByteBuffer buffer = ByteBuffer.allocate(compressedSizeWithHeader)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .put(magic)
+                .putInt(compressedSizeWithHeader)
+                .putInt(uncompressedSize)
+                .put(data, 0, length);
         ((Buffer) buffer).flip();
         return calculate(buffer.array());
     }
 
     public byte[] asBytes(){
-        ByteBuffer buffer = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN).putLong(first).putLong(second);
+        ByteBuffer buffer = ByteBuffer.allocate(16)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putLong(first)
+                .putLong(second);
         ((Buffer) buffer).flip();
         return buffer.array();
     }

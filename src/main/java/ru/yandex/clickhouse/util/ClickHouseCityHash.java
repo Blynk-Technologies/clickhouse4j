@@ -151,8 +151,8 @@ class ClickHouseCityHash {
 
         long a = seed0;
         long b = seed1;
-        long c = 0;
-        long d = 0;
+        long c;
+        long d;
 
         int l = len - 16;
         if (l <= 0) {

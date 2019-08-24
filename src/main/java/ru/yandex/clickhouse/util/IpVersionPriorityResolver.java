@@ -13,7 +13,7 @@ import java.util.Comparator;
 
 public class IpVersionPriorityResolver implements DnsResolver {
 
-    private DnsResolver defaultResolver = new SystemDefaultDnsResolver();
+    private final DnsResolver defaultResolver = new SystemDefaultDnsResolver();
 
     private boolean preferV6 = true;
 
@@ -27,14 +27,20 @@ public class IpVersionPriorityResolver implements DnsResolver {
     @Override
     public InetAddress[] resolve(String host) throws UnknownHostException {
         InetAddress[] resolve = defaultResolver.resolve(host);
-        Comparator<InetAddress> comparator = new Comparator<InetAddress>() {
+        Comparator<InetAddress> comparator = new Comparator<>() {
             @Override
             public int compare(InetAddress o1, InetAddress o2) {
                 boolean o16 = o1 instanceof Inet6Address;
                 boolean o26 = o2 instanceof Inet6Address;
-                if (o16 == o26) return 0;
-                if (o16) return -1;
-                if (o26) return 1;
+                if (o16 == o26) {
+                    return 0;
+                }
+                if (o16) {
+                    return -1;
+                }
+                if (o26) {
+                    return 1;
+                }
                 return 0;
             }
         };

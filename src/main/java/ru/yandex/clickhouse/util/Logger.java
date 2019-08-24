@@ -11,7 +11,7 @@ import java.util.logging.Level;
  */
 public class Logger {
 
-    private static Level currentLevel = Level.FINE;
+    private static final Level currentLevel = Level.FINE;
 
     private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

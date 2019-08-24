@@ -132,7 +132,7 @@ public final class ClickHouseArrayUtil {
             }
         }
 
-        private ArrayBuilder append(Object value) {
+        private void append(Object value) {
             if (built) {
                 throw new IllegalStateException("Already built");
             }
@@ -153,7 +153,6 @@ public final class ClickHouseArrayUtil {
                 builder.append("NULL");
             }
             size++;
-            return this;
         }
 
         private String build() {

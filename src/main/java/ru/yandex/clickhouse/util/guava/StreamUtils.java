@@ -62,18 +62,15 @@ public final class StreamUtils {
         return out.toByteArray();
     }
 
-    private static long copy(InputStream from, OutputStream to) throws IOException {
+    private static void copy(InputStream from, OutputStream to) throws IOException {
         byte[] buf = new byte[BUF_SIZE];
-        long total = 0;
         while (true) {
             int r = from.read(buf);
             if (r == -1) {
                 break;
             }
             to.write(buf, 0, r);
-            total += r;
         }
-        return total;
     }
 
     public static void close(Closeable closeable) {
