@@ -28,7 +28,6 @@ import ru.yandex.clickhouse.util.ClickHouseFormat;
 import ru.yandex.clickhouse.util.ClickHouseRowBinaryInputStream;
 import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 import ru.yandex.clickhouse.util.ClickHouseStreamHttpEntity;
-import ru.yandex.clickhouse.util.Patterns;
 import ru.yandex.clickhouse.util.Utils;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
@@ -472,7 +471,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      */
     private static String addFormatIfAbsent(String sql, ClickHouseFormat format) {
         sql = sql.trim();
-        String woSemicolon = Patterns.SEMICOLON.matcher(sql).replaceAll("").trim();
+        String woSemicolon = sql.replace(";", "").trim();
         if (isSelect(sql)
             && !woSemicolon.endsWith(" " + TabSeparatedWithNamesAndTypes)
             && !woSemicolon.endsWith(" " + TabSeparated)
