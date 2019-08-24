@@ -1,5 +1,11 @@
 package ru.yandex.clickhouse.response;
 
+import ru.yandex.clickhouse.ClickHouseArray;
+import ru.yandex.clickhouse.ClickHouseStatement;
+import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
+import ru.yandex.clickhouse.settings.ClickHouseProperties;
+import ru.yandex.clickhouse.util.TypeUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -22,17 +28,12 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import ru.yandex.clickhouse.ClickHouseArray;
-import ru.yandex.clickhouse.ClickHouseStatement;
-import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.TypeUtils;
-
 import static ru.yandex.clickhouse.response.ByteFragmentUtils.parseArray;
 
 
 public class ClickHouseResultSet extends AbstractResultSet {
-    private final static long[] EMPTY_LONG_ARRAY = new long[0];
+
+    private final static long[] EMPTY_LONG_ARRAY = {};
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //
@@ -42,7 +43,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
     private final String db;
     private final String table;
 
-    private final Map<String, Integer> col = new HashMap<String, Integer>(); // column name -> 1-based index
+    private final Map<String, Integer> col = new HashMap<>(); // column name -> 1-based index
     private final String[] columns;
     private final String[] types;
 
@@ -74,7 +75,14 @@ public class ClickHouseResultSet extends AbstractResultSet {
     // to the fact that rs.next() returned false.
     private boolean lastReached = false;
 
-    public ClickHouseResultSet(InputStream is, int bufferSize, String db, String table, boolean usesWithTotals, ClickHouseStatement statement, TimeZone timezone, ClickHouseProperties properties) throws IOException {
+    public ClickHouseResultSet(InputStream is,
+                               int bufferSize,
+                               String db,
+                               String table,
+                               boolean usesWithTotals,
+                               ClickHouseStatement statement,
+                               TimeZone timezone,
+                               ClickHouseProperties properties) throws IOException {
         this.db = db;
         this.table = table;
         this.statement = statement;
@@ -126,7 +134,9 @@ public class ClickHouseResultSet extends AbstractResultSet {
             try {
                 nextLine = bis.next();
 
-                if (nextLine == null || (maxRows != 0 && rowNumber >= maxRows) || (usesWithTotals && nextLine.length() == 0)) {
+                if (nextLine == null
+                        || (maxRows != 0 && rowNumber >= maxRows)
+                        || (usesWithTotals && nextLine.length() == 0)) {
                     if (usesWithTotals) {
                         if (onTheSeparatorRow()) {
                             totalLine = bis.next();

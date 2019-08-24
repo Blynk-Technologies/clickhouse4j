@@ -56,7 +56,8 @@ public final class ClickHouseExceptionSpecifier {
 
             return new ClickHouseException(code, messageHolder, host, port);
         } catch (Exception e) {
-            log.error("Unsupported ClickHouse error format, please fix ClickHouseExceptionSpecifier, message: {}, error: {}", clickHouseMessage, e.getMessage());
+            log.error("Unsupported ClickHouse error format, please fix ClickHouseExceptionSpecifier,"
+                              + " message: {}, error: {}", clickHouseMessage, e.getMessage());
             return new ClickHouseUnknownException(clickHouseMessage, cause, host, port);
         }
     }
@@ -78,7 +79,8 @@ public final class ClickHouseExceptionSpecifier {
 
     private static ClickHouseException getException(Throwable cause, String host, int port) {
         if (cause instanceof SocketTimeoutException) {
-        // if we've got SocketTimeoutException, we'll say that the query is not good. This is not the same as SOCKET_TIMEOUT of clickhouse
+        // if we've got SocketTimeoutException, we'll say that the query is not good.
+        // This is not the same as SOCKET_TIMEOUT of clickhouse
         // but it actually could be a failing ClickHouse
             return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED, cause, host, port);
         } else if (cause instanceof ConnectTimeoutException || cause instanceof ConnectException) {

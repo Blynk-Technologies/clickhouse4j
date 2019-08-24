@@ -51,11 +51,11 @@ public class ClickHouseDriver implements Driver {
     }
 
     @Override
-    public ClickHouseConnection connect(String url, Properties info) throws SQLException {
+    public ClickHouseConnection connect(String url, Properties info) {
         return connect(url, new ClickHouseProperties(info));
     }
 
-    public ClickHouseConnection connect(String url, ClickHouseProperties properties) throws SQLException {
+    ClickHouseConnection connect(String url, ClickHouseProperties properties) {
         if (!acceptsURL(url)) {
             return null;
         }
@@ -70,12 +70,12 @@ public class ClickHouseDriver implements Driver {
     }
 
     @Override
-    public boolean acceptsURL(String url) throws SQLException {
+    public boolean acceptsURL(String url) {
         return url.startsWith(ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFIX);
     }
 
     @Override
-    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
+    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
         Properties copy = new Properties(info);
         Properties properties;
         try {

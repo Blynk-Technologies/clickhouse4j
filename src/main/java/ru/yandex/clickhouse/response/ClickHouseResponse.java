@@ -8,19 +8,26 @@ import java.util.List;
  * Object for jackson for ClickHouse response
  */
 public class ClickHouseResponse {
+
     private List<Meta> meta;
+
     @JsonDeserialize(contentUsing = ArrayToStringDeserializer.class)
     private List<List<String>> data;
+
     @JsonDeserialize(using = ArrayToStringDeserializer.class)
     private List<String> totals;
+
     private Extremes extremes;
+
     private int rows;
+
     private int rows_before_limit_at_least;
 
-
     public static class Extremes {
+
         @JsonDeserialize(using = ArrayToStringDeserializer.class)
         private List<String> min;
+
         @JsonDeserialize(using = ArrayToStringDeserializer.class)
         private List<String> max;
 
@@ -42,7 +49,9 @@ public class ClickHouseResponse {
     }
 
     public static class Meta {
+
         private String name;
+
         private String type;
 
         public String getName() {

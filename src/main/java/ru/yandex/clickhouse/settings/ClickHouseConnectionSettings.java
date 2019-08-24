@@ -14,7 +14,8 @@ public enum ClickHouseConnectionSettings implements DriverPropertyCreator {
     SSL("ssl", false, "enable SSL/TLS for the connection"),
     SSL_ROOT_CERTIFICATE("sslrootcert", "", "SSL/TLS root certificate"),
     SSL_MODE("sslmode", "strict", "verify or not certificate: none (don't verify), strict (verify)"),
-    CHECK_FOR_REDIRECTS("check_for_redirects", false, "whether we should check for 307 redirect using GET before sending POST to given URL"),
+    CHECK_FOR_REDIRECTS("check_for_redirects", false,
+                        "whether we should check for 307 redirect using GET before sending POST to given URL"),
     MAX_REDIRECTS("max_redirects", 5, "number of redirect checks before using last URL"),
 
     /*
@@ -40,7 +41,8 @@ public enum ClickHouseConnectionSettings implements DriverPropertyCreator {
     USE_OBJECTS_IN_ARRAYS("use_objects_in_arrays", false, "Whether Object[] should be used instead primitive arrays."),
     MAX_COMPRESS_BUFFER_SIZE("maxCompressBufferSize", 1024*1024, ""),
 
-    USE_SERVER_TIME_ZONE("use_server_time_zone", true, "Whether to use timezone from server. On connection init select timezone() will be executed"),
+    USE_SERVER_TIME_ZONE("use_server_time_zone", true,
+                         "Whether to use timezone from server. On connection init select timezone() will be executed"),
     USE_TIME_ZONE("use_time_zone", "", "Which time zone to use"),
     USE_SERVER_TIME_ZONE_FOR_DATES("use_server_time_zone_for_dates", false,
             "Whether to use timezone from server on Date parsing in getDate(). " +
@@ -85,7 +87,7 @@ public enum ClickHouseConnectionSettings implements DriverPropertyCreator {
     }
 
     private String[] driverPropertyInfoChoices() {
-        return clazz == Boolean.class || clazz == Boolean.TYPE ? new String[]{"true", "false"} : null;
+        return clazz == Boolean.class || clazz == Boolean.TYPE ? new String[] {"true", "false"} : null;
     }
 
     private String driverPropertyValue(Properties properties) {

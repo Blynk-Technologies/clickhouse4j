@@ -10,7 +10,6 @@ import java.io.InputStream;
  * We split the stream by the separator and pass the byte arrays to output.
  */
 public class StreamSplitter {
-    private static final int buflen = 65536;
 
     // initial parameters
     private final InputStream delegate;
@@ -30,21 +29,17 @@ public class StreamSplitter {
     private boolean closed;
 
 
-    public StreamSplitter(ByteFragment bf, byte sep) {
+    StreamSplitter(ByteFragment bf, byte sep) {
         this.delegate = bf.asStream();
         this.sep = sep;
         buf  = new byte[bf.getLen()];
         readOnce = true;
     }
 
-    public StreamSplitter(InputStream delegate, byte sep, int buflen) {
+    StreamSplitter(InputStream delegate, byte sep, int BUFFER_LENGTH) {
         this.delegate = delegate;
         this.sep = sep;
-        buf  = new byte[buflen];
-    }
-
-    public StreamSplitter(InputStream delegate, byte sep) {
-        this(delegate,sep, buflen);
+        buf  = new byte[BUFFER_LENGTH];
     }
 
     public ByteFragment next() throws IOException {
@@ -75,7 +70,7 @@ public class StreamSplitter {
     }
 
     // if there is no separator in read but not sent fragment - read more data
-    protected int readFromStream() throws IOException {
+    private int readFromStream() throws IOException {
         if (readOnce) {
             if (posRead >= buf.length) {
                 return -1;
@@ -127,7 +122,7 @@ public class StreamSplitter {
         delegate.close();
     }
 
-    public boolean isClosed() throws IOException {
+    boolean isClosed() {
         return closed;
     }
 
@@ -145,12 +140,12 @@ public class StreamSplitter {
             '}';
     }
 
-  public void mark() {
+  void mark() {
         markedRead = posRead;
         markedNext = posNext;
   }
 
-  public void reset() {
+  void reset() {
         posRead = markedRead;
         posNext = markedNext;
   }

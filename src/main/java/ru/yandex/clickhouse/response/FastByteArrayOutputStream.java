@@ -1,10 +1,7 @@
 package ru.yandex.clickhouse.response;
 
 
-import java.io.DataOutput;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -28,7 +25,7 @@ public final class FastByteArrayOutputStream extends OutputStream {
      * initially 32 bytes, though its size increases if necessary.
      */
     public FastByteArrayOutputStream() {
-	this(1024);
+	    this(1024);
     }
 
     /**
@@ -38,11 +35,10 @@ public final class FastByteArrayOutputStream extends OutputStream {
      * @param   size   the initial size.
      * @exception  IllegalArgumentException if size is negative.
      */
-    public FastByteArrayOutputStream(int size) {
+    private FastByteArrayOutputStream(int size) {
         super();
         if (size < 0) {
-            throw new IllegalArgumentException("Negative initial size: "
-                    + size);
+            throw new IllegalArgumentException("Negative initial size: " + size);
         }
         buf = new byte[size];
     }
@@ -63,9 +59,9 @@ public final class FastByteArrayOutputStream extends OutputStream {
      */
     @Override
     public void write(int b) {
-	int newcount = ensureCapacity(1);
-	buf[count] = (byte)b;
-	count = newcount;
+        int newcount = ensureCapacity(1);
+        buf[count] = (byte)b;
+        count = newcount;
     }
 
     /**
@@ -88,23 +84,6 @@ public final class FastByteArrayOutputStream extends OutputStream {
         count = newcount;
     }
 
-
-
-    /**
-     * returns inner array
-     *
-     * @return  the current contents of this output stream, as a byte array.
-     */
-    public byte[] toByteArray() {
-        byte[] result = new byte[count];
-        System.arraycopy(buf, 0, result, 0, count);
-        return result;
-    }
-
-    public void writeTo(OutputStream output) throws IOException {
-        output.write(buf, 0, count);
-    }
-
     /**
      * Returns the current size of the buffer.
      *
@@ -112,43 +91,16 @@ public final class FastByteArrayOutputStream extends OutputStream {
      *          of valid bytes in this output stream.
      */
     public int size() {
-	return count;
+	    return count;
     }
 
 
     /**
      * Closing a FastByteArrayOutputStream has no effect. The methods in
      * this class can be called after the stream has been closed without
-     * @throws IOException - generating an IOException
      */
     @Override
-    public void close() throws IOException {
-    }
-
-    /**
-     * Copies data from input stream
-     * @param source source stream
-     * @param offset offset in the source
-     * @param count number of bytes to copy
-     */
-    public void copyFrom(FastByteArrayInputStream source, int offset, int count) {
-        if (offset + count > source.getCount()) {
-            throw new IndexOutOfBoundsException(
-                    "Trying to copy data past the end of source"
-                    + ", source.size=" + source.getCount()
-                    + ", offset=" + offset + ", count=" + count
-            );
-        }
-        byte[] srcBuf = source.getBuf();
-        write(srcBuf, offset, count);
-    }
-
-    public void copyTo(OutputStream dest) throws IOException {
-        dest.write(buf, 0, count);
-    }
-
-    public void copyTo(DataOutput dest) throws IOException {
-        dest.write(buf, 0, count);
+    public void close() {
     }
 
     /**
@@ -159,17 +111,5 @@ public final class FastByteArrayOutputStream extends OutputStream {
         return new FastByteArrayInputStream(buf, count); 
     }
 
-    public ByteBuffer toByteBuffer() {
-        return ByteBuffer.wrap(buf, 0, count);
-    }
-
-    public byte[] getBuffer() {
-        return buf;
-    }
-
-
-    public void reset() {
-        count = 0;
-    }
 }
 

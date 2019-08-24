@@ -16,7 +16,7 @@ class ArrayByteFragment extends ByteFragment {
         return len == 4 && buf[start] == 'N' && buf[start + 1] == 'U' && buf[start + 2] == 'L' && buf[start + 3] == 'L';
     }
 
-    public boolean isNaN() {
+    boolean isNaN() {
         // nan
         return len == 3 && buf[start] == 'n' && buf[start + 1] == 'a' && buf[start + 2] == 'n';
     }

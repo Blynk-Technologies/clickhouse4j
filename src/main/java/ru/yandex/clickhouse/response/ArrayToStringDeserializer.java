@@ -45,8 +45,7 @@ class ArrayToStringDeserializer extends JsonDeserializer<List<String>> {
 
     private JsonDeserializer<Object> getJsonDeserializer(DeserializationContext ctxt) {
         try {
-            TypeReference<List<Object>> typeRef = new TypeReference<>() {
-            };
+            TypeReference<List<Object>> typeRef = new TypeReference<>() { };
             JavaType type = TypeFactory.defaultInstance().constructType(typeRef);
 
             return ctxt.findContextualValueDeserializer(type, null);
