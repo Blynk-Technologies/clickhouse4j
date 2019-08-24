@@ -1,6 +1,7 @@
 package ru.yandex.clickhouse.except;
 
 public enum ClickHouseErrorCode {
+
     OK(0),
     UNSUPPORTED_METHOD(1),
     UNSUPPORTED_PARAMETER(2),
@@ -449,9 +450,9 @@ public enum ClickHouseErrorCode {
     STD_EXCEPTION(1001),
     UNKNOWN_EXCEPTION(1002);
 
-    public final Integer code;
+    public final int code;
 
-    ClickHouseErrorCode(Integer code) {
+    ClickHouseErrorCode(int code) {
         this.code = code;
     }
 
