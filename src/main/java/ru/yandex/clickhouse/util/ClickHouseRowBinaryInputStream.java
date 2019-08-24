@@ -1,7 +1,7 @@
 package ru.yandex.clickhouse.util;
 
-import com.google.common.io.LittleEndianDataInputStream;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
+import ru.yandex.clickhouse.util.guava.LittleEndianDataInputStream;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.Closeable;
