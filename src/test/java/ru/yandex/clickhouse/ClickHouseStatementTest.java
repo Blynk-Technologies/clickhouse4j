@@ -1,13 +1,13 @@
 package ru.yandex.clickhouse;
 
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.net.URI;
 import java.sql.ResultSet;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
@@ -104,7 +104,7 @@ public class ClickHouseStatementTest {
                 null,
                 null,
                 null,
-                ImmutableMap.of("cache_namespace", "aaaa"),
+                Map.of("cache_namespace", "aaaa"),
                 false
         );
         String query = uri.getQuery();
