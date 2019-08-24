@@ -41,7 +41,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,13 +50,12 @@ public final class StreamUtils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     private static final int BUF_SIZE = 0x1000; // 4K
-    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private StreamUtils() {
     }
 
     public static String toString(InputStream in) throws IOException {
-        return new String(toByteArray(in), UTF_8);
+        return new String(toByteArray(in), StandardCharsets.UTF_8);
     }
 
     public static byte[] toByteArray(InputStream in) throws IOException {

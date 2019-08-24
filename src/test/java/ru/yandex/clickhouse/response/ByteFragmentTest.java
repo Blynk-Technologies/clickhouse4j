@@ -1,13 +1,13 @@
 package ru.yandex.clickhouse.response;
 
-import static org.testng.Assert.assertEquals;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
+import static org.testng.Assert.assertEquals;
 
 
 public class ByteFragmentTest {
@@ -25,15 +25,15 @@ public class ByteFragmentTest {
     @Test(dataProvider = "stringEscape")
     public void testEscape(String str, String escapedStr) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteFragment.escape(str.getBytes(StreamUtils.UTF_8), out);
-        assertEquals(out.toString(StreamUtils.UTF_8.name()), escapedStr);
+        ByteFragment.escape(str.getBytes(StandardCharsets.UTF_8), out);
+        assertEquals(out.toString(StandardCharsets.UTF_8.name()), escapedStr);
     }
 
     @Test(dataProvider = "stringEscape")
     public void testUnescape(String str, String escapedStr) throws IOException {
-        byte[] bytes = escapedStr.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = escapedStr.getBytes(StandardCharsets.UTF_8);
         ByteFragment byteFragment = new ByteFragment(bytes, 0, bytes.length);
-        assertEquals(new String(byteFragment.unescape(), StreamUtils.UTF_8.name()), str);
+        assertEquals(new String(byteFragment.unescape(), StandardCharsets.UTF_8.name()), str);
     }
 
 }

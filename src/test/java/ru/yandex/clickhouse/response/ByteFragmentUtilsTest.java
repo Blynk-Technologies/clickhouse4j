@@ -2,9 +2,9 @@ package ru.yandex.clickhouse.response;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -108,7 +108,7 @@ public class ByteFragmentUtilsTest {
                 .map(s -> s.replace("'", "\\'"))
                 .collect(Collectors.joining("','")) + "']";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         double[] arr= (double[]) ByteFragmentUtils.parseArray(fragment, Double.class);
         assertEquals(arr, expected);
@@ -120,7 +120,7 @@ public class ByteFragmentUtilsTest {
                 .map(s -> s.replace("'", "\\'"))
                 .collect(Collectors.joining("','")) + "']";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         float[] arr= (float[]) ByteFragmentUtils.parseArray(fragment, Float.class);
         assertEquals(arr, expected);
@@ -132,7 +132,7 @@ public class ByteFragmentUtilsTest {
                 .map(s -> s.replace("'", "\\'"))
                 .collect(Collectors.joining("','")) + "']";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         String[] parsedArray = (String[]) ByteFragmentUtils.parseArray(fragment, String.class);
 
@@ -149,7 +149,7 @@ public class ByteFragmentUtilsTest {
                 .map(String::valueOf)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         Integer[] parsedArray = (Integer[]) ByteFragmentUtils.parseArray(fragment, Integer.class, true);
 
@@ -165,7 +165,7 @@ public class ByteFragmentUtilsTest {
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         long[] parsedArray = (long[]) ByteFragmentUtils.parseArray(fragment, Long.class);
 
@@ -182,7 +182,7 @@ public class ByteFragmentUtilsTest {
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         float[] parsedArray = (float[]) ByteFragmentUtils.parseArray(fragment, Float.class);
 
@@ -198,7 +198,7 @@ public class ByteFragmentUtilsTest {
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         double[] parsedArray = (double[]) ByteFragmentUtils.parseArray(fragment, Double.class);
 
@@ -217,7 +217,7 @@ public class ByteFragmentUtilsTest {
                 .map(dateFormat::format)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         Date[] parsedArray = (Date[]) ByteFragmentUtils.parseArray(fragment, Date.class, dateFormat);
 
@@ -233,7 +233,7 @@ public class ByteFragmentUtilsTest {
                 .map(BigDecimal::toPlainString)
                 .collect(Collectors.joining(",")) + "]";
 
-        byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
         BigDecimal[] parsedArray = (BigDecimal[]) ByteFragmentUtils.parseArray(fragment, BigDecimal.class);
 

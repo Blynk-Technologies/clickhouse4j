@@ -2,13 +2,13 @@ package ru.yandex.clickhouse.util;
 
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.guava.LittleEndianDataOutputStream;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -74,7 +74,7 @@ public class ClickHouseRowBinaryStream {
 
     public void writeString(String string) throws IOException {
         Objects.requireNonNull(string);
-        byte[] bytes = string.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         writeUnsignedLeb128(bytes.length);
         out.write(bytes);
     }

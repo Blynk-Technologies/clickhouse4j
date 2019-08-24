@@ -2,7 +2,6 @@ package ru.yandex.clickhouse.util;
 
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.guava.LittleEndianDataInputStream;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -11,6 +10,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.TimeZone;
@@ -80,7 +80,7 @@ public class ClickHouseRowBinaryInputStream implements Closeable {
 		byte[] bytes = new byte[length];
 		readBytes(bytes);
 
-		return new String(bytes, StreamUtils.UTF_8);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	private void validateInt(int value, int minValue, int maxValue, String dataType) {

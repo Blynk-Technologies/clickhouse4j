@@ -6,7 +6,6 @@ import ru.yandex.clickhouse.response.ClickHouseResponse;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseArrayUtil;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +14,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -237,7 +237,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        setBind(parameterIndex, new String(x, StreamUtils.UTF_8));
+        setBind(parameterIndex, new String(x, StandardCharsets.UTF_8));
     }
 
     @Override
@@ -364,7 +364,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
                 }
                 sb.append(j < pList.size() - 1 ? "\t" : "\n");
             }
-            newBatches.add(sb.toString().getBytes(StreamUtils.UTF_8));
+            newBatches.add(sb.toString().getBytes(StandardCharsets.UTF_8));
             sb = new StringBuilder();
         }
         return newBatches;

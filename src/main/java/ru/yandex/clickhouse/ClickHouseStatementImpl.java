@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -595,7 +596,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
         HttpEntity requestEntity;
         if (externalData == null || externalData.isEmpty()) {
-            requestEntity = new StringEntity(sql, StreamUtils.UTF_8);
+            requestEntity = new StringEntity(sql, StandardCharsets.UTF_8);
         } else {
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 
@@ -854,7 +855,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 }
             }
             EntityUtils.consumeQuietly(entity);
-            String chMessage = new String(bytes, StreamUtils.UTF_8);
+            String chMessage = new String(bytes, StandardCharsets.UTF_8);
             throw ClickHouseExceptionSpecifier.specify(chMessage, properties.getHost(), properties.getPort());
         }
     }

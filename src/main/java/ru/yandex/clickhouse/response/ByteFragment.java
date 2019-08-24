@@ -1,10 +1,9 @@
 package ru.yandex.clickhouse.response;
 
-import ru.yandex.clickhouse.util.guava.StreamUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class ByteFragment {
 
@@ -22,7 +21,7 @@ public class ByteFragment {
     private final static byte[] reverse;
 
     static ByteFragment fromString(String str) {
-        byte[] bytes = str.getBytes(StreamUtils.UTF_8);
+        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
         return new ByteFragment(bytes, 0, bytes.length);
     }
 
@@ -66,13 +65,13 @@ public class ByteFragment {
     }
 
     String asString() {
-        return new String(buf, start, len, StreamUtils.UTF_8);
+        return new String(buf, start, len, StandardCharsets.UTF_8);
     }
 
     String asString(boolean unescape) {
         if(unescape) {
             if (isNull()) return null;
-            return new String(unescape(), StreamUtils.UTF_8);
+            return new String(unescape(), StandardCharsets.UTF_8);
         } else {
             return asString();
         }
