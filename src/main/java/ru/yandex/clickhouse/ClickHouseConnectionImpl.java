@@ -1,6 +1,5 @@
 package ru.yandex.clickhouse;
 
-import com.google.common.base.Strings;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -79,10 +78,12 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     private void initTimeZone(ClickHouseProperties properties) {
-        if (properties.isUseServerTimeZone() && !Strings.isNullOrEmpty(properties.getUseTimeZone())) {
+        String useTimeZone = properties.getUseTimeZone();
+
+        if (properties.isUseServerTimeZone() && !(useTimeZone == null || useTimeZone.isEmpty())) {
             throw new IllegalArgumentException(String.format("only one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
-        if (!properties.isUseServerTimeZone() && Strings.isNullOrEmpty(properties.getUseTimeZone())) {
+        if (!properties.isUseServerTimeZone() && (useTimeZone == null || useTimeZone.isEmpty())) {
             throw new IllegalArgumentException(String.format("one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (properties.isUseServerTimeZone()) {
@@ -98,8 +99,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             } finally {
                 StreamUtils.close(rs);
             }
-        } else if (!Strings.isNullOrEmpty(properties.getUseTimeZone())) {
-            timezone = TimeZone.getTimeZone(properties.getUseTimeZone());
+        } else if (!(useTimeZone == null || useTimeZone.isEmpty())) {
+            timezone = TimeZone.getTimeZone(useTimeZone);
         }
     }
 
