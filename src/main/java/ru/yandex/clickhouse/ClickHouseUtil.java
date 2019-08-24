@@ -27,11 +27,7 @@ public final class ClickHouseUtil {
         for (int i = index; i < s.length(); i++) {
             char currentChar = s.charAt(i);
             String replacement = escape(currentChar);
-            if (replacement != null) {
-                builder.append(replacement);
-            } else {
-                builder.append(currentChar);
-            }
+            builder.append(replacement);
         }
 
         return builder.toString();
@@ -58,7 +54,7 @@ public final class ClickHouseUtil {
             case '`':
                 return "\\`";
             default :
-                return null;
+                return String.valueOf(c);
         }
     }
 
