@@ -2,7 +2,6 @@ package ru.yandex.clickhouse;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import ru.yandex.clickhouse.response.ClickHouseResponse;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseArrayUtil;
@@ -94,16 +93,6 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     public void clearParameters() {
         Arrays.fill(binds, null);
         Arrays.fill(valuesQuote, false);
-    }
-
-    @Override
-    public ClickHouseResponse executeQueryClickhouseResponse() throws SQLException {
-        return super.executeQueryClickhouseResponse(buildSql());
-    }
-
-    @Override
-    public ClickHouseResponse executeQueryClickhouseResponse(Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
-        return super.executeQueryClickhouseResponse(buildSql(), additionalDBParams);
     }
 
     private String buildSql() throws SQLException {

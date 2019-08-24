@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.except.ClickHouseException;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
 import ru.yandex.clickhouse.response.ClickHouseLZ4Stream;
-import ru.yandex.clickhouse.response.ClickHouseResponse;
 import ru.yandex.clickhouse.response.ClickHouseResultSet;
 import ru.yandex.clickhouse.response.ClickHouseScrollableResultSet;
 import ru.yandex.clickhouse.response.FastByteArrayOutputStream;
@@ -155,38 +154,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         } catch (Exception e) {
             StreamUtils.close(is);
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        }
-    }
-
-    @Override
-    public ClickHouseResponse executeQueryClickhouseResponse(String sql) throws SQLException {
-        return executeQueryClickhouseResponse(sql, null);
-    }
-
-    @Override
-    public ClickHouseResponse executeQueryClickhouseResponse(String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
-        return executeQueryClickhouseResponse(sql, additionalDBParams, null);
-    }
-
-    @Override
-    public ClickHouseResponse executeQueryClickhouseResponse(String sql,
-                                                             Map<ClickHouseQueryParam, String> additionalDBParams,
-                                                             Map<String, String> additionalRequestParams) throws SQLException {
-        InputStream is = getInputStream(
-                addFormatIfAbsent(sql, ClickHouseFormat.JSONCompact),
-                additionalDBParams,
-                null,
-                additionalRequestParams
-        );
-        try {
-            if (properties.isCompress()) {
-                is = new ClickHouseLZ4Stream(is);
-            }
-            return Jackson.getObjectMapper().readValue(is, ClickHouseResponse.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            StreamUtils.close(is);
         }
     }
 
