@@ -3,6 +3,7 @@ package ru.yandex.clickhouse.except;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.util.Utils;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;

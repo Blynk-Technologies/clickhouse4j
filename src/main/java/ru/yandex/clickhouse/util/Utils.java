@@ -61,4 +61,8 @@ public final class Utils {
         }
         return list.toArray(new String[0]);
     }
+
+    public static boolean isStringEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
 }
