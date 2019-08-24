@@ -1,7 +1,5 @@
 package ru.yandex.clickhouse;
 
-import ru.yandex.clickhouse.util.apache.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +29,7 @@ final class PreparedStatementParser  {
     }
 
     static PreparedStatementParser parse(String sql) {
-        if (StringUtils.isBlank(sql)) {
+        if (sql == null || sql.isBlank()) {
             throw new IllegalArgumentException("SQL may not be blank");
         }
         PreparedStatementParser parser = new PreparedStatementParser();

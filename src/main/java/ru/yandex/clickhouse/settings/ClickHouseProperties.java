@@ -1,7 +1,5 @@
 package ru.yandex.clickhouse.settings;
 
-import ru.yandex.clickhouse.util.apache.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -291,7 +289,7 @@ public class ClickHouseProperties {
         if (quotaKey != null) params.put(ClickHouseQueryParam.QUOTA_KEY, quotaKey);
         if (priority != null) params.put(ClickHouseQueryParam.PRIORITY, String.valueOf(priority));
 
-        if (!StringUtils.isBlank(database) && !ignoreDatabase) params.put(ClickHouseQueryParam.DATABASE, getDatabase());
+        if (!(database == null || database.isBlank()) && !ignoreDatabase) params.put(ClickHouseQueryParam.DATABASE, getDatabase());
 
         if (compress) params.put(ClickHouseQueryParam.COMPRESS, "1");
         if (decompress) params.put(ClickHouseQueryParam.DECOMPRESS, "1");
@@ -299,7 +297,7 @@ public class ClickHouseProperties {
 
         if (extremes) params.put(ClickHouseQueryParam.EXTREMES, "1");
 
-        if (StringUtils.isBlank(profile)) {
+        if (profile == null || profile.isBlank()) {
             if (getMaxThreads() != null) {
                 params.put(ClickHouseQueryParam.MAX_THREADS, String.valueOf(maxThreads));
             }

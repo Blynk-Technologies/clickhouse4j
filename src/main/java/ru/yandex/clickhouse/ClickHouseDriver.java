@@ -125,7 +125,7 @@ public class ClickHouseDriver implements Driver {
      * @param rate period when checking would be performed
      * @param timeUnit time unit of rate
      */
-    public void scheduleConnectionsCleaning(int rate, TimeUnit timeUnit){
+    void scheduleConnectionsCleaning(int rate, TimeUnit timeUnit) {
         ScheduledConnectionCleaner.INSTANCE.scheduleAtFixedRate(() -> {
             try {
                 for (ClickHouseConnectionImpl connection : connections.keySet()) {

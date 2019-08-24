@@ -79,10 +79,12 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     private void initTimeZone(ClickHouseProperties properties) {
-        if (properties.isUseServerTimeZone() && !Utils.isStringEmpty(properties.getUseTimeZone())) {
+        String useTimeZone = properties.getUseTimeZone();
+
+        if (properties.isUseServerTimeZone() && !(useTimeZone == null || useTimeZone.isEmpty())) {
             throw new IllegalArgumentException(String.format("only one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
-        if (!properties.isUseServerTimeZone() && Utils.isStringEmpty(properties.getUseTimeZone())) {
+        if (!properties.isUseServerTimeZone() && (useTimeZone == null || useTimeZone.isEmpty())) {
             throw new IllegalArgumentException(String.format("one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (properties.isUseServerTimeZone()) {
@@ -98,8 +100,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             } finally {
                 StreamUtils.close(rs);
             }
-        } else if (!Utils.isStringEmpty(properties.getUseTimeZone())) {
-            timezone = TimeZone.getTimeZone(properties.getUseTimeZone());
+        } else if (!(useTimeZone == null || useTimeZone.isEmpty())) {
+            timezone = TimeZone.getTimeZone(useTimeZone);
         }
     }
 

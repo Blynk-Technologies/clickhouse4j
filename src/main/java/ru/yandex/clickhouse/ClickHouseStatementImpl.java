@@ -724,14 +724,16 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         setStatementPropertiesToParams(params);
 
         for (Map.Entry<ClickHouseQueryParam, String> entry : params.entrySet()) {
-            if (!Utils.isStringEmpty(entry.getValue())) {
+            String s = entry.getValue();
+            if (!(s == null || s.isEmpty())) {
                 result.add(new BasicNameValuePair(entry.getKey().toString(), entry.getValue()));
             }
         }
 
         if (additionalRequestParams != null) {
             for (Map.Entry<String, String> entry : additionalRequestParams.entrySet()) {
-                if (!Utils.isStringEmpty(entry.getValue())) {
+                String s = entry.getValue();
+                if (!(s == null || s.isEmpty())) {
                     result.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                 }
             }

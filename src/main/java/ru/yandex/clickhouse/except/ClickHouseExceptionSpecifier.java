@@ -37,7 +37,7 @@ public final class ClickHouseExceptionSpecifier {
      * "Code: 10, e.displayText() = DB::Exception: ...".
      */
     private static ClickHouseException specify(String clickHouseMessage, Throwable cause, String host, int port) {
-        if (Utils.isStringEmpty(clickHouseMessage) && cause != null) {
+        if ((clickHouseMessage == null || clickHouseMessage.isEmpty()) && cause != null) {
             return getException(cause, host, port);
         }
 
