@@ -44,7 +44,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <httpclient.version>4.5.2</httpclient.version>
-        <lz4.version>1.3.0</lz4.version>
         <slf4j-api.version>1.7.28</slf4j-api.version>
 
         <!-- test dependencies -->
@@ -52,6 +51,7 @@
         <mockito-all.version>1.10.19</mockito-all.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jmh-core.version>1.21</jmh-core.version>
+        <lz4-java.version>1.6.0</lz4-java.version>
 
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -73,9 +73,9 @@
             <version>${httpclient.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.jpountz.lz4</groupId>
-            <artifactId>lz4</artifactId>
-            <version>${lz4.version}</version>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <version>${lz4-java.version}</version>
         </dependency>
 
         <dependency>
