@@ -1,12 +1,12 @@
 package ru.yandex.clickhouse.util;
 
 import com.google.common.io.LittleEndianDataOutputStream;
-import com.google.common.primitives.UnsignedLong;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
@@ -142,8 +142,10 @@ public class ClickHouseRowBinaryStream {
         out.writeLong(value);
     }
 
-    public void writeUInt64(UnsignedLong value) throws IOException {
-        out.writeLong(value.longValue());
+    public void writeUInt64(BigInteger value) throws IOException {
+        byte[] bytes = new byte[8];
+        System.arraycopy(value.toByteArray(), 1, bytes, 0, 8);
+        out.write(bytes);
     }
 
     public void writeDateTime(Date date) throws IOException {

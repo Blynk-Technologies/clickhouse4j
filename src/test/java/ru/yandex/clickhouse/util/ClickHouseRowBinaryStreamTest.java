@@ -1,11 +1,11 @@
 package ru.yandex.clickhouse.util;
 
-import com.google.common.primitives.UnsignedLong;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -69,7 +69,7 @@ public class ClickHouseRowBinaryStreamTest {
                 @Override
                 public void write(ClickHouseRowBinaryStream stream) throws Exception {
                     stream.writeUInt64(0);
-                    stream.writeUInt64(UnsignedLong.valueOf("18446744073709551615"));
+                    stream.writeUInt64(new BigInteger("18446744073709551615"));
                 }
             },
             new byte[]{0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1,}

@@ -1,10 +1,10 @@
 package ru.yandex.clickhouse.util;
 
-import com.google.common.primitives.UnsignedLong;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -63,19 +63,11 @@ public class ClickHouseRowBinaryInputStreamTest {
 	}
 
 	@Test
-	public void testUInt64() throws Exception {
-		ClickHouseRowBinaryInputStream input = prepareStream(new byte[]{0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1});
-
-		assertEquals(input.readUInt64AsUnsignedLong(), UnsignedLong.valueOf(0));
-		assertEquals(input.readUInt64AsUnsignedLong(), UnsignedLong.valueOf("18446744073709551615"));
-	}
-
-	@Test
 	public void testUInt64AsLong() throws Exception {
 		ClickHouseRowBinaryInputStream input = prepareStream(new byte[]{0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1});
 
-		assertEquals(input.readUInt64AsLong(), 0);
-		assertEquals(input.readUInt64AsLong(), UnsignedLong.valueOf("18446744073709551615").longValue());
+		assertEquals(input.readUInt64(), BigInteger.ZERO);
+		assertEquals(input.readUInt64(), new BigInteger("18446744073709551615"));
 	}
 
 

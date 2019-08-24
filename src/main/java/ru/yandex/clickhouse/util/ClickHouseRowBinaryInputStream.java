@@ -1,7 +1,6 @@
 package ru.yandex.clickhouse.util;
 
 import com.google.common.io.LittleEndianDataInputStream;
-import com.google.common.primitives.UnsignedLong;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
@@ -148,23 +147,13 @@ public class ClickHouseRowBinaryInputStream implements Closeable {
 		return in.readInt();
 	}
 
-	/**
-	 * Warning: the result is negative in Java if UInt64 &gt; 0x7fffffffffffffff
-	 * @return next UInt64 value as a long
-	 * @throws IOException in case if an I/O error occurs
-	 */
-	public long readUInt64AsLong() throws IOException {
-		return in.readLong();
-	}
-
-	public UnsignedLong readUInt64AsUnsignedLong() throws IOException {
-		return UnsignedLong.fromLongBits(in.readLong());
-	}
-
 	public BigInteger readUInt64() throws IOException {
 		byte[] bytes = new byte[8];
 		readBytes(bytes);
-		return new BigInteger(bytes);
+
+        byte[] newArray = new byte[9];
+        System.arraycopy(bytes, 0, newArray, 1, 8);
+        return new BigInteger(newArray);
 	}
 
 	public long readInt64() throws IOException {
@@ -316,26 +305,6 @@ public class ClickHouseRowBinaryInputStream implements Closeable {
 		long[] longs = new long[length];
 		for (int i = 0; i < length; i++) {
 			longs[i] = readInt64();
-		}
-
-		return longs;
-	}
-
-	public long[] readUInt64ArrayAsLong() throws IOException {
-		int length = readUnsignedLeb128();
-		long[] longs = new long[length];
-		for (int i = 0; i < length; i++) {
-			longs[i] = readUInt64AsLong();
-		}
-
-		return longs;
-	}
-
-	public UnsignedLong[] readUInt64ArrayAsUnsignedLong() throws IOException {
-		int length = readUnsignedLeb128();
-		UnsignedLong[] longs = new UnsignedLong[length];
-		for (int i = 0; i < length; i++) {
-			longs[i] = readUInt64AsUnsignedLong();
 		}
 
 		return longs;

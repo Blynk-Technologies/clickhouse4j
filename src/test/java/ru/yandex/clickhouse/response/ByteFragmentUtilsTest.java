@@ -3,9 +3,6 @@ package ru.yandex.clickhouse.response;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Floats;
-import com.google.common.primitives.Longs;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
@@ -15,6 +12,8 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -176,12 +175,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "longArray")
     public void testParseArray(long[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Longs.asList(array), new Function<Long, String>() {
-            @Override
-            public String apply(Long s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + Arrays.stream(array)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -195,12 +191,10 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "floatArray")
     public void testParseArray(float[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Floats.asList(array), new Function<Float, String>() {
-            @Override
-            public String apply(Float s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + IntStream.range(0, array.length)
+                .mapToDouble(i -> array[i])
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
@@ -214,12 +208,9 @@ public class ByteFragmentUtilsTest {
 
     @Test(dataProvider = "doubleArray")
     public void testParseArray(double[] array) throws Exception {
-        String sourceString = "[" + Joiner.on(",").join(Iterables.transform(Doubles.asList(array), new Function<Double, String>() {
-            @Override
-            public String apply(Double s) {
-                return s.toString();
-            }
-        })) + "]";
+        String sourceString = "[" + Arrays.stream(array)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
 
         byte[] bytes = sourceString.getBytes(StreamUtils.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
