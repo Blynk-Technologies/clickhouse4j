@@ -1,20 +1,6 @@
 package ru.yandex.clickhouse;
 
-import java.util.Map;
-
 public final class ClickHouseUtil {
-
-    private static final Map<Character, String> CHARS_MAP = Map.of(
-            '\\', "\\\\",
-            '\n', "\\n",
-            '\t', "\\t",
-            '\b', "\\b",
-            '\f', "\\f",
-            '\r', "\\r",
-            '\0', "\\0",
-            '\'', "\\'",
-            '`', "\\`"
-    );
 
     private ClickHouseUtil() {
     }
@@ -28,8 +14,8 @@ public final class ClickHouseUtil {
 
         for (int i = 0; i < s.length(); i++) {
             char currentChar = s.charAt(i);
-            if (CHARS_MAP.containsKey(currentChar)) {
-                String replacement = CHARS_MAP.get(currentChar);
+            String replacement = escape(currentChar);
+            if (replacement != null) {
                 builder.append(replacement);
             } else {
                 builder.append(currentChar);
@@ -37,6 +23,31 @@ public final class ClickHouseUtil {
         }
 
         return builder.toString();
+    }
+
+    private static String escape(char c) {
+        switch (c) {
+            case '\\':
+                return "\\\\";
+            case '\n':
+                return "\\n";
+            case '\t':
+                return "\\t";
+            case '\b':
+                return "\\b";
+            case '\f':
+                return "\\f";
+            case '\r':
+                return "\\r";
+            case '\0':
+                return "\\0";
+            case '\'':
+                return "\\'";
+            case '`':
+                return "\\`";
+            default :
+                return null;
+        }
     }
 
     static String quoteIdentifier(String s) {
