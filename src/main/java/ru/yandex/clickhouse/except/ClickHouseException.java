@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public class ClickHouseException extends SQLException {
 
-    private ClickHouseException(int code, Throwable cause, String host, int port) {
+    public ClickHouseException(int code, Throwable cause, String host, int port) {
         super("ClickHouse exception, code: " + code + ", host: " + host + ", port: " + port + "; "
                 + (cause == null ? "" : cause.getMessage()), null, code, cause);
     }
