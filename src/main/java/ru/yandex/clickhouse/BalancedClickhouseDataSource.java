@@ -104,7 +104,7 @@ public class BalancedClickhouseDataSource implements DataSource {
         }
 
 
-        List<String> allUrls = new ArrayList<String>(urls.size());
+        List<String> allUrls = new ArrayList<>(urls.size());
         for (final String url : urls) {
             try {
                 if (driver.acceptsURL(url)) {
@@ -112,7 +112,7 @@ public class BalancedClickhouseDataSource implements DataSource {
                 } else {
                     log.error("that url is has not correct format: {}", url);
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("error while checking url: " + url, e);
             }
         }
@@ -135,7 +135,7 @@ public class BalancedClickhouseDataSource implements DataSource {
             database = "";
         }
         String[] hosts = m.group(1).split(",");
-        final List<String> result = new ArrayList<String>(hosts.length);
+        final List<String> result = new ArrayList<>(hosts.length);
         for (final String host : hosts) {
             result.add(JDBC_CLICKHOUSE_PREFIX + "//" + host + database);
         }
@@ -313,7 +313,7 @@ public class BalancedClickhouseDataSource implements DataSource {
         if (!hasDisabledUrls()) {
             return Collections.emptyList();
         }
-        List<String> disabledUrls = new ArrayList<String>(allUrls);
+        List<String> disabledUrls = new ArrayList<>(allUrls);
         disabledUrls.removeAll(enabledUrls);
         return disabledUrls;
     }

@@ -199,7 +199,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
     public boolean isClosed() throws SQLException {
         try {
             return bis.isClosed();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new SQLException(e);
         }
     }
