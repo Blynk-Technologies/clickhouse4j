@@ -14,10 +14,10 @@ import java.util.logging.Logger;
 
 public class ClickHouseDataSource implements DataSource {
 
-    protected final ClickHouseDriver driver = new ClickHouseDriver();
+    private final ClickHouseDriver driver = new ClickHouseDriver();
     protected final String url;
-    protected PrintWriter printWriter;
-    protected int loginTimeoutSeconds = 0;
+    private PrintWriter printWriter;
+    private int loginTimeoutSeconds = 0;
     private ClickHouseProperties properties;
 
     public ClickHouseDataSource(String url) {

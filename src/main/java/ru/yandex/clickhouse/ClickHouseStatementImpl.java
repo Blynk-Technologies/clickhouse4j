@@ -564,7 +564,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
         additionalClickHouseDBParams = addQueryIdTo(
                 additionalClickHouseDBParams == null
-                        ? new EnumMap<ClickHouseQueryParam, String>(ClickHouseQueryParam.class)
+                        ? new EnumMap<>(ClickHouseQueryParam.class)
                         : additionalClickHouseDBParams);
 
         boolean ignoreDatabase = sql.trim().regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());

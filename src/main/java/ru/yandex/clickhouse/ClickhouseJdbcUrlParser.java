@@ -12,17 +12,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ClickhouseJdbcUrlParser {
+
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseJdbcUrlParser.class);
+
     static final String JDBC_PREFIX = "jdbc:";
     static final String JDBC_CLICKHOUSE_PREFIX = JDBC_PREFIX + "clickhouse:";
+
     private static final Pattern DB_PATH_PATTERN = Pattern.compile("/([a-zA-Z0-9_*\\-]+)");
     private final static String DEFAULT_DATABASE = "default";
 
-    private ClickhouseJdbcUrlParser(){
+    private ClickhouseJdbcUrlParser() {
     }
 
-    public static ClickHouseProperties parse(String jdbcUrl, Properties defaults) throws URISyntaxException
-    {
+    public static ClickHouseProperties parse(String jdbcUrl, Properties defaults) throws URISyntaxException {
         if (!jdbcUrl.startsWith(JDBC_CLICKHOUSE_PREFIX)) {
             throw new URISyntaxException(jdbcUrl, "'" + JDBC_CLICKHOUSE_PREFIX + "' prefix is mandatory");
         }
@@ -30,15 +32,14 @@ public class ClickhouseJdbcUrlParser {
     }
 
     private static ClickHouseProperties parseClickhouseUrl(String uriString, Properties defaults)
-            throws URISyntaxException
-    {
+            throws URISyntaxException {
         URI uri = new URI(uriString);
         Properties urlProperties = parseUriQueryPart(uri.getQuery(), defaults);
         ClickHouseProperties props = new ClickHouseProperties(urlProperties);
         props.setHost(uri.getHost());
         int port = uri.getPort();
         if (port == -1) {
-            throw new IllegalArgumentException("port is missed or wrong");
+            throw new IllegalArgumentException("Port is missing or wrong");
         }
         props.setPort(port);
         String path = uri.getPath();

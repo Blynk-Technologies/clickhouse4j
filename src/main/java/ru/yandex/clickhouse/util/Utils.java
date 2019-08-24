@@ -14,7 +14,7 @@ public final class Utils {
 
     public static String retainUnquoted(String haystack, char quoteChar) {
         StringBuilder sb = new StringBuilder();
-        String[] split = splitWithoutEscaped(haystack, quoteChar, true);
+        String[] split = splitWithoutEscaped(haystack, quoteChar);
         for (int i = 0; i < split.length; i++) {
             String s = split[i];
             if ((i & 1) == 0) {
@@ -29,10 +29,9 @@ public final class Utils {
      *
      * @param str  the String to parse, may be null
      * @param separatorChar  the character used as the delimiter
-     * @param retainEmpty if it is true, result can contain empty strings
      * @return string array
      */
-    private static String[] splitWithoutEscaped(String str, char separatorChar, boolean retainEmpty) {
+    private static String[] splitWithoutEscaped(String str, char separatorChar) {
         int len = str.length();
         if (len == 0) {
             return new String[0];
@@ -40,29 +39,18 @@ public final class Utils {
         List<String> list = new ArrayList<>();
         int i = 0;
         int start = 0;
-        boolean match = false;
         while (i < len) {
             if (str.charAt(i) == '\\') {
-                match = true;
                 i += 2;
             } else if (str.charAt(i) == separatorChar) {
-                if (retainEmpty || match) {
-                    list.add(str.substring(start, i));
-                    match = false;
-                }
+                list.add(str.substring(start, i));
                 start = ++i;
             } else {
-                match = true;
                 i++;
             }
         }
-        if (retainEmpty || match) {
-            list.add(str.substring(start, i));
-        }
+        list.add(str.substring(start, i));
         return list.toArray(new String[0]);
     }
 
-    public static boolean isStringEmpty(String string) {
-        return string == null || string.isEmpty();
-    }
 }
