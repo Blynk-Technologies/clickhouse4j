@@ -5,14 +5,26 @@ public final class ClickHouseUtil {
     private ClickHouseUtil() {
     }
 
-    public static String escape(String s) {
-        if (s == null) {
+    public static String escape(String string) {
+        if (string == null) {
             return "\\N";
         }
 
-        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            //fast path, if no chars for escape - do no nothing
+            if (escape(string.charAt(i)) != null) {
+                //if escape char found - slow path
+                return escapeSlow(string, i);
+            }
+        }
+        return string;
+    }
 
-        for (int i = 0; i < s.length(); i++) {
+    private static String escapeSlow(String s, int index) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(s, 0, index);
+
+        for (int i = index; i < s.length(); i++) {
             char currentChar = s.charAt(i);
             String replacement = escape(currentChar);
             if (replacement != null) {
