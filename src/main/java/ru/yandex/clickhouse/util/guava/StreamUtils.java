@@ -42,8 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public final class StreamUtils {
 
@@ -86,17 +84,6 @@ public final class StreamUtils {
             closeable.close();
         } catch (IOException e) {
             log.error("can not close stream: {}", e.getMessage());
-        }
-    }
-
-    public static void close(ResultSet rs) {
-        if (rs == null) {
-            return;
-        }
-        try {
-            rs.close();
-        } catch (SQLException e) {
-            log.error("can not close resultset: {}", e.getMessage());
         }
     }
 

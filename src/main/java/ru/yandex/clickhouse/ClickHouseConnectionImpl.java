@@ -10,8 +10,6 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.ClickHouseHttpClientBuilder;
 import ru.yandex.clickhouse.util.LogProxy;
 import ru.yandex.clickhouse.util.TypeUtils;
-import ru.yandex.clickhouse.util.Utils;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -88,17 +86,13 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             throw new IllegalArgumentException(String.format("one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (properties.isUseServerTimeZone()) {
-            ResultSet rs = null;
-            try {
-                timezone = TimeZone.getTimeZone("UTC"); // just for next query
-                rs = createStatement().executeQuery("select timezone()");
+            timezone = TimeZone.getTimeZone("UTC"); // just for next query
+            try (ResultSet rs = createStatement().executeQuery("select timezone()")) {
                 rs.next();
                 String timeZoneName = rs.getString(1);
                 timezone = TimeZone.getTimeZone(timeZoneName);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
-            } finally {
-                StreamUtils.close(rs);
             }
         } else if (!(useTimeZone == null || useTimeZone.isEmpty())) {
             timezone = TimeZone.getTimeZone(useTimeZone);
