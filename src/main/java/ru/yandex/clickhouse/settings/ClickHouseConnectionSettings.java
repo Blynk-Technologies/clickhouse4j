@@ -4,7 +4,7 @@ package ru.yandex.clickhouse.settings;
 import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 
-public enum ClickHouseConnectionSettings implements DriverPropertyCreator {
+public enum ClickHouseConnectionSettings {
 
     ASYNC("async", false, ""),
     BUFFER_SIZE("buffer_size", 65536, ""),

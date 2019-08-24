@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
-import ru.yandex.clickhouse.settings.DriverPropertyCreator;
 import ru.yandex.clickhouse.util.LogProxy;
 
 import java.sql.Driver;
@@ -13,8 +12,6 @@ import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -84,18 +81,20 @@ public class ClickHouseDriver implements Driver {
             properties = copy;
             logger.error("could not parse url {}", url, ex);
         }
-        List<DriverPropertyInfo> result = new ArrayList<>(ClickHouseQueryParam.values().length
-                + ClickHouseConnectionSettings.values().length);
-        result.addAll(dumpProperties(ClickHouseQueryParam.values(), properties));
-        result.addAll(dumpProperties(ClickHouseConnectionSettings.values(), properties));
-        return result.toArray(new DriverPropertyInfo[0]);
-    }
 
-    private List<DriverPropertyInfo> dumpProperties(DriverPropertyCreator[] creators, Properties info) {
-        List<DriverPropertyInfo> result = new ArrayList<>(creators.length);
-        for (DriverPropertyCreator creator : creators) {
-            result.add(creator.createDriverPropertyInfo(info));
+        ClickHouseQueryParam[] querySettings = ClickHouseQueryParam.values();
+        ClickHouseConnectionSettings[] connectionSettings = ClickHouseConnectionSettings.values();
+        DriverPropertyInfo[] result = new DriverPropertyInfo[querySettings.length + connectionSettings.length];
+
+        int i = 0;
+        for (ClickHouseQueryParam querySetting : querySettings) {
+            result[i++] = querySetting.createDriverPropertyInfo(properties);
         }
+
+        for (ClickHouseConnectionSettings connectionSetting : connectionSettings) {
+            result[i++] = connectionSetting.createDriverPropertyInfo(properties);
+        }
+
         return result;
     }
 

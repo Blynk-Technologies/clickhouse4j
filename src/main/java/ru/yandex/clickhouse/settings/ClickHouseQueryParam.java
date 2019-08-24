@@ -4,7 +4,7 @@ package ru.yandex.clickhouse.settings;
 import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 
-public enum ClickHouseQueryParam implements DriverPropertyCreator {
+public enum ClickHouseQueryParam {
 
     ADD_HTTP_CORS_HEADER("add_http_cors_header", false, Boolean.class, "Write add http CORS header"),
 
@@ -285,7 +285,6 @@ public enum ClickHouseQueryParam implements DriverPropertyCreator {
         return name().toLowerCase();
     }
 
-    @Override
     public DriverPropertyInfo createDriverPropertyInfo(Properties properties) {
         DriverPropertyInfo propertyInfo = new DriverPropertyInfo(key, driverPropertyValue(properties));
         propertyInfo.required = false;
