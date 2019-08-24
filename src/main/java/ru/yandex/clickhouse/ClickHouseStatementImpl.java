@@ -124,9 +124,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
         // forcibly disable extremes for ResultSet queries
         if (additionalDBParams == null || additionalDBParams.isEmpty()) {
-            additionalDBParams = new EnumMap<ClickHouseQueryParam, String>(ClickHouseQueryParam.class);
+            additionalDBParams = new EnumMap<>(ClickHouseQueryParam.class);
         } else {
-            additionalDBParams = new EnumMap<ClickHouseQueryParam, String>(additionalDBParams);
+            additionalDBParams = new EnumMap<>(additionalDBParams);
         }
         additionalDBParams.put(ClickHouseQueryParam.EXTREMES, "0");
 
