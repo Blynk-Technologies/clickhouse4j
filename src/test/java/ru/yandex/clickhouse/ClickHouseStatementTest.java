@@ -1,8 +1,8 @@
 package ru.yandex.clickhouse;
 
 
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.Test;
+import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.net.URI;
@@ -53,7 +53,7 @@ public class ClickHouseStatementTest {
         assertEquals(withCredentials.getPassword(), "test_password");
 
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                HttpClientBuilder.create().build(),null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
+                new HttpConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
                 );
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
@@ -66,7 +66,7 @@ public class ClickHouseStatementTest {
     public void testMaxExecutionTime() throws Exception {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setMaxExecutionTime(20);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpClientBuilder.create().build(), null,
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(new HttpConnector(properties), null,
                 properties, ResultSet.TYPE_FORWARD_ONLY);
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();
@@ -82,7 +82,7 @@ public class ClickHouseStatementTest {
     public void testMaxMemoryUsage() {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setMaxMemoryUsage(41L);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpClientBuilder.create().build(), null,
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(new HttpConnector(properties), null,
                 properties, ResultSet.TYPE_FORWARD_ONLY);
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
@@ -94,7 +94,7 @@ public class ClickHouseStatementTest {
     public void testAdditionalRequestParams() {
         ClickHouseProperties properties = new ClickHouseProperties();
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                HttpClientBuilder.create().build(),
+                new HttpConnector(properties),
                 null,
                 properties,
                 ResultSet.TYPE_FORWARD_ONLY

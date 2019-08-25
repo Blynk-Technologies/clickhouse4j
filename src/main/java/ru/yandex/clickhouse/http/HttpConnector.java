@@ -13,7 +13,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.ClickHouseConnection;
 import ru.yandex.clickhouse.ClickHouseExternalData;
+import ru.yandex.clickhouse.ClickHouseStatementImpl;
 import ru.yandex.clickhouse.LZ4EntityWrapper;
 import ru.yandex.clickhouse.except.ClickHouseException;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
@@ -32,6 +34,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -49,7 +53,7 @@ public class HttpConnector {
         this.properties = properties;
 
         ClickHouseHttpClientBuilder clientBuilder = new ClickHouseHttpClientBuilder(this.properties);
-        log.debug("Create a new connection to {}", url);
+
         try {
             this.client = clientBuilder.buildClient();
         } catch (Exception e) {
@@ -182,44 +186,6 @@ public class HttpConnector {
 
     public void sendStream(List<byte[]> batchRows, String sql, ClickHouseFormat format, URI uri) throws ClickHouseException {
         sendStream(new BatchHttpEntity(batchRows), sql, format, uri);
-    }
-
-    public boolean isValid(int timeout) throws SQLException {
-        boolean isAnotherHttpClient = false;
-        CloseableHttpClient closeableHttpClient = null;
-        try {
-            if (timeout == 0) {
-                closeableHttpClient = this.client;
-            } else {
-                ClickHouseProperties properties = new ClickHouseProperties(this.properties);
-                properties.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(timeout));
-                properties.setMaxExecutionTime(timeout);
-                closeableHttpClient = new ClickHouseHttpClientBuilder(properties).buildClient();
-                isAnotherHttpClient = true;
-            }
-
-            Statement statement = createClickHouseStatement(closeableHttpClient);
-            statement.execute("SELECT 1");
-            statement.close();
-            return true;
-        } catch (Exception e) {
-            boolean isFailOnConnectionTimeout =
-                    e instanceof ConnectTimeoutException
-                            || e.getCause() instanceof ConnectTimeoutException;
-
-            if (!isFailOnConnectionTimeout) {
-                log.warn("Something had happened while validating a connection", e);
-            }
-
-            return false;
-        } finally {
-            if (isAnotherHttpClient)
-                try {
-                    closeableHttpClient.close();
-                } catch (IOException e) {
-                    log.warn("Can't close a http client", e);
-                }
-        }
     }
 
     public void cleanConnections() {
