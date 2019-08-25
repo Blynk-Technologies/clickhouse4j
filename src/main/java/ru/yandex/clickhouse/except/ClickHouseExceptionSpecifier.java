@@ -43,7 +43,7 @@ public final class ClickHouseExceptionSpecifier {
         try {
             int code;
             if (clickHouseMessage.startsWith("Poco::Exception. Code: 1000, ")) {
-                code = ClickHouseErrorCode.POCO_EXCEPTION.code;
+                code = ClickHouseErrorCode.POCO_EXCEPTION;
             } else {
                 // Code: 175, e.displayText() = DB::Exception:
                 code = getErrorCode(clickHouseMessage);
