@@ -1,22 +1,19 @@
 package ru.yandex.clickhouse.util;
 
-import java.sql.Types;
-
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
+import java.sql.Types;
 
-import static ru.yandex.clickhouse.util.TypeUtils.NULLABLE_NO;
-import static ru.yandex.clickhouse.util.TypeUtils.NULLABLE_YES;
+import static org.testng.Assert.assertEquals;
 
 public class TypeUtilsTest {
 
   @Test
-  public void testTypeIsNullable() throws Exception {
-    assertEquals(NULLABLE_NO,TypeUtils.isTypeNull("DateTime"));
-    assertEquals(NULLABLE_NO,TypeUtils.isTypeNull("Float64"));
-    assertEquals(NULLABLE_YES,TypeUtils.isTypeNull("Nullable(Float64)"));
-    assertEquals(NULLABLE_YES,TypeUtils.isTypeNull("Nullable(DateTime)"));
+  public void testTypeIsNullable() {
+    assertEquals(NullableType.NO, NullableType.resolve("DateTime"));
+    assertEquals(NullableType.NO, NullableType.resolve("Float64"));
+    assertEquals(NullableType.YES, NullableType.resolve("Nullable(Float64)"));
+    assertEquals(NullableType.YES, NullableType.resolve("Nullable(DateTime)"));
   }
 
   @Test
@@ -60,10 +57,10 @@ public class TypeUtilsTest {
 
   @Test
   public void testUnwrapNullableIfApplicable() throws Exception {
-      assertEquals(TypeUtils.unwrapNullableIfApplicable("UInt32"), "UInt32");
-      assertEquals(TypeUtils.unwrapNullableIfApplicable("Nullable(UInt32)"), "UInt32");
-      assertEquals(TypeUtils.unwrapNullableIfApplicable("Nullable(foo)"), "foo");
-      assertEquals(TypeUtils.unwrapNullableIfApplicable("Nullable(UInt32"), "Nullable(UInt32");
+      assertEquals(NullableType.unwrapNullableIfApplicable("UInt32"), "UInt32");
+      assertEquals(NullableType.unwrapNullableIfApplicable("Nullable(UInt32)"), "UInt32");
+      assertEquals(NullableType.unwrapNullableIfApplicable("Nullable(foo)"), "foo");
+      assertEquals(NullableType.unwrapNullableIfApplicable("Nullable(UInt32"), "Nullable(UInt32");
   }
 
   @Test

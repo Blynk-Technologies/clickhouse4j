@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.response.ClickHouseResultBuilder;
 import ru.yandex.clickhouse.util.ClickHouseVersionNumberUtil;
+import ru.yandex.clickhouse.util.NullableType;
 import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.Connection;
@@ -17,9 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import static ru.yandex.clickhouse.util.TypeUtils.NULLABLE_YES;
-
 
 public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
 
@@ -831,7 +829,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             query = new StringBuilder("SELECT database, table, name, type, default_type, default_expression ");
         }
         query.append("FROM system.columns ");
-        List<String> predicates = new ArrayList<String>();
+        List<String> predicates = new ArrayList<>();
         if (schemaPattern != null) {
             predicates.add("database LIKE '" + schemaPattern + "' ");
         }
@@ -849,7 +847,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
         ResultSet descTable = request(query.toString());
         int colNum = 1;
         while (descTable.next()) {
-            List<String> row = new ArrayList<String>();
+            List<String> row = new ArrayList<>();
             //catalog name
             row.add(DEFAULT_CAT);
             //database name
@@ -860,13 +858,13 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             row.add(descTable.getString(3));
             String type = descTable.getString(4);
 
-            String isNullableType = TypeUtils.isTypeNull(type);
+            NullableType nullableTypeType = NullableType.resolve(type);
 
             int sqlType = TypeUtils.toSqlType(type);
             //data type
             row.add(Integer.toString(sqlType));
             //type name
-            row.add(TypeUtils.unwrapNullableIfApplicable(type));
+            row.add(NullableType.unwrapNullableIfApplicable(type));
             // column size / precision
             row.add(Integer.toString(TypeUtils.getColumnSize(type)));
             //buffer length
@@ -876,7 +874,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             // radix
             row.add("10");
             // nullable
-            row.add(String.valueOf(isNullableType == NULLABLE_YES ? columnNullable : columnNoNulls));
+            row.add(String.valueOf(nullableTypeType == NullableType.YES ? columnNullable : columnNoNulls));
             //remarks
             row.add(null);
 
@@ -899,7 +897,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             colNum += 1;
 
             //IS_NULLABLE
-            row.add(isNullableType);
+            row.add(nullableTypeType.name());
             //"SCOPE_CATALOG",
             row.add(null);
             //"SCOPE_SCHEMA",

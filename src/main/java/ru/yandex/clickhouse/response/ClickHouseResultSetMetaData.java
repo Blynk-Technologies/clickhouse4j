@@ -1,5 +1,6 @@
 package ru.yandex.clickhouse.response;
 
+import ru.yandex.clickhouse.util.NullableType;
 import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.ResultSetMetaData;
@@ -102,7 +103,7 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
                                                              + resultSet.getTypes().length
                                                              + " requested: " + (column - 1));
         }
-        return TypeUtils.unwrapNullableIfApplicable(columnTypeAt(column));
+        return NullableType.unwrapNullableIfApplicable(columnTypeAt(column));
     }
 
     @Override

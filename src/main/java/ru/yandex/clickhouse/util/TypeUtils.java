@@ -16,9 +16,6 @@ import java.util.regex.Pattern;
  */
 public final class TypeUtils {
 
-    public static final String NULLABLE_YES = "YES";
-    static final String NULLABLE_NO = "NO";
-
     private static final Pattern DECIMAL_PATTERN = Pattern.compile(
             "Decimal\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");
 
@@ -26,8 +23,8 @@ public final class TypeUtils {
     }
 
     public static int toSqlType(String clickhouseType) {
-        if (isNullable(clickhouseType)) {
-            clickhouseType = unwrapNullable(clickhouseType);
+        if (NullableType.isNullable(clickhouseType)) {
+            clickhouseType = NullableType.unwrapNullable(clickhouseType);
         }
         if (clickhouseType.startsWith("Int") || clickhouseType.startsWith("UInt")) {
             return clickhouseType.endsWith("64") ? Types.BIGINT : Types.INTEGER;
@@ -64,23 +61,9 @@ public final class TypeUtils {
         return Types.VARCHAR;
     }
 
-    public static String unwrapNullableIfApplicable(String clickhouseType) {
-        return isNullable(clickhouseType)
-                ? unwrapNullable(clickhouseType)
-                : clickhouseType;
-    }
-
-    private static String unwrapNullable(String clickshouseType) {
-        return clickshouseType.substring("Nullable(".length(), clickshouseType.length() - 1);
-    }
-
-    private static boolean isNullable(String clickshouseType) {
-        return clickshouseType.startsWith("Nullable(") && clickshouseType.endsWith(")");
-    }
-
     public static boolean isUnsigned(String clickhouseType) {
-        if (isNullable(clickhouseType)) {
-            clickhouseType = unwrapNullable(clickhouseType);
+        if (NullableType.isNullable(clickhouseType)) {
+            clickhouseType = NullableType.unwrapNullable(clickhouseType);
         }
         return clickhouseType.startsWith("UInt");
     }
@@ -156,8 +139,8 @@ public final class TypeUtils {
     }
 
     public static int getColumnSize(String type) {
-        if (isNullable(type)) {
-            type = unwrapNullable(type);
+        if (NullableType.isNullable(type)) {
+            type = NullableType.unwrapNullable(type);
         }
 
         if (type.equals("Float32")) {
@@ -202,8 +185,8 @@ public final class TypeUtils {
     }
 
     public static int getDecimalDigits(String type) {
-        if (isNullable(type)) {
-            return getDecimalDigits(unwrapNullable(type));
+        if (NullableType.isNullable(type)) {
+            return getDecimalDigits(NullableType.unwrapNullable(type));
         }
         if (type.equals("Float32")) {
             return 8;
@@ -218,7 +201,4 @@ public final class TypeUtils {
         return 0;
     }
 
-    public static String isTypeNull(String clickHouseType) {
-        return isNullable(clickHouseType) ? NULLABLE_YES : NULLABLE_NO;
-    }
 }
