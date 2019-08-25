@@ -9,16 +9,9 @@ public class ClickHouseException extends SQLException {
                 + (cause == null ? "" : cause.getMessage()), null, code, cause);
     }
 
-    private ClickHouseException(int code, String message, Throwable cause, String host, int port) {
+    public ClickHouseException(int code, String message, Throwable cause, String host, int port) {
         super("ClickHouse exception, message: " + message + ", host: " + host + ", port: " + port + "; "
                       + (cause == null ? "" : cause.getMessage()), null, code, cause);
     }
 
-    public ClickHouseException(ClickHouseErrorCode errorCode, Throwable cause, String host, int port) {
-        this(errorCode.code, cause, host, port);
-    }
-
-    public ClickHouseException(ClickHouseErrorCode errorCode, String message, Throwable cause, String host, int port) {
-        this(errorCode.code, message, cause, host, port);
-    }
 }

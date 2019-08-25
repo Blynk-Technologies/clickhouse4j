@@ -18,7 +18,9 @@ public class ClickHouseStreamHttpEntity extends AbstractHttpEntity {
     private final TimeZone timeZone;
     private final ClickHouseProperties properties;
 
-    public ClickHouseStreamHttpEntity(ClickHouseStreamCallback callback, TimeZone timeZone, ClickHouseProperties properties) {
+    public ClickHouseStreamHttpEntity(ClickHouseStreamCallback callback,
+                                      TimeZone timeZone,
+                                      ClickHouseProperties properties) {
         Objects.requireNonNull(callback);
         this.timeZone = timeZone;
         this.callback = callback;

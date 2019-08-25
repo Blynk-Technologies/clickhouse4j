@@ -10,7 +10,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 
-public class LogProxy<T> implements InvocationHandler {
+public final class LogProxy<T> implements InvocationHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LogProxy.class);
 
@@ -43,14 +43,14 @@ public class LogProxy<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String msg =
-            "Call class: " + object.getClass().getName() +
-            "\nMethod: " + method.getName() +
-            "\nObject: " + object +
-            "\nArgs: " + Arrays.toString(args) +
-            "\nInvoke result: ";
+                "Call class: " + object.getClass().getName() +
+                        "\nMethod: " + method.getName() +
+                        "\nObject: " + object +
+                        "\nArgs: " + Arrays.toString(args) +
+                        "\nInvoke result: ";
         try {
             final Object invokeResult = method.invoke(object, args);
-            msg +=  invokeResult;
+            msg += invokeResult;
             return invokeResult;
         } catch (InvocationTargetException e) {
             msg += e.getMessage();

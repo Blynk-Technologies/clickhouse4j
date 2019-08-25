@@ -34,7 +34,7 @@ public class ClickHouseBlockChecksum {
         return calculate(buffer.array());
     }
 
-    public byte[] asBytes(){
+    public byte[] asBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(16)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putLong(first)
@@ -50,12 +50,18 @@ public class ClickHouseBlockChecksum {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ClickHouseBlockChecksum that = (ClickHouseBlockChecksum) o;
 
-        if (first != that.first) return false;
+        if (first != that.first) {
+            return false;
+        }
         return second == that.second;
     }
 

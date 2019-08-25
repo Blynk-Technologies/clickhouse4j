@@ -15,7 +15,8 @@ public final class FastByteArrayInputStream extends InputStream {
 
     /**
      * Special constructor fo creating InputStream over not fully filled array
-     * @param buf byte array
+     *
+     * @param buf   byte array
      * @param count number of filled elements
      */
     FastByteArrayInputStream(byte[] buf, int count) {
@@ -27,7 +28,7 @@ public final class FastByteArrayInputStream extends InputStream {
 
     @Override
     public int read() {
-	return pos < count ? buf[pos++] & 0xff : -1;
+        return pos < count ? buf[pos++] & 0xff : -1;
     }
 
 
@@ -66,12 +67,12 @@ public final class FastByteArrayInputStream extends InputStream {
 
     @Override
     public int available() {
-	    return count - pos;
+        return count - pos;
     }
 
     @Override
     public boolean markSupported() {
-	    return false;
+        return false;
     }
 
     @Override

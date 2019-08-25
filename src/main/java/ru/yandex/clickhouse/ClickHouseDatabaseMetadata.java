@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.response.ClickHouseResultBuilder;
 import ru.yandex.clickhouse.util.ClickHouseVersionNumberUtil;
+import ru.yandex.clickhouse.util.NullableType;
 import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.Connection;
@@ -17,9 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import static ru.yandex.clickhouse.util.TypeUtils.NULLABLE_YES;
-
 
 public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
 
@@ -646,7 +644,9 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) throws SQLException {
+    public ResultSet getProcedures(String catalog,
+                                   String schemaPattern,
+                                   String procedureNamePattern) throws SQLException {
         ClickHouseResultBuilder builder = ClickHouseResultBuilder.builder(9);
         builder.names(
                 "PROCEDURE_CAT",
@@ -676,28 +676,44 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) throws SQLException {
+    public ResultSet getProcedureColumns(String catalog,
+                                         String schemaPattern,
+                                         String procedureNamePattern,
+                                         String columnNamePattern) throws SQLException {
         ClickHouseResultBuilder builder = ClickHouseResultBuilder.builder(20);
-        builder.names("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
+        builder.names("1", "2", "3", "4", "5",
+                      "6", "7", "8", "9", "10",
+                      "11", "12", "13", "14", "15",
+                      "16", "17", "18", "19", "20");
 
-        builder.types("UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32", "UInt32");
+        builder.types("UInt32", "UInt32", "UInt32", "UInt32", "UInt32",
+                      "UInt32", "UInt32", "UInt32", "UInt32", "UInt32",
+                      "UInt32", "UInt32", "UInt32", "UInt32", "UInt32",
+                      "UInt32", "UInt32", "UInt32", "UInt32", "UInt32");
 
         return builder.build();
     }
 
     @Override
-    public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws SQLException {
+    public ResultSet getTables(String catalog,
+                               String schemaPattern,
+                               String tableNamePattern,
+                               String[] types) throws SQLException {
         /*
          TABLE_CAT String => table catalog (may be null)
          TABLE_SCHEM String => table schema (may be null)
          TABLE_NAME String => table name
-         TABLE_TYPE String => table type. Typical types are "TABLE", "VIEW", "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM".
+         TABLE_TYPE String => table type.
+         Typical types are "TABLE", "VIEW", "SYSTEM TABLE", "GLOBAL TEMPORARY",
+         "LOCAL TEMPORARY", "ALIAS", "SYNONYM".
          REMARKS String => explanatory comment on the table
          TYPE_CAT String => the types catalog (may be null)
          TYPE_SCHEM String => the types schema (may be null)
          TYPE_NAME String => type name (may be null)
-         SELF_REFERENCING_COL_NAME String => name of the designated "identifier" column of a typed table (may be null)
-         REF_GENERATION String => specifies how values in SELF_REFERENCING_COL_NAME are created. Values are "SYSTEM", "USER", "DERIVED". (may be null)
+         SELF_REFERENCING_COL_NAME String => name of the designated "identifier"
+         column of a typed table (may be null)
+         REF_GENERATION String => specifies how values in SELF_REFERENCING_COL_NAME
+         are created. Values are "SYSTEM", "USER", "DERIVED". (may be null)
          */
         String sql = "select " +
                 "database, name, engine " +
@@ -713,8 +729,10 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
         ResultSet result = request(sql);
 
         ClickHouseResultBuilder builder = ClickHouseResultBuilder.builder(10);
-        builder.names("TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION");
-        builder.types("String", "String", "String", "String", "String", "String", "String", "String", "String", "String");
+        builder.names("TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS",
+                      "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION");
+        builder.types("String", "String", "String", "String", "String",
+                      "String", "String", "String", "String", "String");
 
         List typeList = types != null ? Arrays.asList(types) : null;
         while (result.next()) {
@@ -800,7 +818,10 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
+    public ResultSet getColumns(String catalog,
+                                String schemaPattern,
+                                String tableNamePattern,
+                                String columnNamePattern) throws SQLException {
         StringBuilder query;
         if (connection.getServerVersion().compareTo("1.1.54237") > 0) {
             query = new StringBuilder("SELECT database, table, name, type, default_kind, default_expression ");
@@ -808,7 +829,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             query = new StringBuilder("SELECT database, table, name, type, default_type, default_expression ");
         }
         query.append("FROM system.columns ");
-        List<String> predicates = new ArrayList<String>();
+        List<String> predicates = new ArrayList<>();
         if (schemaPattern != null) {
             predicates.add("database LIKE '" + schemaPattern + "' ");
         }
@@ -826,7 +847,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
         ResultSet descTable = request(query.toString());
         int colNum = 1;
         while (descTable.next()) {
-            List<String> row = new ArrayList<String>();
+            List<String> row = new ArrayList<>();
             //catalog name
             row.add(DEFAULT_CAT);
             //database name
@@ -837,13 +858,13 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             row.add(descTable.getString(3));
             String type = descTable.getString(4);
 
-            String isNullableType = TypeUtils.isTypeNull(type);
+            NullableType nullableTypeType = NullableType.resolve(type);
 
             int sqlType = TypeUtils.toSqlType(type);
             //data type
             row.add(Integer.toString(sqlType));
             //type name
-            row.add(TypeUtils.unwrapNullableIfApplicable(type));
+            row.add(NullableType.unwrapNullableIfApplicable(type));
             // column size / precision
             row.add(Integer.toString(TypeUtils.getColumnSize(type)));
             //buffer length
@@ -853,15 +874,15 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             // radix
             row.add("10");
             // nullable
-            row.add(String.valueOf(isNullableType == NULLABLE_YES ? columnNullable : columnNoNulls));
+            row.add(String.valueOf(nullableTypeType == NullableType.YES ? columnNullable : columnNoNulls));
             //remarks
             row.add(null);
 
             // COLUMN_DEF
-            if ( descTable.getString( 5 ).equals( "DEFAULT" ) ) {
-                row.add( descTable.getString( 6 ) );
+            if (descTable.getString(5).equals("DEFAULT")) {
+                row.add(descTable.getString(6));
             } else {
-                row.add( null );
+                row.add(null);
             }
 
             //"SQL_DATA_TYPE", unused per JavaDoc
@@ -876,7 +897,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
             colNum += 1;
 
             //IS_NULLABLE
-            row.add(isNullableType);
+            row.add(nullableTypeType.name());
             //"SCOPE_CATALOG",
             row.add(null);
             //"SCOPE_SCHEMA",
@@ -958,17 +979,26 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern) throws SQLException {
+    public ResultSet getColumnPrivileges(String catalog,
+                                         String schema,
+                                         String table,
+                                         String columnNamePattern) throws SQLException {
         return getEmptyResultSet();
     }
 
     @Override
-    public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
+    public ResultSet getTablePrivileges(String catalog,
+                                        String schemaPattern,
+                                        String tableNamePattern) throws SQLException {
         return getEmptyResultSet();
     }
 
     @Override
-    public ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable) throws SQLException {
+    public ResultSet getBestRowIdentifier(String catalog,
+                                          String schema,
+                                          String table,
+                                          int scope,
+                                          boolean nullable) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -993,7 +1023,12 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable, String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
+    public ResultSet getCrossReference(String parentCatalog,
+                                       String parentSchema,
+                                       String parentTable,
+                                       String foreignCatalog,
+                                       String foreignSchema,
+                                       String foreignTable) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -1052,11 +1087,11 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
                 null, null, // scale - should be fixed
                 null, null,
                 10
-                );
-        int[] sizes = { 8, 16, 32, 64 };
-        boolean[] signed = { true, false };
+        );
+        int[] sizes = {8, 16, 32, 64};
+        boolean[] signed = {true, false};
         for (int size : sizes) {
-            for (boolean b: signed) {
+            for (boolean b : signed) {
                 String name = (b ? "" : "U") + "Int" + size;
                 builder.addRow(
                         name, (size <= 16 ? Types.INTEGER : Types.BIGINT),
@@ -1073,7 +1108,7 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
                 );
             }
         }
-        int[] floatSizes = { 32, 64 };
+        int[] floatSizes = {32, 64};
         for (int floatSize : floatSizes) {
             String name = "Float" + floatSize;
             builder.addRow(
@@ -1120,7 +1155,11 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate) throws SQLException {
+    public ResultSet getIndexInfo(String catalog,
+                                  String schema,
+                                  String table,
+                                  boolean unique,
+                                  boolean approximate) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -1191,7 +1230,10 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) throws SQLException {
+    public ResultSet getUDTs(String catalog,
+                             String schemaPattern,
+                             String typeNamePattern,
+                             int[] types) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -1231,7 +1273,10 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getAttributes(String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) throws SQLException {
+    public ResultSet getAttributes(String catalog,
+                                   String schemaPattern,
+                                   String typeNamePattern,
+                                   String attributeNamePattern) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -1248,13 +1293,13 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     @Override
     public int getDatabaseMajorVersion() throws SQLException {
         return ClickHouseVersionNumberUtil.getMajorVersion(
-            connection.getServerVersion());
+                connection.getServerVersion());
     }
 
     @Override
     public int getDatabaseMinorVersion() throws SQLException {
         return ClickHouseVersionNumberUtil.getMinorVersion(
-            connection.getServerVersion());
+                connection.getServerVersion());
     }
 
     @Override
@@ -1303,12 +1348,17 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException {
+    public ResultSet getFunctions(String catalog,
+                                  String schemaPattern,
+                                  String functionNamePattern) throws SQLException {
         return getEmptyResultSet();
     }
 
     @Override
-    public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException {
+    public ResultSet getFunctionColumns(String catalog,
+                                        String schemaPattern,
+                                        String functionNamePattern,
+                                        String columnNamePattern) throws SQLException {
         return getEmptyResultSet();
     }
 
@@ -1325,7 +1375,10 @@ public class ClickHouseDatabaseMetadata implements DatabaseMetaData {
         return iface.isAssignableFrom(getClass());
     }
 
-    public ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) throws SQLException {
+    public ResultSet getPseudoColumns(String catalog,
+                                      String schemaPattern,
+                                      String tableNamePattern,
+                                      String columnNamePattern) throws SQLException {
         return null;
     }
 

@@ -37,7 +37,7 @@ public class ClickHouseLZ4OutputStream extends OutputStream {
 
     @Override
     public void flush() throws IOException {
-        if (pointer != 0){
+        if (pointer != 0) {
             writeBlock();
         }
         dataWrapper.flush();
@@ -45,8 +45,11 @@ public class ClickHouseLZ4OutputStream extends OutputStream {
 
     private void writeBlock() throws IOException {
         int compressed = compressor.compress(currentBlock, 0, pointer, compressedBlock, 0);
-        ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock((byte)ClickHouseLZ4Stream.MAGIC,
-                compressed + 9, pointer, compressedBlock, compressed);
+        ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock((byte) ClickHouseLZ4Stream.MAGIC,
+                                                                                     compressed + 9,
+                                                                                     pointer,
+                                                                                     compressedBlock,
+                                                                                     compressed);
         dataWrapper.write(checksum.asBytes());
         dataWrapper.writeByte(ClickHouseLZ4Stream.MAGIC);
         dataWrapper.writeInt(compressed + 9); // compressed size with header

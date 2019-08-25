@@ -19,9 +19,9 @@ public enum ClickHouseConnectionSettings {
     MAX_REDIRECTS("max_redirects", 5, "number of redirect checks before using last URL"),
 
     /*
-    *
-    * */
-    DATA_TRANSFER_TIMEOUT( "dataTransferTimeout", 10000, "Timeout for data transfer. "
+     *
+     * */
+    DATA_TRANSFER_TIMEOUT("dataTransferTimeout", 10000, "Timeout for data transfer. "
             + " socketTimeout + dataTransferTimeout is sent to ClickHouse as max_execution_time. "
             + " ClickHouse rejects request execution if its time exceeds max_execution_time"),
 
@@ -39,16 +39,16 @@ public enum ClickHouseConnectionSettings {
      * additional
      */
     USE_OBJECTS_IN_ARRAYS("use_objects_in_arrays", false, "Whether Object[] should be used instead primitive arrays."),
-    MAX_COMPRESS_BUFFER_SIZE("maxCompressBufferSize", 1024*1024, ""),
+    MAX_COMPRESS_BUFFER_SIZE("maxCompressBufferSize", 1024 * 1024, ""),
 
     USE_SERVER_TIME_ZONE("use_server_time_zone", true,
                          "Whether to use timezone from server. On connection init select timezone() will be executed"),
     USE_TIME_ZONE("use_time_zone", "", "Which time zone to use"),
     USE_SERVER_TIME_ZONE_FOR_DATES("use_server_time_zone_for_dates", false,
-            "Whether to use timezone from server on Date parsing in getDate(). " +
-                    "If false, Date returned is a wrapper of a timestamp at start of the day in client timezone. " +
-                    "If true - at start of the day in server or use_timezone timezone.")
-    ;
+                                   "Whether to use timezone from server on Date parsing in getDate(). " +
+                                           "If false, Date returned is a wrapper of a timestamp at start " +
+                                           "of the day in client timezone. " +
+                                           "If true - at start of the day in server or use_timezone timezone.");
 
     private final String key;
     private final Object defaultValue;
@@ -87,7 +87,7 @@ public enum ClickHouseConnectionSettings {
     }
 
     private String[] driverPropertyInfoChoices() {
-        return clazz == Boolean.class || clazz == Boolean.TYPE ? new String[] {"true", "false"} : null;
+        return clazz == Boolean.class || clazz == Boolean.TYPE ? new String[]{"true", "false"} : null;
     }
 
     private String driverPropertyValue(Properties properties) {

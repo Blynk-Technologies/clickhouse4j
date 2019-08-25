@@ -24,13 +24,19 @@ public enum ClickHouseQueryParam {
 
     CONNECTIONS_WITH_FAILOVER_MAX_TRIES("connections_with_failover_max_tries", null, Long.class, ""),
 
-    COUNT_DISTINCT_IMPLEMENTATION("count_distinct_implementation", null, String.class, "What aggregate function to use for implementation of count(DISTINCT ...)"),
+    COUNT_DISTINCT_IMPLEMENTATION("count_distinct_implementation",
+                                  null,
+                                  String.class,
+                                  "What aggregate function to use for implementation of count(DISTINCT ...)"),
 
     DATABASE("database", null, String.class, "database name used by default"),
 
     DECOMPRESS("decompress", false, Boolean.class, "whether to decompress transferred data or not"),
 
-    DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT("distributed_aggregation_memory_efficient", false, Boolean.class, "Whether to optimize memory consumption for external aggregation"),
+    DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT("distributed_aggregation_memory_efficient",
+                                             false,
+                                             Boolean.class,
+                                             "Whether to optimize memory consumption for external aggregation"),
 
     DISTRIBUTED_CONNECTIONS_POOL_SIZE("distributed_connections_pool_size", null, Long.class, ""),
 
@@ -56,18 +62,38 @@ public enum ClickHouseQueryParam {
 
     GROUP_BY_TWO_LEVEL_THRESHOLD_BYTES("group_by_two_level_threshold_bytes", null, Long.class, ""),
 
-    HTTP_NATIVE_COMPRESSION_DISABLE_CHECKSUMMING_ON_DECOMPRESS("http_native_compression_disable_checksumming_on_decompress", null, Boolean.class, "Whether to disable checksum check on decompress"),
+    HTTP_NATIVE_COMPRESSION_DISABLE_CHECKSUMMING_ON_DECOMPRESS(
+            "http_native_compression_disable_checksumming_on_decompress",
+            null,
+            Boolean.class,
+            "Whether to disable checksum check on decompress"),
 
     HTTP_ZLIB_COMPRESSION_LEVEL("http_zlib_compression_level", null, Long.class, ""),
 
-    INPUT_FORMAT_SKIP_UNKNOWN_FIELDS("input_format_skip_unknown_fields", false, Boolean.class, "Skip columns with unknown names from input data (it works for JSONEachRow and TSKV formats)."),
+    INPUT_FORMAT_SKIP_UNKNOWN_FIELDS("input_format_skip_unknown_fields",
+                                     false,
+                                     Boolean.class,
+                                     "Skip columns with unknown names from input data "
+                                             + "(it works for JSONEachRow and TSKV formats)."),
 
-    INPUT_FORMAT_VALUES_INTERPRET_EXPRESSIONS("input_format_values_interpret_expressions", true, Boolean.class,
-            "For Values format: if field could not be parsed by streaming parser, run SQL parser and try to interpret it as SQL expression."),
+    INPUT_FORMAT_VALUES_INTERPRET_EXPRESSIONS("input_format_values_interpret_expressions",
+                                              true,
+                                              Boolean.class,
+                                              "For Values format: if field could not be parsed by "
+                                                      + "streaming parser, run SQL parser and try "
+                                                      + "to interpret it as SQL expression."),
 
-    INSERT_DEDUPLICATE("insert_deduplicate", null, Boolean.class, "For INSERT queries in the replicated table, specifies that deduplication of insertings blocks should be preformed"),
+    INSERT_DEDUPLICATE("insert_deduplicate",
+                       null,
+                       Boolean.class,
+                       "For INSERT queries in the replicated table, specifies that deduplication of "
+                               + "insertings blocks should be preformed"),
 
-    INSERT_DISTRIBUTED_SYNC("insert_distributed_sync", null, Boolean.class, "If setting is enabled, insert query into distributed waits until data will be sent to all nodes in cluster."),
+    INSERT_DISTRIBUTED_SYNC("insert_distributed_sync",
+                            null,
+                            Boolean.class,
+                            "If setting is enabled, insert query into distributed waits until "
+                                    + "data will be sent to all nodes in cluster."),
 
     INSERT_QUORUM("insert_quorum", null, Long.class, ""),
 
@@ -85,11 +111,20 @@ public enum ClickHouseQueryParam {
     /**
      * https://clickhouse.yandex/reference_en.html#max_block_size
      */
-    MAX_BLOCK_SIZE("max_block_size", null, Integer.class, "Recommendation for what size of block (in number of rows) to load from tables"),
+    MAX_BLOCK_SIZE("max_block_size",
+                   null,
+                   Integer.class,
+                   "Recommendation for what size of block (in number of rows) to load from tables"),
 
-    MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY("max_bytes_before_external_group_by", null, Long.class, "Threshold to use external group by"),
+    MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY("max_bytes_before_external_group_by",
+                                       null,
+                                       Long.class,
+                                       "Threshold to use external group by"),
 
-    MAX_BYTES_BEFORE_EXTERNAL_SORT("max_bytes_before_external_sort", null, Long.class, "Threshold to use external sort"),
+    MAX_BYTES_BEFORE_EXTERNAL_SORT("max_bytes_before_external_sort",
+                                   null,
+                                   Long.class,
+                                   "Threshold to use external sort"),
 
     MAX_COMPRESS_BLOCK_SIZE("max_compress_block_size", null, Long.class, ""),
 
@@ -108,31 +143,56 @@ public enum ClickHouseQueryParam {
     /**
      * @see <a href="https://clickhouse.yandex/reference_en.html#max_memory_usage">max_memory_usage</a>
      */
-    MAX_MEMORY_USAGE("max_memory_usage", null, Long.class, "The maximum amount of memory consumption when running a query on a single server."),
+    MAX_MEMORY_USAGE("max_memory_usage",
+                     null,
+                     Long.class,
+                     "The maximum amount of memory consumption when running a query on a single server."),
 
     /**
-     * @see <a href="https://clickhouse.yandex/docs/en/operations/settings/query_complexity/#max-memory-usage-for-user">max_memory_usage_for_user</a>
+     * @see <a href="https://clickhouse.yandex/docs/en/operations/settings/query_complexity/#max-memory-usage-for-user">
+     *     max_memory_usage_for_user</a>
      */
-    MAX_MEMORY_USAGE_FOR_USER("max_memory_usage_for_user", null, Long.class, "The maximum amount of RAM to use for running a user's queries on a single server."),
+    MAX_MEMORY_USAGE_FOR_USER("max_memory_usage_for_user",
+                              null,
+                              Long.class,
+                              "The maximum amount of RAM to use for running a"
+                                      + "user's queries on a single server."),
 
     /**
-     * @see <a href="https://clickhouse.yandex/docs/en/operations/settings/query_complexity/#max-memory-usage-for-all-queries">max_memory_usage_for_all_queries</a>
+     * @see <a href="https://clickhouse.yandex/docs/en/operations/settings/query_complexity/
+     * #max-memory-usage-for-all-queries">max_memory_usage_for_all_queries</a>
      */
-    MAX_MEMORY_USAGE_FOR_ALL_QUERIES("max_memory_usage_for_all_queries", null, Long.class, "The maximum amount of RAM to use for running all queries on a single server."),
+    MAX_MEMORY_USAGE_FOR_ALL_QUERIES("max_memory_usage_for_all_queries",
+                                     null,
+                                     Long.class,
+                                     "The maximum amount of RAM to use for running"
+                                             + "all queries on a single server."),
 
     //dbms/include/DB/Interpreters/Settings.h
     MAX_PARALLEL_REPLICAS("max_parallel_replicas", null, Integer.class, "Max shard replica count."),
 
-    MAX_PARTITIONS_PER_INSERT_BLOCK("max_partitions_per_insert_block", null, Integer.class, "If inserted block contains larger number of partitions, an exception is thrown. Set it to 0 if you want to remove the limit (not recommended)."),
+    MAX_PARTITIONS_PER_INSERT_BLOCK("max_partitions_per_insert_block",
+                                    null,
+                                    Integer.class,
+                                    "If inserted block contains larger number of partitions, "
+                                            + "an exception is thrown. Set it to 0 if you want"
+                                            + "to remove the limit (not recommended)."),
 
     MAX_READ_BUFFER_SIZE("max_read_buffer_size", null, Long.class, ""),
 
-    MAX_RESULT_ROWS("max_result_rows", null, Integer.class, "Limit on the number of rows in the result. Also checked for subqueries, and on remote servers when running parts of a distributed query."),
+    MAX_RESULT_ROWS("max_result_rows",
+                    null,
+                    Integer.class,
+                    "Limit on the number of rows in the result. Also checked for subqueries, and "
+                            + "on remote servers when running parts of a distributed query."),
     /**
      * https://clickhouse.yandex/reference_en.html#max_rows_to_group_by
      */
-    MAX_ROWS_TO_GROUP_BY("max_rows_to_group_by", null, Integer.class,
-            "Maximum number of unique keys received from aggregation. This setting lets you limit memory consumption when aggregating."),
+    MAX_ROWS_TO_GROUP_BY("max_rows_to_group_by",
+                         null,
+                         Integer.class,
+                         "Maximum number of unique keys received from aggregation. This setting lets "
+                                 + "you limit memory consumption when aggregating."),
 
     MAX_STREAMS_TO_MAX_THREADS_RATIO("max_streams_to_max_threads_ratio", null, Double.class, ""),
     /**
@@ -162,21 +222,40 @@ public enum ClickHouseQueryParam {
 
     MIN_COUNT_TO_COMPILE("min_count_to_compile", null, Long.class, ""),
 
-    MIN_INSERT_BLOCK_SIZE_BYTES("min_insert_block_size_bytes", null, Long.class, "Squash blocks passed to INSERT query to specified size in bytes, if blocks are not big enoug"),
+    MIN_INSERT_BLOCK_SIZE_BYTES("min_insert_block_size_bytes",
+                                null,
+                                Long.class,
+                                "Squash blocks passed to INSERT query to specified size in bytes, "
+                                        + "if blocks are not big enoug"),
 
-    MIN_INSERT_BLOCK_SIZE_ROWS("min_insert_block_size_rows", null, Long.class, "Squash blocks passed to INSERT query to specified size in rows, if blocks are not big enough."),
+    MIN_INSERT_BLOCK_SIZE_ROWS("min_insert_block_size_rows",
+                               null,
+                               Long.class,
+                               "Squash blocks passed to INSERT query to specified size in rows, "
+                                       + "if blocks are not big enough."),
 
     NETWORK_COMPRESSION_METHOD("network_compression_method", null, String.class, ""),
 
-    OPTIMIZE_MIN_EQUALITY_DISJUNCTION_CHAIN_LENGTH("optimize_min_equality_disjunction_chain_length", null, Long.class, ""),
+    OPTIMIZE_MIN_EQUALITY_DISJUNCTION_CHAIN_LENGTH("optimize_min_equality_disjunction_chain_length",
+                                                   null,
+                                                   Long.class,
+                                                   ""),
 
     OPTIMIZE_MOVE_TO_PREWHERE("optimize_move_to_prewhere", true, Boolean.class, ""),
 
-    OUTPUT_FORMAT_JSON_QUOTE_64BIT_INTEGERS("output_format_json_quote_64bit_integers", true, Boolean.class, "Controls quoting of 64-bit integers in JSON output format."),
+    OUTPUT_FORMAT_JSON_QUOTE_64BIT_INTEGERS("output_format_json_quote_64bit_integers",
+                                            true,
+                                            Boolean.class,
+                                            "Controls quoting of 64-bit integers in JSON output format."),
 
-    OUTPUT_FORMAT_PRETTY_MAX_ROWS("output_format_pretty_max_rows", null, Long.class, "Rows limit for Pretty formats."),
+    OUTPUT_FORMAT_PRETTY_MAX_ROWS("output_format_pretty_max_rows", null, Long.class, "Rows limit for "
+            + "Pretty formats."),
 
-    OUTPUT_FORMAT_WRITE_STATISTICS("output_format_write_statistics", true, Boolean.class, "Write statistics about read rows, bytes, time elapsed in suitable output formats"),
+    OUTPUT_FORMAT_WRITE_STATISTICS("output_format_write_statistics",
+                                   true,
+                                   Boolean.class,
+                                   "Write statistics about read rows, bytes, time elapsed in "
+                                           + "suitable output formats"),
 
     PARALLEL_REPLICAS_COUNT("parallel_replicas_count", null, Long.class, ""),
 
@@ -190,7 +269,8 @@ public enum ClickHouseQueryParam {
     /**
      * https://clickhouse.yandex/reference_en.html#Settings profiles
      */
-    PROFILE("profile", null, String.class, "Settings profile: a collection of settings grouped under the same name"),
+    PROFILE("profile", null, String.class, "Settings profile: a collection of settings grouped "
+            + "under the same name"),
 
     RECEIVE_TIMEOUT("receive_timeout", null, Integer.class, ""),
 
@@ -210,7 +290,12 @@ public enum ClickHouseQueryParam {
 
     RESHARDING_BARRIER_TIMEOUT("resharding_barrier_timeout", null, Long.class, ""),
 
-    RESULT_OVERFLOW_MODE("result_overflow_mode", null, String.class, "What to do if the volume of the result exceeds one of the limits: 'throw' or 'break'. By default, throw. Using 'break' is similar to using LIMIT."),
+    RESULT_OVERFLOW_MODE("result_overflow_mode",
+                         null,
+                         String.class,
+                         "What to do if the volume of the result exceeds one of the limits: "
+                                 + "'throw' or 'break'. By default, throw. Using 'break' "
+                                 + "is similar to using LIMIT."),
 
     SELECT_SEQUENTIAL_CONSISTENCY("select_sequential_consistency", null, Long.class, ""),
 
@@ -232,25 +317,41 @@ public enum ClickHouseQueryParam {
     /**
      * https://clickhouse.yandex/reference_en.html#WITH TOTALS modifier
      */
-    TOTALS_MODE("totals_mode", null, String.class, "How to calculate TOTALS when HAVING is present, as well as when max_rows_to_group_by and group_by_overflow_mode = 'any' are present."),
+    TOTALS_MODE("totals_mode",
+                null,
+                String.class,
+                "How to calculate TOTALS when HAVING is present, as well as when "
+                        + "max_rows_to_group_by and group_by_overflow_mode = 'any' are present."),
 
     QUERY_ID("query_id", null, String.class, ""),
 
     QUEUE_MAX_WAIT_MS("queue_max_wait_ms", null, Integer.class, ""),
 
-    QUOTA_KEY("quota_key", null, String.class, "quota is calculated for each quota_key value. For example here may be some user name."),
+    QUOTA_KEY("quota_key",
+              null,
+              String.class,
+              "quota is calculated for each quota_key value. For example here may be some user name."),
 
     use_client_time_zone("use_client_time_zone", false, Boolean.class, ""),
 
 
-    USE_UNCOMPRESSED_CACHE("use_uncompressed_cache", true, Boolean.class, "Whether to use the cache of uncompressed blocks."),
+    USE_UNCOMPRESSED_CACHE("use_uncompressed_cache",
+                           true,
+                           Boolean.class,
+                           "Whether to use the cache of uncompressed blocks."),
 
     USER("user", null, String.class, "user name, by default - default"),
 
-    PREFERRED_BLOCK_SIZE_BYTES("preferred_block_size_bytes", null, Long.class, "Adaptively estimates number of required rows in a block."),
+    PREFERRED_BLOCK_SIZE_BYTES("preferred_block_size_bytes",
+                               null,
+                               Long.class,
+                               "Adaptively estimates number of required rows in a block."),
 
-    ENABLE_OPTIMIZE_PREDICATE_EXPRESSION("enable_optimize_predicate_expression", null, Boolean.class, "See Clickhouse server description for this parameter. Default value is null so that server setting is taken."),
-    ;
+    ENABLE_OPTIMIZE_PREDICATE_EXPRESSION("enable_optimize_predicate_expression",
+                                         null,
+                                         Boolean.class,
+                                         "See Clickhouse server description for this parameter. "
+                                                 + "Default value is null so that server setting is taken.");
 
     private final String key;
     private final Object defaultValue;

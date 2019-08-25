@@ -17,7 +17,7 @@ public class ClickHouseArray implements Array {
     private boolean isUnsigned;
     private Object array;
 
-    public ClickHouseArray(int elementType, Object array){
+    public ClickHouseArray(int elementType, Object array) {
         this(elementType, false, array);
     }
 
@@ -45,7 +45,7 @@ public class ClickHouseArray implements Array {
 
     @Override
     public Object getArray() throws SQLException {
-        if (array == null){
+        if (array == null) {
             throw new SQLException("Call after free");
         }
         return array;

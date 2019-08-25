@@ -8,18 +8,22 @@ public final class Utils {
     private Utils() {
     }
 
-    public static boolean startsWithIgnoreCase(String haystack, String pattern) {
-        return haystack.substring(0, pattern.length()).equalsIgnoreCase(pattern);
-    }
-
     public static String retainUnquoted(String haystack, char quoteChar) {
+        if (haystack.isEmpty()) {
+            return "";
+        }
+
+        //quick path, nothing to remove
+        int startIndex = haystack.indexOf(quoteChar);
+        if (startIndex == -1) {
+            return haystack;
+        }
+
         StringBuilder sb = new StringBuilder();
-        String[] split = splitWithoutEscaped(haystack, quoteChar);
-        for (int i = 0; i < split.length; i++) {
-            String s = split[i];
-            if ((i & 1) == 0) {
-                sb.append(s);
-            }
+        List<String> split = splitWithoutEscaped(haystack, startIndex, quoteChar);
+        for (int i = 0; i < split.size(); i += 2) {
+            String s = split.get(i);
+            sb.append(s);
         }
         return sb.toString();
     }
@@ -31,15 +35,12 @@ public final class Utils {
      * @param separatorChar  the character used as the delimiter
      * @return string array
      */
-    private static String[] splitWithoutEscaped(String str, char separatorChar) {
-        int len = str.length();
-        if (len == 0) {
-            return new String[0];
-        }
+    private static List<String> splitWithoutEscaped(String str, int start, char separatorChar) {
         List<String> list = new ArrayList<>();
-        int i = 0;
-        int start = 0;
-        while (i < len) {
+        int i = start;
+        start = 0;
+        int strLen = str.length();
+        while (i < strLen) {
             if (str.charAt(i) == '\\') {
                 i += 2;
             } else if (str.charAt(i) == separatorChar) {
@@ -50,7 +51,7 @@ public final class Utils {
             }
         }
         list.add(str.substring(start, i));
-        return list.toArray(new String[0]);
+        return list;
     }
 
 }

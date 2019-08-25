@@ -95,13 +95,62 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return executeQuery(sql, null);
     }
 
+    /**
+     * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
+     * adds format only to select queries
+     */
+    private static String addFormatIfAbsent(String sql, ClickHouseFormat format) {
+        sql = sql.trim();
+        String woSemicolon = sql.replace(";", "").trim();
+        if (isSelect(sql)
+                && !woSemicolon.endsWith(" " + TabSeparatedWithNamesAndTypes)
+                && !woSemicolon.endsWith(" " + TabSeparated)
+                && !woSemicolon.endsWith(" " + JSONCompact)
+                && !woSemicolon.endsWith(" " + RowBinary)
+                && !woSemicolon.endsWith(" " + CSVWithNames)) {
+            if (sql.endsWith(";")) {
+                sql = sql.substring(0, sql.length() - 1);
+            }
+            sql += " FORMAT " + format + ';';
+        }
+        return sql;
+    }
+
+    static boolean isSelect(String sql) {
+        for (int i = 0; i < sql.length(); i++) {
+            String nextTwo = sql.substring(i, Math.min(i + 2, sql.length()));
+            if ("--".equals(nextTwo)) {
+                i = Math.max(i, sql.indexOf("\n", i));
+            } else if ("/*".equals(nextTwo)) {
+                i = Math.max(i, sql.indexOf("*/", i));
+            } else if (Character.isLetter(sql.charAt(i))) {
+                String trimmed = sql.substring(i, Math.min(sql.length(), Math.max(i, sql.indexOf(" ", i))));
+                for (String keyword : selectKeywords) {
+                    if (trimmed.regionMatches(true, 0, keyword, 0, keyword.length())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
     @Override
-    public ResultSet executeQuery(String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
+    public ResultSet executeQuery(String sql,
+                                  Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
         return executeQuery(sql, additionalDBParams, null);
     }
 
     @Override
-    public ResultSet executeQuery(String sql, Map<ClickHouseQueryParam, String> additionalDBParams, List<ClickHouseExternalData> externalData) throws SQLException {
+    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql) throws SQLException {
+        return executeQueryClickhouseRowBinaryStream(sql, null);
+    }
+
+    @Override
+    public ResultSet executeQuery(String sql,
+                                  Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData) throws SQLException {
         return executeQuery(sql, additionalDBParams, externalData, null);
     }
 
@@ -125,51 +174,16 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             if (isSelect(sql)) {
                 currentUpdateCount = -1;
                 currentResult = createResultSet(properties.isCompress()
-                    ? new ClickHouseLZ4Stream(is) : is, properties.getBufferSize(),
-                    extractDBName(sql),
-                    extractTableName(sql),
-                    extractWithTotals(sql),
-                    this,
-                    getConnection().getTimeZone(),
-                    properties
+                                                        ? new ClickHouseLZ4Stream(is) : is, properties.getBufferSize(),
+                                                extractDBName(sql),
+                                                extractTableName(sql),
+                                                extractWithTotals(sql),
+                                                this,
+                                                getConnection().getTimeZone(),
+                                                properties
                 );
                 currentResult.setMaxRows(maxRows);
                 return currentResult;
-            } else {
-                currentUpdateCount = 0;
-                StreamUtils.close(is);
-                return null;
-            }
-        } catch (Exception e) {
-            StreamUtils.close(is);
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        }
-    }
-
-    @Override
-    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql) throws SQLException {
-        return executeQueryClickhouseRowBinaryStream(sql, null);
-    }
-
-    @Override
-    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
-        return executeQueryClickhouseRowBinaryStream(sql, additionalDBParams, null);
-    }
-
-    @Override
-    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams, Map<String, String> additionalRequestParams) throws SQLException {
-        InputStream is = getInputStream(
-                addFormatIfAbsent(sql, ClickHouseFormat.RowBinary),
-                additionalDBParams,
-                null,
-                additionalRequestParams
-        );
-        try {
-            if (isSelect(sql)) {
-                currentUpdateCount = -1;
-                currentRowBinaryResult = new ClickHouseRowBinaryInputStream(properties.isCompress()
-                        ? new ClickHouseLZ4Stream(is) : is, getConnection().getTimeZone(), properties);
-                return currentRowBinaryResult;
             } else {
                 currentUpdateCount = 0;
                 StreamUtils.close(is);
@@ -251,11 +265,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void cancel() throws SQLException {
-        if (this.queryId == null || isClosed())
-            return;
-
-       executeQuery(String.format("KILL QUERY WHERE query_id='%s'", queryId));
+    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
+            String sql,
+            Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
+        return executeQueryClickhouseRowBinaryStream(sql, additionalDBParams, null);
     }
 
     @Override
@@ -420,45 +433,43 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
     }
 
-    /**
-     * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
-     * adds format only to select queries
-     */
-    private static String addFormatIfAbsent(String sql, ClickHouseFormat format) {
-        sql = sql.trim();
-        String woSemicolon = sql.replace(";", "").trim();
-        if (isSelect(sql)
-            && !woSemicolon.endsWith(" " + TabSeparatedWithNamesAndTypes)
-            && !woSemicolon.endsWith(" " + TabSeparated)
-            && !woSemicolon.endsWith(" " + JSONCompact)
-            && !woSemicolon.endsWith(" " + RowBinary)
-            && !woSemicolon.endsWith(" " + CSVWithNames)) {
-            if (sql.endsWith(";")) {
-                sql = sql.substring(0, sql.length() - 1);
+    @Override
+    public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
+            String sql,
+            Map<ClickHouseQueryParam, String> additionalDBParams,
+            Map<String, String> additionalRequestParams) throws SQLException {
+        InputStream is = getInputStream(
+                addFormatIfAbsent(sql, ClickHouseFormat.RowBinary),
+                additionalDBParams,
+                null,
+                additionalRequestParams
+        );
+        try {
+            if (isSelect(sql)) {
+                currentUpdateCount = -1;
+                currentRowBinaryResult = new ClickHouseRowBinaryInputStream(properties.isCompress()
+                                                                                    ? new ClickHouseLZ4Stream(is) : is,
+                                                                            getConnection().getTimeZone(),
+                                                                            properties);
+                return currentRowBinaryResult;
+            } else {
+                currentUpdateCount = 0;
+                StreamUtils.close(is);
+                return null;
             }
-            sql += " FORMAT " + format + ';';
+        } catch (Exception e) {
+            StreamUtils.close(is);
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
-        return sql;
     }
 
-    static boolean isSelect(String sql) {
-        for (int i = 0; i < sql.length(); i++) {
-            String nextTwo = sql.substring(i, Math.min(i + 2, sql.length()));
-            if ("--".equals(nextTwo)) {
-                i = Math.max(i, sql.indexOf("\n", i));
-            } else if ("/*".equals(nextTwo)) {
-                i = Math.max(i, sql.indexOf("*/", i));
-            } else if (Character.isLetter(sql.charAt(i))) {
-                String trimmed = sql.substring(i, Math.min(sql.length(), Math.max(i, sql.indexOf(" ", i))));
-                for (String keyword : selectKeywords){
-                    if (trimmed.regionMatches(true, 0, keyword, 0, keyword.length())) {
-                        return true;
-                    }
-                }
-                return false;
-            }
+    @Override
+    public void cancel() throws SQLException {
+        if (this.queryId == null || isClosed()) {
+            return;
         }
-        return false;
+
+        executeQuery(String.format("KILL QUERY WHERE query_id='%s'", queryId));
     }
 
     private String extractTableName(String sql) {
@@ -480,7 +491,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     private String extractDBAndTableName(String sql) {
-        if (Utils.startsWithIgnoreCase(sql, "select")) {
+        if (sql.regionMatches(true, 0, "select", 0, "select".length())) {
             String withoutStrings = Utils.retainUnquoted(sql, '\'');
             int fromIndex = withoutStrings.indexOf("from");
             if (fromIndex == -1) {
@@ -492,17 +503,17 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 return fromTable.split(" ")[0];
             }
         }
-        if (Utils.startsWithIgnoreCase(sql, "desc")) {
+        if (sql.regionMatches(true, 0, "desc", 0, "desc".length())) {
             return "system.columns";
         }
-        if (Utils.startsWithIgnoreCase(sql, "show")) {
+        if (sql.regionMatches(true, 0, "show", 0, "show".length())) {
             return "system.tables";
         }
         return "system.unknown";
     }
 
     private boolean extractWithTotals(String sql) {
-        if (Utils.startsWithIgnoreCase(sql, "select")) {
+        if (sql.regionMatches(true, 0, "select", 0, "select".length())) {
             String withoutStrings = Utils.retainUnquoted(sql, '\'');
             return withoutStrings.toLowerCase().contains(" with totals");
         }

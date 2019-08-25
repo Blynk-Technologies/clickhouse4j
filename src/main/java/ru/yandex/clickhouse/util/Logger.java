@@ -9,11 +9,11 @@ import java.util.logging.Level;
 /**
  * Simple logger.
  */
-public class Logger {
+public final class Logger {
 
     private static final Level currentLevel = Level.FINE;
 
-    private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final String key;
 

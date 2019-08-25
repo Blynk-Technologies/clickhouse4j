@@ -43,7 +43,7 @@ public final class ClickHouseExceptionSpecifier {
         try {
             int code;
             if (clickHouseMessage.startsWith("Poco::Exception. Code: 1000, ")) {
-                code = ClickHouseErrorCode.POCO_EXCEPTION.code;
+                code = ClickHouseErrorCode.POCO_EXCEPTION;
             } else {
                 // Code: 175, e.displayText() = DB::Exception:
                 code = getErrorCode(clickHouseMessage);
@@ -71,17 +71,17 @@ public final class ClickHouseExceptionSpecifier {
         }
 
         try {
-        	return Integer.parseInt(errorMessage.substring(startIndex + 1, endIndex));
-        } catch(NumberFormatException e) {
-        	return -1;
+            return Integer.parseInt(errorMessage.substring(startIndex + 1, endIndex));
+        } catch (NumberFormatException e) {
+            return -1;
         }
     }
 
     private static ClickHouseException getException(Throwable cause, String host, int port) {
         if (cause instanceof SocketTimeoutException) {
-        // if we've got SocketTimeoutException, we'll say that the query is not good.
-        // This is not the same as SOCKET_TIMEOUT of clickhouse
-        // but it actually could be a failing ClickHouse
+            // if we've got SocketTimeoutException, we'll say that the query is not good.
+            // This is not the same as SOCKET_TIMEOUT of clickhouse
+            // but it actually could be a failing ClickHouse
             return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED, cause, host, port);
         } else if (cause instanceof InterruptedIOException || cause instanceof ConnectException) {
         // couldn't connect to ClickHouse during connectTimeout

@@ -69,22 +69,25 @@ public class ClickHouseHttpClientBuilder {
     }
 
     private PoolingHttpClientConnectionManager getConnectionManager()
-        throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+            throws CertificateException, NoSuchAlgorithmException,
+            KeyStoreException, KeyManagementException, IOException {
         RegistryBuilder<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-          .register("http", PlainConnectionSocketFactory.getSocketFactory());
+                .register("http", PlainConnectionSocketFactory.getSocketFactory());
 
         if (properties.getSsl()) {
-            HostnameVerifier verifier = "strict".equals(properties.getSslMode()) ? SSLConnectionSocketFactory.getDefaultHostnameVerifier() : NoopHostnameVerifier.INSTANCE;
+            HostnameVerifier verifier = "strict".equals(properties.getSslMode())
+                    ? SSLConnectionSocketFactory.getDefaultHostnameVerifier()
+                    : NoopHostnameVerifier.INSTANCE;
             registry.register("https", new SSLConnectionSocketFactory(getSSLContext(), verifier));
         }
 
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
-            registry.build(),
-            null,
-            null,
-            new IpVersionPriorityResolver(),
-            properties.getTimeToLiveMillis(),
-            TimeUnit.MILLISECONDS
+                registry.build(),
+                null,
+                null,
+                new IpVersionPriorityResolver(),
+                properties.getTimeToLiveMillis(),
+                TimeUnit.MILLISECONDS
         );
 
         connectionManager.setDefaultMaxPerRoute(properties.getDefaultMaxPerRoute());
@@ -137,65 +140,66 @@ public class ClickHouseHttpClientBuilder {
         };
     }
 
-  private SSLContext getSSLContext()
-      throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
-      SSLContext ctx = SSLContext.getInstance("TLS");
-      TrustManager[] tms = null;
-      KeyManager[] kms = null;
-      SecureRandom sr = null;
+    private SSLContext getSSLContext()
+            throws CertificateException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, KeyManagementException {
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        TrustManager[] tms = null;
+        KeyManager[] kms = null;
+        SecureRandom sr = null;
 
-      if(properties.getSslMode().equals("none")) {
-          tms = new TrustManager[]{new NonValidatingTrustManager()};
-          kms = new KeyManager[]{};
-          sr = new SecureRandom();
-      } else if (properties.getSslMode().equals("strict")) {
-          if (!properties.getSslRootCertificate().isEmpty()) {
-              TrustManagerFactory tmf = TrustManagerFactory
-                  .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        if (properties.getSslMode().equals("none")) {
+            tms = new TrustManager[]{new NonValidatingTrustManager()};
+            kms = new KeyManager[]{};
+            sr = new SecureRandom();
+        } else if (properties.getSslMode().equals("strict")) {
+            if (!properties.getSslRootCertificate().isEmpty()) {
+                TrustManagerFactory tmf = TrustManagerFactory
+                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
 
-              tmf.init(getKeyStore());
-              tms = tmf.getTrustManagers();
-              kms = new KeyManager[]{};
-              sr = new SecureRandom();
-          }
-      } else {
-          throw new IllegalArgumentException("unknown ssl mode '"+ properties.getSslMode() +"'");
-      }
+                tmf.init(getKeyStore());
+                tms = tmf.getTrustManagers();
+                kms = new KeyManager[]{};
+                sr = new SecureRandom();
+            }
+        } else {
+            throw new IllegalArgumentException("unknown ssl mode '" + properties.getSslMode() + "'");
+        }
 
-      ctx.init(kms, tms, sr);
-      return ctx;
-  }
+        ctx.init(kms, tms, sr);
+        return ctx;
+    }
 
-  private KeyStore getKeyStore()
-      throws NoSuchAlgorithmException, IOException, CertificateException, KeyStoreException {
-      KeyStore ks;
-      try {
-          ks = KeyStore.getInstance("jks");
-          ks.load(null, null); // needed to initialize the key store
-      } catch (KeyStoreException e) {
-          throw new NoSuchAlgorithmException("jks KeyStore not available");
-      }
+    private KeyStore getKeyStore()
+            throws NoSuchAlgorithmException, IOException, CertificateException, KeyStoreException {
+        KeyStore ks;
+        try {
+            ks = KeyStore.getInstance("jks");
+            ks.load(null, null); // needed to initialize the key store
+        } catch (KeyStoreException e) {
+            throw new NoSuchAlgorithmException("jks KeyStore not available");
+        }
 
-      InputStream caInputStream;
-      try {
-        caInputStream = new FileInputStream(properties.getSslRootCertificate());
-      } catch (FileNotFoundException ex) {
-          ClassLoader cl = Thread.currentThread().getContextClassLoader();
-          caInputStream = cl.getResourceAsStream(properties.getSslRootCertificate());
-          if(caInputStream == null) {
-              throw new IOException(
-                  "Could not open SSL/TLS root certificate file '" + properties
-                      .getSslRootCertificate() + "'", ex);
-          }
-      }
-      CertificateFactory cf = CertificateFactory.getInstance("X.509");
-      Iterator<? extends Certificate> caIt = cf.generateCertificates(caInputStream).iterator();
-      StreamUtils.close(caInputStream);
-      for (int i = 0; caIt.hasNext(); i++) {
-        ks.setCertificateEntry("cert" + i, caIt.next());
-      }
+        InputStream caInputStream;
+        try {
+            caInputStream = new FileInputStream(properties.getSslRootCertificate());
+        } catch (FileNotFoundException ex) {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            caInputStream = cl.getResourceAsStream(properties.getSslRootCertificate());
+            if (caInputStream == null) {
+                throw new IOException(
+                        "Could not open SSL/TLS root certificate file '" + properties
+                                .getSslRootCertificate() + "'", ex);
+            }
+        }
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        Iterator<? extends Certificate> caIt = cf.generateCertificates(caInputStream).iterator();
+        StreamUtils.close(caInputStream);
+        for (int i = 0; caIt.hasNext(); i++) {
+            ks.setCertificateEntry("cert" + i, caIt.next());
+        }
 
-      return ks;
-  }
+        return ks;
+    }
 
 }

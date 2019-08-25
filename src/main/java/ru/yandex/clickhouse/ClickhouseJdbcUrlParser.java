@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ClickhouseJdbcUrlParser {
+public final class ClickhouseJdbcUrlParser {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseJdbcUrlParser.class);
 

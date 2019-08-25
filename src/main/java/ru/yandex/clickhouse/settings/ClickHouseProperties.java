@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Properties;
 
 
-
 public class ClickHouseProperties {
 
     // connection settings
@@ -32,14 +31,16 @@ public class ClickHouseProperties {
     private int maxRedirects;
 
     /**
-     * If set to <code>true</code>, driver will first try to connect to the server using GET request. If the response is 307,
+     * If set to <code>true</code>, driver will first try to connect
+     * to the server using GET request. If the response is 307,
      * it will use URI given in the response's Location header instead of the original one.
      * <p>
      * Those queries will be repeated until response is anything other than 307, or until
      * {@link ClickHouseProperties#maxRedirects maxRedirects} is hit.
      * <p>
      * This is a workaround to issues with properly following HTTP POST redirects.
-     * Namely, Apache HTTP client's inability to process early responses, and difficulties with resending non-repeatable
+     * Namely, Apache HTTP client's inability to process early responses,
+     * and difficulties with resending non-repeatable
      * {@link org.apache.http.entity.InputStreamEntity InputStreamEntity}
      */
     private boolean checkForRedirects;
@@ -54,10 +55,10 @@ public class ClickHouseProperties {
     // queries settings
     private Integer maxParallelReplicas;
     private Integer maxPartitionsPerInsertBlock;
-    private String  totalsMode;
-    private String  quotaKey;
+    private String totalsMode;
+    private String quotaKey;
     private Integer priority;
-    private String  database;
+    private String database;
     private boolean compress;
     private boolean decompress;
     private boolean extremes;
@@ -65,27 +66,27 @@ public class ClickHouseProperties {
     private Integer maxExecutionTime;
     private Integer maxBlockSize;
     private Integer maxRowsToGroupBy;
-    private String  profile;
-    private String  user;
-    private String  password;
-    private String  httpAuthorization;
+    private String profile;
+    private String user;
+    private String password;
+    private String httpAuthorization;
     private boolean distributedAggregationMemoryEfficient;
-    private Long    maxBytesBeforeExternalGroupBy;
-    private Long    maxBytesBeforeExternalSort;
-    private Long    maxMemoryUsage;
-    private Long    maxMemoryUsageForUser;
-    private Long    maxMemoryUsageForAllQueries;
-    private Long    preferredBlockSizeBytes;
-    private Long    maxQuerySize;
-    private Long    maxAstElements;
+    private Long maxBytesBeforeExternalGroupBy;
+    private Long maxBytesBeforeExternalSort;
+    private Long maxMemoryUsage;
+    private Long maxMemoryUsageForUser;
+    private Long maxMemoryUsageForAllQueries;
+    private Long preferredBlockSizeBytes;
+    private Long maxQuerySize;
+    private Long maxAstElements;
     private boolean sessionCheck;
-    private String  sessionId;
-    private Long    sessionTimeout;
-    private Long    insertQuorum;
-    private Long    insertQuorumTimeout;
-    private Long    selectSequentialConsistency;
+    private String sessionId;
+    private Long sessionTimeout;
+    private Long insertQuorum;
+    private Long insertQuorumTimeout;
+    private Long selectSequentialConsistency;
     private Boolean enableOptimizePredicateExpression;
-    private Long    maxInsertBlockSize;
+    private Long maxInsertBlockSize;
     private Boolean insertDeduplicate;
     private Boolean insertDistributedSync;
 
@@ -105,12 +106,12 @@ public class ClickHouseProperties {
         this.timeToLiveMillis = getSetting(info, ClickHouseConnectionSettings.TIME_TO_LIVE_MILLIS);
         this.defaultMaxPerRoute = getSetting(info, ClickHouseConnectionSettings.DEFAULT_MAX_PER_ROUTE);
         this.maxTotal = getSetting(info, ClickHouseConnectionSettings.MAX_TOTAL);
-        this.maxCompressBufferSize =  getSetting(info, ClickHouseConnectionSettings.MAX_COMPRESS_BUFFER_SIZE);
-        this.ssl =  getSetting(info, ClickHouseConnectionSettings.SSL);
+        this.maxCompressBufferSize = getSetting(info, ClickHouseConnectionSettings.MAX_COMPRESS_BUFFER_SIZE);
+        this.ssl = getSetting(info, ClickHouseConnectionSettings.SSL);
         this.sslRootCertificate = getSetting(info, ClickHouseConnectionSettings.SSL_ROOT_CERTIFICATE);
         this.sslMode = getSetting(info, ClickHouseConnectionSettings.SSL_MODE);
-        this.maxRedirects =  getSetting(info, ClickHouseConnectionSettings.MAX_REDIRECTS);
-        this.checkForRedirects =  getSetting(info, ClickHouseConnectionSettings.CHECK_FOR_REDIRECTS);
+        this.maxRedirects = getSetting(info, ClickHouseConnectionSettings.MAX_REDIRECTS);
+        this.checkForRedirects = getSetting(info, ClickHouseConnectionSettings.CHECK_FOR_REDIRECTS);
         this.useServerTimeZone = getSetting(info, ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE);
         this.useTimeZone = getSetting(info, ClickHouseConnectionSettings.USE_TIME_ZONE);
         this.useServerTimeZoneForDates = getSetting(info, ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE_FOR_DATES);
@@ -133,7 +134,8 @@ public class ClickHouseProperties {
         this.user = getSetting(info, ClickHouseQueryParam.USER);
         this.password = getSetting(info, ClickHouseQueryParam.PASSWORD);
         this.httpAuthorization = getSetting(info, ClickHouseQueryParam.AUTHORIZATION);
-        this.distributedAggregationMemoryEfficient = getSetting(info, ClickHouseQueryParam.DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT);
+        this.distributedAggregationMemoryEfficient = getSetting(
+                info, ClickHouseQueryParam.DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT);
         this.maxBytesBeforeExternalGroupBy = getSetting(info, ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY);
         this.maxBytesBeforeExternalSort = getSetting(info, ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_SORT);
         this.maxMemoryUsage = getSetting(info, ClickHouseQueryParam.MAX_MEMORY_USAGE);
@@ -142,13 +144,14 @@ public class ClickHouseProperties {
         this.preferredBlockSizeBytes = getSetting(info, ClickHouseQueryParam.PREFERRED_BLOCK_SIZE_BYTES);
         this.maxQuerySize = getSetting(info, ClickHouseQueryParam.MAX_QUERY_SIZE);
         this.maxAstElements = getSetting(info, ClickHouseQueryParam.MAX_AST_ELEMENTS);
-        this.sessionCheck =  getSetting(info, ClickHouseQueryParam.SESSION_CHECK);
+        this.sessionCheck = getSetting(info, ClickHouseQueryParam.SESSION_CHECK);
         this.sessionId = getSetting(info, ClickHouseQueryParam.SESSION_ID);
         this.sessionTimeout = getSetting(info, ClickHouseQueryParam.SESSION_TIMEOUT);
         this.insertQuorum = getSetting(info, ClickHouseQueryParam.INSERT_QUORUM);
         this.insertQuorumTimeout = getSetting(info, ClickHouseQueryParam.INSERT_QUORUM_TIMEOUT);
         this.selectSequentialConsistency = getSetting(info, ClickHouseQueryParam.SELECT_SEQUENTIAL_CONSISTENCY);
-        this.enableOptimizePredicateExpression = getSetting(info, ClickHouseQueryParam.ENABLE_OPTIMIZE_PREDICATE_EXPRESSION);
+        this.enableOptimizePredicateExpression = getSetting(info,
+                                                            ClickHouseQueryParam.ENABLE_OPTIMIZE_PREDICATE_EXPRESSION);
         this.maxInsertBlockSize = getSetting(info, ClickHouseQueryParam.MAX_INSERT_BLOCK_SIZE);
         this.insertDeduplicate = getSetting(info, ClickHouseQueryParam.INSERT_DEDUPLICATE);
         this.insertDistributedSync = getSetting(info, ClickHouseQueryParam.INSERT_DISTRIBUTED_SYNC);
@@ -174,7 +177,8 @@ public class ClickHouseProperties {
         ret.put(ClickHouseConnectionSettings.CHECK_FOR_REDIRECTS.getKey(), String.valueOf(checkForRedirects));
         ret.put(ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), String.valueOf(useServerTimeZone));
         ret.put(ClickHouseConnectionSettings.USE_TIME_ZONE.getKey(), String.valueOf(useTimeZone));
-        ret.put(ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE_FOR_DATES.getKey(), String.valueOf(useServerTimeZoneForDates));
+        ret.put(ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE_FOR_DATES.getKey(),
+                String.valueOf(useServerTimeZoneForDates));
         ret.put(ClickHouseConnectionSettings.USE_OBJECTS_IN_ARRAYS.getKey(), String.valueOf(useObjectsInArrays));
 
         ret.put(ClickHouseQueryParam.MAX_PARALLEL_REPLICAS.getKey(), maxParallelReplicas);
@@ -194,7 +198,8 @@ public class ClickHouseProperties {
         ret.put(ClickHouseQueryParam.USER.getKey(), user);
         ret.put(ClickHouseQueryParam.PASSWORD.getKey(), password);
         ret.put(ClickHouseQueryParam.AUTHORIZATION.getKey(), httpAuthorization);
-        ret.put(ClickHouseQueryParam.DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT.getKey(), String.valueOf(distributedAggregationMemoryEfficient));
+        ret.put(ClickHouseQueryParam.DISTRIBUTED_AGGREGATION_MEMORY_EFFICIENT.getKey(),
+                String.valueOf(distributedAggregationMemoryEfficient));
         ret.put(ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY.getKey(), maxBytesBeforeExternalGroupBy);
         ret.put(ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_SORT.getKey(), maxBytesBeforeExternalSort);
         ret.put(ClickHouseQueryParam.MAX_MEMORY_USAGE.getKey(), maxMemoryUsage);
@@ -278,17 +283,32 @@ public class ClickHouseProperties {
         setInsertDistributedSync(properties.insertDistributedSync);
     }
 
-    public Map<ClickHouseQueryParam, String> buildQueryParams(boolean ignoreDatabase){
+    public Map<ClickHouseQueryParam, String> buildQueryParams(boolean ignoreDatabase) {
         Map<ClickHouseQueryParam, String> params = new HashMap<>();
 
-        if (maxParallelReplicas != null) params.put(ClickHouseQueryParam.MAX_PARALLEL_REPLICAS, String.valueOf(maxParallelReplicas));
-        if (maxPartitionsPerInsertBlock != null) params.put(ClickHouseQueryParam.MAX_PARTITIONS_PER_INSERT_BLOCK, String.valueOf(maxPartitionsPerInsertBlock));
-        if (maxRowsToGroupBy != null) params.put(ClickHouseQueryParam.MAX_ROWS_TO_GROUP_BY, String.valueOf(maxRowsToGroupBy));
-        if (totalsMode != null) params.put(ClickHouseQueryParam.TOTALS_MODE, totalsMode);
-        if (quotaKey != null) params.put(ClickHouseQueryParam.QUOTA_KEY, quotaKey);
-        if (priority != null) params.put(ClickHouseQueryParam.PRIORITY, String.valueOf(priority));
+        if (maxParallelReplicas != null) {
+            params.put(ClickHouseQueryParam.MAX_PARALLEL_REPLICAS, String.valueOf(maxParallelReplicas));
+        }
+        if (maxPartitionsPerInsertBlock != null) {
+            params.put(ClickHouseQueryParam.MAX_PARTITIONS_PER_INSERT_BLOCK,
+                       String.valueOf(maxPartitionsPerInsertBlock));
+        }
+        if (maxRowsToGroupBy != null) {
+            params.put(ClickHouseQueryParam.MAX_ROWS_TO_GROUP_BY, String.valueOf(maxRowsToGroupBy));
+        }
+        if (totalsMode != null) {
+            params.put(ClickHouseQueryParam.TOTALS_MODE, totalsMode);
+        }
+        if (quotaKey != null) {
+            params.put(ClickHouseQueryParam.QUOTA_KEY, quotaKey);
+        }
+        if (priority != null) {
+            params.put(ClickHouseQueryParam.PRIORITY, String.valueOf(priority));
+        }
 
-        if (!(database == null || database.isBlank()) && !ignoreDatabase) params.put(ClickHouseQueryParam.DATABASE, getDatabase());
+        if (!(database == null || database.isBlank()) && !ignoreDatabase) {
+            params.put(ClickHouseQueryParam.DATABASE, getDatabase());
+        }
 
         if (compress) {
             params.put(ClickHouseQueryParam.COMPRESS, "1");
@@ -330,7 +350,8 @@ public class ClickHouseProperties {
         }
 
         if (maxBytesBeforeExternalGroupBy != null) {
-            params.put(ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY, String.valueOf(maxBytesBeforeExternalGroupBy));
+            params.put(ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY,
+                       String.valueOf(maxBytesBeforeExternalGroupBy));
         }
         if (maxBytesBeforeExternalSort != null) {
             params.put(ClickHouseQueryParam.MAX_BYTES_BEFORE_EXTERNAL_SORT, String.valueOf(maxBytesBeforeExternalSort));
@@ -342,7 +363,8 @@ public class ClickHouseProperties {
             params.put(ClickHouseQueryParam.MAX_MEMORY_USAGE_FOR_USER, String.valueOf(maxMemoryUsageForUser));
         }
         if (maxMemoryUsageForAllQueries != null) {
-            params.put(ClickHouseQueryParam.MAX_MEMORY_USAGE_FOR_ALL_QUERIES, String.valueOf(maxMemoryUsageForAllQueries));
+            params.put(ClickHouseQueryParam.MAX_MEMORY_USAGE_FOR_ALL_QUERIES,
+                       String.valueOf(maxMemoryUsageForAllQueries));
         }
         if (preferredBlockSizeBytes != null) {
             params.put(ClickHouseQueryParam.PREFERRED_BLOCK_SIZE_BYTES, String.valueOf(preferredBlockSizeBytes));
@@ -374,13 +396,16 @@ public class ClickHouseProperties {
         addQueryParam(insertDistributedSync, ClickHouseQueryParam.INSERT_DISTRIBUTED_SYNC, params);
 
         if (enableOptimizePredicateExpression != null) {
-            params.put(ClickHouseQueryParam.ENABLE_OPTIMIZE_PREDICATE_EXPRESSION, enableOptimizePredicateExpression ? "1" : "0");
+            params.put(ClickHouseQueryParam.ENABLE_OPTIMIZE_PREDICATE_EXPRESSION,
+                       enableOptimizePredicateExpression ? "1" : "0");
         }
 
         return params;
     }
 
-    private void addQueryParam(Object param, ClickHouseQueryParam definition, Map<ClickHouseQueryParam, String> params) {
+    private void addQueryParam(Object param,
+                               ClickHouseQueryParam definition,
+                               Map<ClickHouseQueryParam, String> params) {
         if (param != null) {
             if (definition.getClazz() == Boolean.class || definition.getClazz() == boolean.class) {
                 params.put(definition, ((Boolean) param) ? "1" : "0");
@@ -390,7 +415,7 @@ public class ClickHouseProperties {
         }
     }
 
-    public ClickHouseProperties withCredentials(String user, String password){
+    public ClickHouseProperties withCredentials(String user, String password) {
         ClickHouseProperties copy = new ClickHouseProperties(this);
         copy.setUser(user);
         copy.setPassword(password);
@@ -398,18 +423,19 @@ public class ClickHouseProperties {
     }
 
 
-    private <T> T getSetting(Properties info, ClickHouseQueryParam param){
+    private <T> T getSetting(Properties info, ClickHouseQueryParam param) {
         return getSetting(info, param.getKey(), param.getDefaultValue(), param.getClazz());
     }
 
-    private <T> T getSetting(Properties info, ClickHouseConnectionSettings settings){
+    private <T> T getSetting(Properties info, ClickHouseConnectionSettings settings) {
         return getSetting(info, settings.getKey(), settings.getDefaultValue(), settings.getClazz());
     }
 
-    private <T> T getSetting(Properties info, String key, Object defaultValue, Class clazz){
+    private <T> T getSetting(Properties info, String key, Object defaultValue, Class clazz) {
         String val = info.getProperty(key);
-        if (val == null)
-            return (T)defaultValue;
+        if (val == null) {
+            return (T) defaultValue;
+        }
         if (clazz == int.class || clazz == Integer.class) {
             return (T) clazz.cast(Integer.valueOf(val));
         }
@@ -604,6 +630,7 @@ public class ClickHouseProperties {
     public void setCheckForRedirects(boolean checkForRedirects) {
         this.checkForRedirects = checkForRedirects;
     }
+
     public boolean isUseServerTimeZone() {
         return useServerTimeZone;
     }
@@ -812,17 +839,29 @@ public class ClickHouseProperties {
         return this.maxAstElements;
     }
 
-    public boolean isSessionCheck() { return sessionCheck; }
+    public boolean isSessionCheck() {
+        return sessionCheck;
+    }
 
-    public void setSessionCheck(boolean sessionCheck) { this.sessionCheck = sessionCheck; }
+    public void setSessionCheck(boolean sessionCheck) {
+        this.sessionCheck = sessionCheck;
+    }
 
-    public String getSessionId() { return sessionId; }
+    public String getSessionId() {
+        return sessionId;
+    }
 
-    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-    public Long getSessionTimeout() { return sessionTimeout; }
+    public Long getSessionTimeout() {
+        return sessionTimeout;
+    }
 
-    public void setSessionTimeout(Long sessionTimeout) { this.sessionTimeout = sessionTimeout; }
+    public void setSessionTimeout(Long sessionTimeout) {
+        this.sessionTimeout = sessionTimeout;
+    }
 
     public Long getInsertQuorum() {
         return insertQuorum;
@@ -880,9 +919,28 @@ public class ClickHouseProperties {
         this.insertDistributedSync = insertDistributedSync;
     }
 
+    public ClickHouseProperties merge(ClickHouseProperties second) {
+        Properties properties = this.asProperties();
+        for (Map.Entry<Object, Object> entry : second.asProperties().entrySet()) {
+            properties.put(entry.getKey(), entry.getValue());
+        }
+
+        return new ClickHouseProperties(properties);
+    }
+
+    public ClickHouseProperties merge(Properties other) {
+        Properties properties = this.asProperties();
+        for (Map.Entry<Object, Object> entry : other.entrySet()) {
+            properties.put(entry.getKey(), entry.getValue());
+        }
+
+        return new ClickHouseProperties(properties);
+    }
+
     private static class PropertiesBuilder {
         private final Properties properties;
-        public PropertiesBuilder() {
+
+        PropertiesBuilder() {
             properties = new Properties();
         }
 
@@ -917,22 +975,6 @@ public class ClickHouseProperties {
         public Properties getProperties() {
             return properties;
         }
-    }
-
-    public ClickHouseProperties merge(ClickHouseProperties second){
-        Properties properties = this.asProperties();
-        for (Map.Entry<Object, Object> entry : second.asProperties().entrySet())
-            properties.put(entry.getKey(), entry.getValue());
-
-        return new ClickHouseProperties(properties);
-    }
-
-    public ClickHouseProperties merge(Properties other){
-        Properties properties = this.asProperties();
-        for (Map.Entry<Object, Object> entry : other.entrySet())
-            properties.put(entry.getKey(), entry.getValue());
-
-        return new ClickHouseProperties(properties);
     }
 
 }
