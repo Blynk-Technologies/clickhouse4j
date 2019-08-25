@@ -8,10 +8,6 @@ public final class Utils {
     private Utils() {
     }
 
-    public static boolean startsWithIgnoreCase(String haystack, String pattern) {
-        return haystack.substring(0, pattern.length()).equalsIgnoreCase(pattern);
-    }
-
     public static String retainUnquoted(String haystack, char quoteChar) {
         StringBuilder sb = new StringBuilder();
         String[] split = splitWithoutEscaped(haystack, quoteChar);

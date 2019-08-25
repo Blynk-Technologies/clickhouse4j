@@ -502,7 +502,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     private String extractDBAndTableName(String sql) {
-        if (Utils.startsWithIgnoreCase(sql, "select")) {
+        if (sql.regionMatches(true, 0, "select", 0, "select".length())) {
             String withoutStrings = Utils.retainUnquoted(sql, '\'');
             int fromIndex = withoutStrings.indexOf("from");
             if (fromIndex == -1) {
@@ -514,17 +514,17 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 return fromTable.split(" ")[0];
             }
         }
-        if (Utils.startsWithIgnoreCase(sql, "desc")) {
+        if (sql.regionMatches(true, 0, "desc", 0, "desc".length())) {
             return "system.columns";
         }
-        if (Utils.startsWithIgnoreCase(sql, "show")) {
+        if (sql.regionMatches(true, 0, "show", 0, "show".length())) {
             return "system.tables";
         }
         return "system.unknown";
     }
 
     private boolean extractWithTotals(String sql) {
-        if (Utils.startsWithIgnoreCase(sql, "select")) {
+        if (sql.regionMatches(true, 0, "select", 0, "select".length())) {
             String withoutStrings = Utils.retainUnquoted(sql, '\'');
             return withoutStrings.toLowerCase().contains(" with totals");
         }
