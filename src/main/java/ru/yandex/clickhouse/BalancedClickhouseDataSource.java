@@ -30,11 +30,12 @@ import static ru.yandex.clickhouse.ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFI
 public class BalancedClickhouseDataSource implements DataSource {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(BalancedClickhouseDataSource.class);
-    private static final Pattern URL_TEMPLATE = Pattern.compile(JDBC_CLICKHOUSE_PREFIX + "" +
-            "//([a-zA-Z0-9_:,.-]+)" +
-            "(/[a-zA-Z0-9_]+" +
-            "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+)*)?" +
-            ")?");
+    private static final Pattern URL_TEMPLATE =
+            Pattern.compile(JDBC_CLICKHOUSE_PREFIX +
+                                    "//([a-zA-Z0-9_:,.-]+)" +
+                                    "(/[a-zA-Z0-9_]+" +
+                                    "([?][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+([&][a-zA-Z0-9_]+[=][a-zA-Z0-9_]+)*)?" +
+                                    ")?");
 
     private PrintWriter printWriter;
     private int loginTimeoutSeconds = 0;
@@ -50,9 +51,12 @@ public class BalancedClickhouseDataSource implements DataSource {
      * create Datasource for clickhouse JDBC connections
      *
      * @param url address for connection to the database
-     *            must have the next format {@code jdbc:clickhouse://<first-host>:<port>,<second-host>:<port>/<database>?param1=value1&param2=value2 }
+     *            must have the next format
+     *            {@code jdbc:clickhouse://<first-host>:<port>,<second-host>:
+     *            <port>/<database>?param1=value1&param2=value2 }
      *            for example, {@code jdbc:clickhouse://localhost:8123,localhost:8123/database?compress=1&decompress=2 }
-     * @throws IllegalArgumentException if param have not correct format, or error happens when checking host availability
+     * @throws IllegalArgumentException if param have not correct format,
+     *                                  or error happens when checking host availability
      */
     public BalancedClickhouseDataSource(final String url) {
         this(splitUrl(url), getFromUrl(url));
@@ -94,7 +98,8 @@ public class BalancedClickhouseDataSource implements DataSource {
         }
 
         try {
-            ClickHouseProperties localProperties = ClickhouseJdbcUrlParser.parse(urls.get(0), properties.asProperties());
+            ClickHouseProperties localProperties = ClickhouseJdbcUrlParser.parse(urls.get(0),
+                                                                                 properties.asProperties());
             localProperties.setHost(null);
             localProperties.setPort(-1);
 
@@ -331,12 +336,14 @@ public class BalancedClickhouseDataSource implements DataSource {
     }
 
     private static Properties getFromUrlWithoutDefault(String url) {
-        if (url == null || url.isBlank())
+        if (url == null || url.isBlank()) {
             return new Properties();
+        }
 
         int index = url.indexOf("?");
-        if (index == -1)
+        if (index == -1) {
             return new Properties();
+        }
 
         return ClickhouseJdbcUrlParser.parseUriQueryPart(url.substring(index + 1), new Properties());
     }

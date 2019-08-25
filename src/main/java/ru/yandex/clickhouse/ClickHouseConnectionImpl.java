@@ -39,9 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public class ClickHouseConnectionImpl implements ClickHouseConnection {
-	
-	private static final int DEFAULT_RESULTSET_TYPE = ResultSet.TYPE_FORWARD_ONLY;
-	
+
+    private static final int DEFAULT_RESULTSET_TYPE = ResultSet.TYPE_FORWARD_ONLY;
+
     private static final Logger log = LoggerFactory.getLogger(ClickHouseConnectionImpl.class);
 
     private final CloseableHttpClient httpclient;
@@ -70,8 +70,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
         log.debug("Create a new connection to {}", url);
         try {
             httpclient = clientBuilder.buildClient();
-        }catch (Exception e) {
-            throw  new IllegalStateException("cannot initialize http client", e);
+        } catch (Exception e) {
+            throw new IllegalStateException("cannot initialize http client", e);
         }
         initTimeZone(this.properties);
     }
@@ -80,10 +80,14 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
         String useTimeZone = properties.getUseTimeZone();
 
         if (properties.isUseServerTimeZone() && !(useTimeZone == null || useTimeZone.isEmpty())) {
-            throw new IllegalArgumentException(String.format("only one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
+            throw new IllegalArgumentException(String.format("only one of %s or %s must be enabled",
+                                                             ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(),
+                                                             ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (!properties.isUseServerTimeZone() && (useTimeZone == null || useTimeZone.isEmpty())) {
-            throw new IllegalArgumentException(String.format("one of %s or %s must be enabled", ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(), ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
+            throw new IllegalArgumentException(String.format("one of %s or %s must be enabled",
+                                                             ClickHouseConnectionSettings.USE_SERVER_TIME_ZONE.getKey(),
+                                                             ClickHouseConnectionSettings.USE_TIME_ZONE.getKey()));
         }
         if (properties.isUseServerTimeZone()) {
             timezone = TimeZone.getTimeZone("UTC"); // just for next query
@@ -103,9 +107,10 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     public ClickHouseStatement createStatement() throws SQLException {
         return createStatement(DEFAULT_RESULTSET_TYPE);
     }
-    
+
     public ClickHouseStatement createStatement(int resultSetType) throws SQLException {
-        return LogProxy.wrap(ClickHouseStatement.class, new ClickHouseStatementImpl(httpclient, this, properties, resultSetType));
+        return LogProxy.wrap(ClickHouseStatement.class,
+                             new ClickHouseStatementImpl(httpclient, this, properties, resultSetType));
     }
 
     @Deprecated
@@ -120,15 +125,29 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     private ClickHouseStatement createClickHouseStatement(CloseableHttpClient httpClient) throws SQLException {
-        return LogProxy.wrap(ClickHouseStatement.class, new ClickHouseStatementImpl(httpClient, this, properties, DEFAULT_RESULTSET_TYPE));
+        return LogProxy.wrap(ClickHouseStatement.class,
+                             new ClickHouseStatementImpl(httpClient, this, properties, DEFAULT_RESULTSET_TYPE));
     }
 
     public PreparedStatement createPreparedStatement(String sql, int resultSetType) throws SQLException {
-        return LogProxy.wrap(PreparedStatement.class, new ClickHousePreparedStatementImpl(httpclient, this, properties, sql, getTimeZone(), resultSetType));
+        return LogProxy.wrap(PreparedStatement.class,
+                             new ClickHousePreparedStatementImpl(httpclient,
+                                                                 this,
+                                                                 properties,
+                                                                 sql,
+                                                                 getTimeZone(),
+                                                                 resultSetType));
     }
 
-    public ClickHousePreparedStatement createClickHousePreparedStatement(String sql, int resultSetType) throws SQLException {
-        return LogProxy.wrap(ClickHousePreparedStatement.class, new ClickHousePreparedStatementImpl(httpclient, this, properties, sql, getTimeZone(), resultSetType));
+    public ClickHousePreparedStatement createClickHousePreparedStatement(String sql,
+                                                                         int resultSetType) throws SQLException {
+        return LogProxy.wrap(ClickHousePreparedStatement.class,
+                             new ClickHousePreparedStatementImpl(httpclient,
+                                                                 this,
+                                                                 properties,
+                                                                 sql,
+                                                                 getTimeZone(),
+                                                                 resultSetType));
     }
 
 
@@ -139,6 +158,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     /**
      * lazily calculates and returns server version
+     *
      * @return server version string
      * @throws SQLException if something has gone wrong
      */
@@ -157,7 +177,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     public ClickHouseStatement createStatement(int resultSetType, int resultSetConcurrency,
                                                int resultSetHoldability) throws SQLException {
         if (resultSetType == ResultSet.TYPE_SCROLL_SENSITIVE || resultSetConcurrency != ResultSet.CONCUR_READ_ONLY
-            || resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+                || resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
             throw new SQLFeatureNotSupportedException();
         }
         return createStatement(resultSetType);
@@ -204,7 +224,10 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             httpclient.close();
             closed = true;
         } catch (IOException e) {
-            throw new ClickHouseUnknownException("HTTP client close exception", e, properties.getHost(), properties.getPort());
+            throw new ClickHouseUnknownException("HTTP client close exception",
+                                                 e,
+                                                 properties.getHost(),
+                                                 properties.getPort());
         }
     }
 
@@ -268,7 +291,9 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
 
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+    public PreparedStatement prepareStatement(String sql,
+                                              int resultSetType,
+                                              int resultSetConcurrency) throws SQLException {
         return createPreparedStatement(sql, resultSetType);
     }
 
@@ -318,12 +343,18 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+    public PreparedStatement prepareStatement(String sql,
+                                              int resultSetType,
+                                              int resultSetConcurrency,
+                                              int resultSetHoldability) throws SQLException {
         return createPreparedStatement(sql, resultSetType);
     }
 
     @Override
-    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+    public CallableStatement prepareCall(String sql,
+                                         int resultSetType,
+                                         int resultSetConcurrency,
+                                         int resultSetHoldability) throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 
@@ -400,12 +431,13 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
 
             return false;
         } finally {
-            if (isAnotherHttpClient)
+            if (isAnotherHttpClient) {
                 try {
                     closeableHttpClient.close();
                 } catch (IOException e) {
                     log.warn("Can't close a http client", e);
                 }
+            }
         }
     }
 
@@ -474,7 +506,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     void cleanConnections() {
         httpclient.getConnectionManager().closeExpiredConnections();
-        httpclient.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(), TimeUnit.MILLISECONDS);
+        httpclient.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(),
+                                                               TimeUnit.MILLISECONDS);
     }
 
     String getUrl() {

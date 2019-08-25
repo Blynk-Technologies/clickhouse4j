@@ -969,10 +969,8 @@ public abstract class AbstractResultSet implements ResultSet {
 
     public long[] getLongArray(String column) throws SQLException {
         Array array = getArray(column);
-        return (long[])array.getArray(); // optimistic
+        return (long[]) array.getArray(); // optimistic
     }
-
-
 
 
 }

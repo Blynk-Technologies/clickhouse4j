@@ -36,31 +36,37 @@ package ru.yandex.clickhouse.util;
  * @author tamtam180 - kirscheless at gmail.com
  * @see http://google-opensource.blogspot.jp/2011/04/introducing-cityhash.html
  * @see http://code.google.com/p/cityhash/
- *
  */
 
 /**
  * NOTE: The code is modified to be compatible with CityHash128 used in ClickHouse
  */
-class ClickHouseCityHash {
+final class ClickHouseCityHash {
 
     private static final long k0 = 0xc3a5c85c97cb3127L;
     private static final long k1 = 0xb492b66fbe98f273L;
     private static final long k2 = 0x9ae16a3b2f90404fL;
     private static final long k3 = 0xc949d7c7509e6557L;
 
-    private static long toLongLE(byte[] b, int i) {
-        return (((long)b[i+7] << 56) +
-                ((long)(b[i+6] & 255) << 48) +
-                ((long)(b[i+5] & 255) << 40) +
-                ((long)(b[i+4] & 255) << 32) +
-                ((long)(b[i+3] & 255) << 24) +
-                ((b[i+2] & 255) << 16) +
-                ((b[i+1] & 255) <<  8) +
-                ((b[i+0] & 255) <<  0));
+    private ClickHouseCityHash() {
     }
+
+    private static long toLongLE(byte[] b, int i) {
+        return (((long) b[i + 7] << 56) +
+                ((long) (b[i + 6] & 255) << 48) +
+                ((long) (b[i + 5] & 255) << 40) +
+                ((long) (b[i + 4] & 255) << 32) +
+                ((long) (b[i + 3] & 255) << 24) +
+                ((b[i + 2] & 255) << 16) +
+                ((b[i + 1] & 255) << 8) +
+                ((b[i + 0] & 255) << 0));
+    }
+
     private static long toIntLE(byte[] b, int i) {
-        return (((b[i+3] & 255L) << 24) + ((b[i+2] & 255L) << 16) + ((b[i+1] & 255L) << 8) + ((b[i+0] & 255L) << 0));
+        return (((b[i + 3] & 255L) << 24)
+                + ((b[i + 2] & 255L) << 16)
+                + ((b[i + 1] & 255L) << 8)
+                + ((b[i + 0] & 255L) << 0));
     }
 
     private static long fetch64(byte[] s, int pos) {
@@ -88,6 +94,7 @@ class ClickHouseCityHash {
     }
 
     private static final long kMul = 0x9ddfea08eb382d69L;
+
     private static long hash128to64(long u, long v) {
         long a = (u ^ v) * kMul;
         a ^= (a >>> 47);
@@ -133,7 +140,7 @@ class ClickHouseCityHash {
         a += x;
         a += y;
         b += rotate(a, 44);
-        return new long[]{ a + z, b + c };
+        return new long[]{a + z, b + c};
     }
 
     private static long[] weakHashLen32WithSeeds(byte[] s, int pos, long a, long b) {
@@ -180,7 +187,7 @@ class ClickHouseCityHash {
         a = hashLen16(a, c);
         b = hashLen16(d, b);
 
-        return new long[]{ a ^ b, hashLen16(b, a) };
+        return new long[]{a ^ b, hashLen16(b, a)};
     }
 
     private static long[] cityHash128WithSeed(byte[] s, int pos, int len, long seed0, long seed1) {
@@ -203,13 +210,17 @@ class ClickHouseCityHash {
             y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * k1;
 
             x ^= w[1];
-            y ^= v[0] ;
+            y ^= v[0];
 
             z = rotate(z ^ w[0], 33);
             v = weakHashLen32WithSeeds(s, pos, v[1] * k1, x + w[0]);
             w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y);
 
-            { long swap = z; z = x; x = swap; }
+
+            long swap = z;
+            z = x;
+            x = swap;
+
             pos += 64;
             x = rotate(x + y + v[0] + fetch64(s, pos + 16), 37) * k1;
             y = rotate(y + v[1] + fetch64(s, pos + 48), 42) * k1;
@@ -218,7 +229,11 @@ class ClickHouseCityHash {
             z = rotate(z ^ w[0], 33);
             v = weakHashLen32WithSeeds(s, pos, v[1] * k1, x + w[0]);
             w = weakHashLen32WithSeeds(s, pos + 32, z + w[1], y);
-            { long swap = z; z = x; x = swap; }
+
+            swap = z;
+            z = x;
+            x = swap;
+
             pos += 64;
             len -= 128;
         } while (len >= 128);
@@ -227,13 +242,13 @@ class ClickHouseCityHash {
         x += rotate(v[0] + z, 49) * k0;
 
         // If 0 < len < 128, hash up to 4 chunks of 32 bytes each from the end of s.
-        for (int tail_done = 0; tail_done < len; ) {
-            tail_done += 32;
+        for (int tailDone = 0; tailDone < len;) {
+            tailDone += 32;
             y = rotate(y - x, 42) * k0 + v[1];
-            w[0] += fetch64(s, pos + len - tail_done + 16);
+            w[0] += fetch64(s, pos + len - tailDone + 16);
             x = rotate(x, 49) * k0 + w[0];
             w[0] += v[0];
-            v = weakHashLen32WithSeeds(s, pos + len - tail_done, v[0], v[1]);
+            v = weakHashLen32WithSeeds(s, pos + len - tailDone, v[0], v[1]);
         }
 
         // At this point our 48 bytes of state should contain more than
@@ -261,8 +276,8 @@ class ClickHouseCityHash {
         } else if (len >= 8) {
             return cityHash128WithSeed(
                     new byte[0], 0, 0,
-                    fetch64(s, pos ) ^ (len * k0),
-                    fetch64(s, pos + len -8) ^ k1
+                    fetch64(s, pos) ^ (len * k0),
+                    fetch64(s, pos + len - 8) ^ k1
             );
         } else {
             return cityHash128WithSeed(s, pos, len, k0, k1);

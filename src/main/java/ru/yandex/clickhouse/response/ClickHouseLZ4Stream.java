@@ -31,7 +31,9 @@ public class ClickHouseLZ4Stream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (!checkNext()) return -1;
+        if (!checkNext()) {
+            return -1;
+        }
         byte b = currentBlock[pointer];
         pointer += 1;
         return b & 0xFF;
@@ -47,11 +49,13 @@ public class ClickHouseLZ4Stream extends InputStream {
             return 0;
         }
 
-        if (!checkNext()) return -1;
+        if (!checkNext()) {
+            return -1;
+        }
 
         int copied = 0;
         int targetPointer = off;
-        while(copied != len) {
+        while (copied != len) {
             int toCopy = Math.min(currentBlock.length - pointer, len - copied);
             System.arraycopy(currentBlock, pointer, b, targetPointer, toCopy);
             targetPointer += toCopy;
@@ -80,17 +84,21 @@ public class ClickHouseLZ4Stream extends InputStream {
     // every block is:
     private byte[] readNextBlock() throws IOException {
         int read = stream.read();
-        if (read < 0) return null;
+        if (read < 0) {
+            return null;
+        }
 
         byte[] checksum = new byte[16];
-        checksum[0] = (byte)read;
+        checksum[0] = (byte) read;
         // checksum - 16 bytes.
         dataWrapper.readFully(checksum, 1, 15);
         ClickHouseBlockChecksum expected = ClickHouseBlockChecksum.fromBytes(checksum);
         // header:
         // 1 byte - 0x82 (shows this is LZ4)
         int magic = dataWrapper.readUnsignedByte();
-        if (magic != MAGIC) throw new IOException("Magic is not correct: " + magic);
+        if (magic != MAGIC) {
+            throw new IOException("Magic is not correct: " + magic);
+        }
         // 4 bytes - size of the compressed data including 9 bytes of the header
         int compressedSizeWithHeader = dataWrapper.readInt();
         // 4 bytes - size of uncompressed data
@@ -100,7 +108,11 @@ public class ClickHouseLZ4Stream extends InputStream {
         // compressed data: compressed_size - 9 байт.
         dataWrapper.readFully(block);
 
-        ClickHouseBlockChecksum real = ClickHouseBlockChecksum.calculateForBlock((byte)magic, compressedSizeWithHeader, uncompressedSize, block, compressedSize);
+        ClickHouseBlockChecksum real = ClickHouseBlockChecksum.calculateForBlock((byte) magic,
+                                                                                 compressedSizeWithHeader,
+                                                                                 uncompressedSize,
+                                                                                 block,
+                                                                                 compressedSize);
         if (!real.equals(expected)) {
             throw new IllegalArgumentException("Checksum doesn't match: corrupted data.");
         }

@@ -14,13 +14,16 @@ import java.util.regex.Pattern;
 /**
  * @author Aleksandr Kormushin {@literal (<kormushin@yandex-team.ru>)}
  */
-public class TypeUtils {
+public final class TypeUtils {
 
     public static final String NULLABLE_YES = "YES";
     static final String NULLABLE_NO = "NO";
 
     private static final Pattern DECIMAL_PATTERN = Pattern.compile(
-        "Decimal\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");
+            "Decimal\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)");
+
+    private TypeUtils() {
+    }
 
     public static int toSqlType(String clickhouseType) {
         if (isNullable(clickhouseType)) {
@@ -63,8 +66,8 @@ public class TypeUtils {
 
     public static String unwrapNullableIfApplicable(String clickhouseType) {
         return isNullable(clickhouseType)
-            ? unwrapNullable(clickhouseType)
-            : clickhouseType;
+                ? unwrapNullable(clickhouseType)
+                : clickhouseType;
     }
 
     private static String unwrapNullable(String clickshouseType) {
@@ -75,7 +78,7 @@ public class TypeUtils {
         return clickshouseType.startsWith("Nullable(") && clickshouseType.endsWith(")");
     }
 
-    public static boolean isUnsigned(String clickhouseType){
+    public static boolean isUnsigned(String clickhouseType) {
         if (isNullable(clickhouseType)) {
             clickhouseType = unwrapNullable(clickhouseType);
         }

@@ -1,6 +1,6 @@
 package ru.yandex.clickhouse.response;
 
-class ArrayByteFragment extends ByteFragment {
+final class ArrayByteFragment extends ByteFragment {
 
     private ArrayByteFragment(byte[] buf, int start, int len) {
         super(buf, start, len);

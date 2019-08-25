@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
  * Tries to extract query parameters in a way that is usable for (batched)
  * prepared statements.
  */
-final class PreparedStatementParser  {
+final class PreparedStatementParser {
 
     private static final Pattern VALUES = Pattern.compile(
-        "(?i)INSERT\\s+INTO\\s+.+VALUES\\s*\\(",
-        Pattern.MULTILINE | Pattern.DOTALL);
+            "(?i)INSERT\\s+INTO\\s+.+VALUES\\s*\\(",
+            Pattern.MULTILINE | Pattern.DOTALL);
 
     private final List<List<String>> parameters;
     private final List<String> parts;
@@ -71,7 +71,7 @@ final class PreparedStatementParser  {
         int currentParensLevel = 0;
         int quotedStart = 0;
         int partStart = 0;
-        for (int i = valuesMode ? matcher.end() - 1 : 0, idxStart = i, idxEnd = i ; i < sql.length(); i++) {
+        for (int i = valuesMode ? matcher.end() - 1 : 0, idxStart = i, idxEnd = i; i < sql.length(); i++) {
             char c = sql.charAt(i);
             if (inSingleLineComment) {
                 if (c == '\n') {
@@ -127,19 +127,19 @@ final class PreparedStatementParser  {
                     idxStart++;
                     idxEnd++;
                 } else if (c == ')') {
-                   currentParensLevel--;
-                   if (valuesMode && currentParensLevel == 0) {
-                       if (idxEnd > idxStart) {
-                           currentParamList.add(typeTransformParameterValue(sql.substring(idxStart, idxEnd)));
-                           parts.add(sql.substring(partStart, idxStart));
-                           partStart = idxEnd;
-                           idxStart = idxEnd = i;
-                       }
-                       if (!currentParamList.isEmpty()) {
-                           parameters.add(currentParamList);
-                           currentParamList = new ArrayList<>(currentParamList.size());
-                       }
-                   }
+                    currentParensLevel--;
+                    if (valuesMode && currentParensLevel == 0) {
+                        if (idxEnd > idxStart) {
+                            currentParamList.add(typeTransformParameterValue(sql.substring(idxStart, idxEnd)));
+                            parts.add(sql.substring(partStart, idxStart));
+                            partStart = idxEnd;
+                            idxStart = idxEnd = i;
+                        }
+                        if (!currentParamList.isEmpty()) {
+                            parameters.add(currentParamList);
+                            currentParamList = new ArrayList<>(currentParamList.size());
+                        }
+                    }
                 } else if (Character.isWhitespace(c)) {
                     whiteSpace = true;
                 } else if (currentParensLevel > 0) {

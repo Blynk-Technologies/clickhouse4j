@@ -21,15 +21,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * URL Format
- *
+ * <p>
  * primitive for now
- *
+ * <p>
  * jdbc:clickhouse://host:port
- *
+ * <p>
  * for example, jdbc:clickhouse://localhost:8123
- *
  */
 public class ClickHouseDriver implements Driver {
 
@@ -121,7 +119,7 @@ public class ClickHouseDriver implements Driver {
      * Schedules connections cleaning at a rate. Turned off by default.
      * See https://hc.apache.org/httpcomponents-client-4.5.x/tutorial/html/connmgmt.html#d5e418
      *
-     * @param rate period when checking would be performed
+     * @param rate     period when checking would be performed
      * @param timeUnit time unit of rate
      */
     void scheduleConnectionsCleaning(int rate, TimeUnit timeUnit) {
@@ -130,14 +128,15 @@ public class ClickHouseDriver implements Driver {
                 for (ClickHouseConnectionImpl connection : connections.keySet()) {
                     connection.cleanConnections();
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 logger.error("error evicting connections: " + e);
             }
         }, 0, rate, timeUnit);
     }
 
     static class ScheduledConnectionCleaner {
-        static final ScheduledExecutorService INSTANCE = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+        static final ScheduledExecutorService INSTANCE =
+                Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
 
         static class DaemonThreadFactory implements ThreadFactory {
             @Override

@@ -155,7 +155,8 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams, List<ClickHouseExternalData> externalData) throws SQLException {
+    public ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData) throws SQLException {
         return super.executeQuery(buildSql(), additionalDBParams, externalData);
     }
 
@@ -383,39 +384,18 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         return result;
     }
 
-    private static class BatchHttpEntity extends AbstractHttpEntity {
-        private final List<byte[]> rows;
-
-        public BatchHttpEntity(List<byte[]> rows) {
-            this.rows = rows;
+    @Override
+    public ResultSetMetaData getMetaData() throws SQLException {
+        ResultSet currentResult = getResultSet();
+        if (currentResult != null) {
+            return currentResult.getMetaData();
         }
-
-        @Override
-        public boolean isRepeatable() {
-            return true;
+        if (!isSelect(sql)) {
+            return null;
         }
-
-        @Override
-        public long getContentLength() {
-            return -1;
-        }
-
-        @Override
-        public InputStream getContent() throws IOException, IllegalStateException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void writeTo(OutputStream outputStream) throws IOException {
-            for (byte[] row : rows) {
-                outputStream.write(row);
-            }
-        }
-
-        @Override
-        public boolean isStreaming() {
-            return false;
-        }
+        ResultSet myRs = executeQuery(Collections.singletonMap(
+                ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
+        return myRs != null ? myRs.getMetaData() : null;
     }
 
     @Override
@@ -447,18 +427,39 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         setBind(parameterIndex, ClickHouseArrayUtil.arrayToString(x.getArray(), x.getBaseType() != Types.BINARY));
     }
 
-    @Override
-    public ResultSetMetaData getMetaData() throws SQLException {
-        ResultSet currentResult = getResultSet();
-        if (currentResult != null) {
-            return currentResult.getMetaData();
+    private static class BatchHttpEntity extends AbstractHttpEntity {
+        private final List<byte[]> rows;
+
+        BatchHttpEntity(List<byte[]> rows) {
+            this.rows = rows;
         }
-        if (!isSelect(sql)) {
-            return null;
+
+        @Override
+        public boolean isRepeatable() {
+            return true;
         }
-        ResultSet myRs = executeQuery(Collections.singletonMap(
-            ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
-        return myRs != null ? myRs.getMetaData() : null;
+
+        @Override
+        public long getContentLength() {
+            return -1;
+        }
+
+        @Override
+        public InputStream getContent() throws IOException, IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+            for (byte[] row : rows) {
+                outputStream.write(row);
+            }
+        }
+
+        @Override
+        public boolean isStreaming() {
+            return false;
+        }
     }
 
     @Override

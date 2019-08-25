@@ -44,7 +44,9 @@ public class IpVersionPriorityResolver implements DnsResolver {
                 return 0;
             }
         };
-        if (!preferV6) comparator = Collections.reverseOrder(comparator);
+        if (!preferV6) {
+            comparator = Collections.reverseOrder(comparator);
+        }
         Arrays.sort(resolve, comparator);
         return resolve;
     }

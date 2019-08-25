@@ -13,7 +13,7 @@ public final class ClickHouseArrayUtil {
     private ClickHouseArrayUtil() {
     }
 
-    public static String arrayToString(Object object) {
+    static String arrayToString(Object object) {
         return arrayToString(object, true);
     }
 
@@ -67,7 +67,8 @@ public final class ClickHouseArrayUtil {
     }
 
     public static String toString(Object[] values, Boolean explicitEscape) {
-        if (values.length > 0 && values[0] != null && (values[0].getClass().isArray() || values[0] instanceof Collection)) {
+        if (values.length > 0 && values[0] != null
+                && (values[0].getClass().isArray() || values[0] instanceof Collection)) {
             // quote is false to avoid escaping inner '['
             ArrayBuilder builder = new ArrayBuilder(false, true);
             for (Object value : values) {
@@ -111,7 +112,7 @@ public final class ClickHouseArrayUtil {
         return objects.length == 0 || !(o instanceof Number);
     }
 
-    private static class ArrayBuilder {
+    private static final class ArrayBuilder {
         private final StringBuilder builder = new StringBuilder();
         private final boolean quote;
         private final boolean explicitEscape;

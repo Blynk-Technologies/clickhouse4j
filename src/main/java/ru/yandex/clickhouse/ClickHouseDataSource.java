@@ -34,7 +34,7 @@ public class ClickHouseDataSource implements DataSource {
         }
         this.url = url;
         try {
-            this.properties =  ClickhouseJdbcUrlParser.parse(url, properties.asProperties());
+            this.properties = ClickhouseJdbcUrlParser.parse(url, properties.asProperties());
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
@@ -111,11 +111,11 @@ public class ClickHouseDataSource implements DataSource {
      * Schedules connections cleaning at a rate. Turned off by default.
      * See https://hc.apache.org/httpcomponents-client-4.5.x/tutorial/html/connmgmt.html#d5e418
      *
-     * @param rate period when checking would be performed
+     * @param rate     period when checking would be performed
      * @param timeUnit time unit of rate
      * @return current modified object
      */
-    public ClickHouseDataSource withConnectionsCleaning(int rate, TimeUnit timeUnit){
+    public ClickHouseDataSource withConnectionsCleaning(int rate, TimeUnit timeUnit) {
         driver.scheduleConnectionsCleaning(rate, timeUnit);
         return this;
     }

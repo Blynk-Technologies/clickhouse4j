@@ -15,31 +15,43 @@ public interface ClickHouseStatement extends Statement {
 
     ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql) throws SQLException;
 
-    ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql,
-                                                                         Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
+    ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
+            String sql,
+            Map<ClickHouseQueryParam, String> additionalDBParams
+    ) throws SQLException;
 
-    ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(String sql,
-                                                                         Map<ClickHouseQueryParam, String> additionalDBParams,
-                                                                         Map<String, String> additionalRequestParams) throws SQLException;
+    ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
+            String sql,
+            Map<ClickHouseQueryParam, String> additionalDBParams,
+            Map<String, String> additionalRequestParams) throws SQLException;
 
     ResultSet executeQuery(String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
-    ResultSet executeQuery(String sql, Map<ClickHouseQueryParam, String> additionalDBParams, List<ClickHouseExternalData> externalData) throws SQLException;
-
     ResultSet executeQuery(String sql,
                            Map<ClickHouseQueryParam, String> additionalDBParams,
+                           List<ClickHouseExternalData> externalData) throws SQLException;
+
+    ResultSet executeQuery(String sql,
+                           Map<ClickHouseQueryParam,
+                           String> additionalDBParams,
                            List<ClickHouseExternalData> externalData,
                            Map<String, String> additionalRequestParams) throws SQLException;
 
-    void sendStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
+    void sendStream(InputStream content,
+                    String table,
+                    Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
     void sendStream(InputStream content, String table) throws SQLException;
 
-    void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams, ClickHouseStreamCallback callback) throws SQLException;
+    void sendRowBinaryStream(String sql,
+                             Map<ClickHouseQueryParam, String> additionalDBParams,
+                             ClickHouseStreamCallback callback) throws SQLException;
 
     void sendRowBinaryStream(String sql, ClickHouseStreamCallback callback) throws SQLException;
 
-    void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams, ClickHouseStreamCallback callback) throws SQLException;
-    
+    void sendNativeStream(String sql,
+                          Map<ClickHouseQueryParam, String> additionalDBParams,
+                          ClickHouseStreamCallback callback) throws SQLException;
+
     void sendNativeStream(String sql, ClickHouseStreamCallback callback) throws SQLException;
 }

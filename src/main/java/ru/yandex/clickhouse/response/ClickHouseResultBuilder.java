@@ -14,7 +14,7 @@ import java.util.TimeZone;
 /**
  * For building ClickHouseResultSet by hands
  */
-public class ClickHouseResultBuilder {
+public final class ClickHouseResultBuilder {
 
     private final int columnsNum;
     private List<String> names;
@@ -50,19 +50,25 @@ public class ClickHouseResultBuilder {
     }
 
     public ClickHouseResultBuilder names(List<String> names) {
-        if (names.size() != columnsNum) throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + names.size());
+        if (names.size() != columnsNum) {
+            throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + names.size());
+        }
         this.names = names;
         return this;
     }
 
     public ClickHouseResultBuilder types(List<String> types) {
-        if (types.size() != columnsNum) throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + types.size());
+        if (types.size() != columnsNum) {
+            throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + types.size());
+        }
         this.types = types;
         return this;
     }
 
     public ClickHouseResultBuilder addRow(List<?> row) {
-        if (row.size() != columnsNum) throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + row.size());
+        if (row.size() != columnsNum) {
+            throw new IllegalArgumentException("size mismatch, req: " + columnsNum + " got: " + row.size());
+        }
         rows.add(row);
         return this;
     }
@@ -79,8 +85,12 @@ public class ClickHouseResultBuilder {
 
     public ClickHouseResultSet build() {
         try {
-            if (names == null) throw new IllegalStateException("names == null");
-            if (types == null) throw new IllegalStateException("types == null");
+            if (names == null) {
+                throw new IllegalStateException("names == null");
+            }
+            if (types == null) {
+                throw new IllegalStateException("types == null");
+            }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             appendRow(names, baos);
             appendRow(types, baos);
@@ -100,7 +110,9 @@ public class ClickHouseResultBuilder {
 
     private void appendRow(List<?> row, ByteArrayOutputStream baos) throws IOException {
         for (int i = 0; i < row.size(); i++) {
-            if (i != 0) baos.write('\t');
+            if (i != 0) {
+                baos.write('\t');
+            }
             appendObject(row.get(i), baos);
         }
         baos.write('\n');
