@@ -38,7 +38,6 @@ import static ru.yandex.clickhouse.util.ClickHouseFormat.RowBinary;
 import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparated;
 import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparatedWithNamesAndTypes;
 
-//todo
 public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseStatementImpl.class);
@@ -206,7 +205,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        // currentResult is stored here. InputString and currentResult will be closed on this.close()
+        // currentResult is stored here. InputString and currentResult will be closed on this.closeClient()
         executeQuery(sql);
         return isSelect(sql);
     }
@@ -526,12 +525,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(sql,
+        httpConnector.sendStream(callback, getConnection().getTimeZone(), properties, sql,
                 ClickHouseFormat.RowBinary,
-                uri,
-                callback,
-                getConnection().getTimeZone(),
-                properties);
+                uri
+        );
     }
 
     @Override
@@ -543,12 +540,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(sql,
+        httpConnector.sendStream(callback, getConnection().getTimeZone(), properties, sql,
                 ClickHouseFormat.Native,
-                uri,
-                callback,
-                getConnection().getTimeZone(),
-                properties);
+                uri
+        );
     }
 
     @Override

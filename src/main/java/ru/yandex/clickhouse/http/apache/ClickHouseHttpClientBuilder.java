@@ -1,10 +1,9 @@
-package ru.yandex.clickhouse.http;
+package ru.yandex.clickhouse.http.apache;
 
 import  org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.RegistryBuilder;
@@ -19,7 +18,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 import ru.yandex.clickhouse.util.ssl.NonValidatingTrustManager;
@@ -48,15 +46,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ClickHouseHttpClientBuilder {
+class ClickHouseHttpClientBuilder {
 
     private final ClickHouseProperties properties;
 
-    public ClickHouseHttpClientBuilder(ClickHouseProperties properties) {
+    ClickHouseHttpClientBuilder(ClickHouseProperties properties) {
         this.properties = properties;
     }
 
-    public CloseableHttpClient buildClient() throws Exception {
+    CloseableHttpClient buildClient() throws Exception {
         return HttpClientBuilder.create()
                 .setConnectionManager(getConnectionManager())
                 .setKeepAliveStrategy(createKeepAliveStrategy())
@@ -118,25 +116,22 @@ public class ClickHouseHttpClientBuilder {
     }
 
     private ConnectionKeepAliveStrategy createKeepAliveStrategy() {
-        return new ConnectionKeepAliveStrategy() {
-            @Override
-            public long getKeepAliveDuration(HttpResponse httpResponse, HttpContext httpContext) {
-                // in case of errors keep-alive not always works. close connection just in case
-                if (httpResponse.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
-                    return -1;
-                }
-                HeaderElementIterator it = new BasicHeaderElementIterator(
-                        httpResponse.headerIterator(HTTP.CONN_DIRECTIVE));
-                while (it.hasNext()) {
-                    HeaderElement he = it.nextElement();
-                    String param = he.getName();
-                    //String value = he.getValue();
-                    if (param != null && param.equalsIgnoreCase(HTTP.CONN_KEEP_ALIVE)) {
-                        return properties.getKeepAliveTimeout();
-                    }
-                }
+        return (httpResponse, httpContext) -> {
+            // in case of errors keep-alive not always works. closeClient connection just in case
+            if (httpResponse.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
                 return -1;
             }
+            HeaderElementIterator it = new BasicHeaderElementIterator(
+                    httpResponse.headerIterator(HTTP.CONN_DIRECTIVE));
+            while (it.hasNext()) {
+                HeaderElement he = it.nextElement();
+                String param = he.getName();
+                //String value = he.getValue();
+                if (param != null && param.equalsIgnoreCase(HTTP.CONN_KEEP_ALIVE)) {
+                    return properties.getKeepAliveTimeout();
+                }
+            }
+            return -1;
         };
     }
 

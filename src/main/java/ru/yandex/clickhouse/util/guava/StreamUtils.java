@@ -80,7 +80,7 @@ public final class StreamUtils {
         try {
             closeable.close();
         } catch (IOException e) {
-            log.error("can not close stream: {}", e.getMessage());
+            log.error("can not closeClient stream: {}", e.getMessage());
         }
     }
 

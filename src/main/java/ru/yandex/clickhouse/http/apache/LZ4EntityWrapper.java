@@ -1,4 +1,4 @@
-package ru.yandex.clickhouse.http;
+package ru.yandex.clickhouse.http.apache;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -8,17 +8,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class LZ4EntityWrapper extends AbstractHttpEntity {
+class LZ4EntityWrapper extends AbstractHttpEntity {
 
     private final HttpEntity delegate;
     private final int maxCompressBlockSize;
 
-    public LZ4EntityWrapper(AbstractHttpEntity content, int maxCompressBlockSize) {
+    LZ4EntityWrapper(AbstractHttpEntity content, int maxCompressBlockSize) {
         this.delegate = content;
         this.maxCompressBlockSize = maxCompressBlockSize;
     }
 
-    public LZ4EntityWrapper(HttpEntity content, int maxCompressBlockSize) {
+    LZ4EntityWrapper(HttpEntity content, int maxCompressBlockSize) {
         delegate = content;
         this.maxCompressBlockSize = maxCompressBlockSize;
     }

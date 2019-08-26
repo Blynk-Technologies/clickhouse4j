@@ -3,6 +3,7 @@ package ru.yandex.clickhouse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.http.HttpConnector;
+import ru.yandex.clickhouse.http.HttpConnectorFactory;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.LogProxy;
@@ -61,7 +62,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             throw new IllegalArgumentException(e);
         }
 
-        this.httpConnector = new HttpConnector(properties);
+        this.httpConnector = HttpConnectorFactory.getConnector(properties);
         initTimeZone(this.properties);
     }
 
@@ -192,7 +193,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public void close() throws SQLException {
-        httpConnector.close();
+        httpConnector.closeClient();
         closed = true;
     }
 
@@ -374,7 +375,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
                 ClickHouseProperties properties = new ClickHouseProperties(this.properties);
                 properties.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(timeout));
                 properties.setMaxExecutionTime(timeout);
-                connector = new HttpConnector(properties);
+                connector = HttpConnectorFactory.getConnector(properties);
                 isAnotherHttpClient = true;
             }
 
@@ -393,7 +394,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             return false;
         } finally {
             if (isAnotherHttpClient) {
-                connector.close();
+                connector.closeClient();
             }
         }
     }
