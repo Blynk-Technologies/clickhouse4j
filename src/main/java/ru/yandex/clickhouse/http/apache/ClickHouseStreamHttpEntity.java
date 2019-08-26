@@ -1,7 +1,9 @@
-package ru.yandex.clickhouse.util;
+package ru.yandex.clickhouse.http.apache;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
+import ru.yandex.clickhouse.util.ClickHouseRowBinaryStream;
+import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,15 +14,15 @@ import java.util.TimeZone;
 /**
  * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
  */
-public class ClickHouseStreamHttpEntity extends AbstractHttpEntity {
+class ClickHouseStreamHttpEntity extends AbstractHttpEntity {
 
     private final ClickHouseStreamCallback callback;
     private final TimeZone timeZone;
     private final ClickHouseProperties properties;
 
-    public ClickHouseStreamHttpEntity(ClickHouseStreamCallback callback,
-                                      TimeZone timeZone,
-                                      ClickHouseProperties properties) {
+    ClickHouseStreamHttpEntity(ClickHouseStreamCallback callback,
+                               TimeZone timeZone,
+                               ClickHouseProperties properties) {
         Objects.requireNonNull(callback);
         this.timeZone = timeZone;
         this.callback = callback;

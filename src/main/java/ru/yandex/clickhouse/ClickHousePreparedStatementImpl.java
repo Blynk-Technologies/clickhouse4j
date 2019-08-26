@@ -1,14 +1,11 @@
 package ru.yandex.clickhouse;
 
-import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseArrayUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -64,13 +61,13 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     private List<byte[]> batchRows = new ArrayList<>();
 
 
-    public ClickHousePreparedStatementImpl(CloseableHttpClient client,
-                                           ClickHouseConnection connection,
-                                           ClickHouseProperties properties,
-                                           String sql,
-                                           TimeZone timezone,
-                                           int resultSetType) throws SQLException {
-        super(client, connection, properties, resultSetType);
+    ClickHousePreparedStatementImpl(HttpConnector connector,
+                                    ClickHouseConnection connection,
+                                    ClickHouseProperties properties,
+                                    String sql,
+                                    TimeZone timezone,
+                                    int resultSetType) {
+        super(connector, connection, properties, resultSetType);
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
         this.parameterList = parser.getParameters();
@@ -145,7 +142,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void clearBatch() throws SQLException {
+    public void clearBatch() {
         batchRows.clear();
     }
 
@@ -176,72 +173,72 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
 
 
     @Override
-    public void setNull(int parameterIndex, int sqlType) throws SQLException {
+    public void setNull(int parameterIndex, int sqlType) {
         setBind(parameterIndex, "\\N");
     }
 
     @Override
-    public void setBoolean(int parameterIndex, boolean x) throws SQLException {
+    public void setBoolean(int parameterIndex, boolean x) {
         setBind(parameterIndex, x ? "1" : "0");
     }
 
     @Override
-    public void setByte(int parameterIndex, byte x) throws SQLException {
+    public void setByte(int parameterIndex, byte x) {
         setBind(parameterIndex, Byte.toString(x));
     }
 
     @Override
-    public void setShort(int parameterIndex, short x) throws SQLException {
+    public void setShort(int parameterIndex, short x) {
         setBind(parameterIndex, Short.toString(x));
     }
 
     @Override
-    public void setInt(int parameterIndex, int x) throws SQLException {
+    public void setInt(int parameterIndex, int x) {
         setBind(parameterIndex, Integer.toString(x));
     }
 
     @Override
-    public void setLong(int parameterIndex, long x) throws SQLException {
+    public void setLong(int parameterIndex, long x) {
         setBind(parameterIndex, Long.toString(x));
     }
 
     @Override
-    public void setFloat(int parameterIndex, float x) throws SQLException {
+    public void setFloat(int parameterIndex, float x) {
         setBind(parameterIndex, Float.toString(x));
     }
 
     @Override
-    public void setDouble(int parameterIndex, double x) throws SQLException {
+    public void setDouble(int parameterIndex, double x) {
         setBind(parameterIndex, Double.toString(x));
     }
 
     @Override
-    public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+    public void setBigDecimal(int parameterIndex, BigDecimal x) {
         setBind(parameterIndex, x.toPlainString());
     }
 
     @Override
-    public void setString(int parameterIndex, String x) throws SQLException {
+    public void setString(int parameterIndex, String x) {
         setBind(parameterIndex, ClickHouseUtil.escape(x), x != null);
     }
 
     @Override
-    public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+    public void setBytes(int parameterIndex, byte[] x) {
         setBind(parameterIndex, new String(x, StandardCharsets.UTF_8));
     }
 
     @Override
-    public void setDate(int parameterIndex, Date x) throws SQLException {
+    public void setDate(int parameterIndex, Date x) {
         setBind(parameterIndex, dateFormat.format(x), true);
     }
 
     @Override
-    public void setTime(int parameterIndex, Time x) throws SQLException {
+    public void setTime(int parameterIndex, Time x) {
         setBind(parameterIndex, dateTimeFormat.format(x), true);
     }
 
     @Override
-    public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
+    public void setTimestamp(int parameterIndex, Timestamp x) {
         setBind(parameterIndex, dateTimeFormat.format(x), true);
     }
 
@@ -270,12 +267,12 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void setArray(int parameterIndex, Collection collection) throws SQLException {
+    public void setArray(int parameterIndex, Collection collection) {
         setBind(parameterIndex, ClickHouseArrayUtil.toString(collection));
     }
 
     @Override
-    public void setArray(int parameterIndex, Object[] array) throws SQLException {
+    public void setArray(int parameterIndex, Object[] array) {
         setBind(parameterIndex, ClickHouseArrayUtil.toString(array));
     }
 
@@ -376,27 +373,14 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         }
         int valuePosition = matcher.start();
         String insertSql = sql.substring(0, valuePosition);
-        BatchHttpEntity entity = new BatchHttpEntity(batchRows);
-        sendStream(entity, insertSql, additionalDBParams);
+        sendStream(batchRows, insertSql, additionalDBParams);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
         batchRows = new ArrayList<>();
         return result;
     }
 
-    @Override
-    public ResultSetMetaData getMetaData() throws SQLException {
-        ResultSet currentResult = getResultSet();
-        if (currentResult != null) {
-            return currentResult.getMetaData();
-        }
-        if (!isSelect(sql)) {
-            return null;
-        }
-        ResultSet myRs = executeQuery(Collections.singletonMap(
-                ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
-        return myRs != null ? myRs.getMetaData() : null;
-    }
+
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
@@ -427,39 +411,18 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         setBind(parameterIndex, ClickHouseArrayUtil.arrayToString(x.getArray(), x.getBaseType() != Types.BINARY));
     }
 
-    private static class BatchHttpEntity extends AbstractHttpEntity {
-        private final List<byte[]> rows;
-
-        BatchHttpEntity(List<byte[]> rows) {
-            this.rows = rows;
+    @Override
+    public ResultSetMetaData getMetaData() throws SQLException {
+        ResultSet currentResult = getResultSet();
+        if (currentResult != null) {
+            return currentResult.getMetaData();
         }
-
-        @Override
-        public boolean isRepeatable() {
-            return true;
+        if (!isSelect(sql)) {
+            return null;
         }
-
-        @Override
-        public long getContentLength() {
-            return -1;
-        }
-
-        @Override
-        public InputStream getContent() throws IOException, IllegalStateException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void writeTo(OutputStream outputStream) throws IOException {
-            for (byte[] row : rows) {
-                outputStream.write(row);
-            }
-        }
-
-        @Override
-        public boolean isStreaming() {
-            return false;
-        }
+        ResultSet myRs = executeQuery(Collections.singletonMap(
+            ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
+        return myRs != null ? myRs.getMetaData() : null;
     }
 
     @Override
@@ -481,7 +444,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
+    public void setNull(int parameterIndex, int sqlType, String typeName) {
         setNull(parameterIndex, sqlType);
     }
 
@@ -501,7 +464,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void setNString(int parameterIndex, String value) throws SQLException {
+    public void setNString(int parameterIndex, String value) {
         setString(parameterIndex, value);
     }
 
@@ -592,10 +555,9 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
 
     private int countNonConstantParams() {
         int count = 0;
-        for (int i = 0; i < parameterList.size(); i++) {
-            List<String> pList = parameterList.get(i);
-            for (int j = 0; j < pList.size(); j++) {
-                if (PARAM_MARKER.equals(pList.get(j))) {
+        for (List<String> pList : parameterList) {
+            for (String aPList : pList) {
+                if (PARAM_MARKER.equals(aPList)) {
                     count += 1;
                 }
             }

@@ -159,8 +159,7 @@ public enum ClickHouseQueryParam {
                                       + "user's queries on a single server."),
 
     /**
-     * @see <a href="https://clickhouse.yandex/docs/en/operations/settings/query_complexity/
-     * #max-memory-usage-for-all-queries">max_memory_usage_for_all_queries</a>
+     * @see "https://clickhouse.yandex/docs/en/operations/settings/query_complexity/#max-memory-usage-for-all-queries"
      */
     MAX_MEMORY_USAGE_FOR_ALL_QUERIES("max_memory_usage_for_all_queries",
                                      null,

@@ -141,7 +141,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
                         if (onTheSeparatorRow()) {
                             totalLine = bis.next();
                             endOfStream();
-                        } // otherwise do not close the stream, it is single column or invalid result set case
+                        } // otherwise do not closeClient the stream, it is single column or invalid result set case
                     } else {
                         endOfStream();
                     }

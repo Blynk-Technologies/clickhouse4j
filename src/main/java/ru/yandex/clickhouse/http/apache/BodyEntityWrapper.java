@@ -1,4 +1,4 @@
-package ru.yandex.clickhouse;
+package ru.yandex.clickhouse.http.apache;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Allow to inject sql query in the body, followed by row data
  */
-public class BodyEntityWrapper extends AbstractHttpEntity {
+class BodyEntityWrapper extends AbstractHttpEntity {
     private final StringEntity sql;
     private final HttpEntity delegate;
 

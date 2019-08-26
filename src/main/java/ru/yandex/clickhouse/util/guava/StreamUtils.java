@@ -74,12 +74,13 @@ public final class StreamUtils {
     }
 
     public static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-                log.error("can not close stream: {}", e.getMessage());
-            }
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            log.error("can not closeClient stream: {}", e.getMessage());
         }
     }
 

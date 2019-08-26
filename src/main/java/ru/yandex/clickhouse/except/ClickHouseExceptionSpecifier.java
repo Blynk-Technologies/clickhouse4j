@@ -1,9 +1,9 @@
 package ru.yandex.clickhouse.except;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
@@ -83,8 +83,8 @@ public final class ClickHouseExceptionSpecifier {
             // This is not the same as SOCKET_TIMEOUT of clickhouse
             // but it actually could be a failing ClickHouse
             return new ClickHouseException(ClickHouseErrorCode.TIMEOUT_EXCEEDED, cause, host, port);
-        } else if (cause instanceof ConnectTimeoutException || cause instanceof ConnectException) {
-            // couldn't connect to ClickHouse during connectTimeout
+        } else if (cause instanceof InterruptedIOException || cause instanceof ConnectException) {
+        // couldn't connect to ClickHouse during connectTimeout
             return new ClickHouseException(ClickHouseErrorCode.NETWORK_ERROR, cause, host, port);
         } else {
             return new ClickHouseUnknownException(cause, host, port);

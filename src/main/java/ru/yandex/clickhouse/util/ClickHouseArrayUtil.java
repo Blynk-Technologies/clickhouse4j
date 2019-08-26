@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
+ * @author <a href="mailto:AndreevDm@yandex-team.ru">Dmitry Andreev</a>
  */
 public final class ClickHouseArrayUtil {
 
@@ -20,6 +20,7 @@ public final class ClickHouseArrayUtil {
     /**
      * @param object         the object to convert to ClickHouse-string representation
      * @param explicitEscape enable or disable elements escaping (works only for non-primitive values)
+     * @return String
      */
     public static String arrayToString(Object object, Boolean explicitEscape) {
         if (!object.getClass().isArray()) {
@@ -92,6 +93,8 @@ public final class ClickHouseArrayUtil {
      * Convert collection to its ClickHouse-string representation.
      *
      * @param collection the collection to transform
+     *
+     * @return String
      */
     public static String toString(Collection collection) {
         ArrayBuilder builder = new ArrayBuilder(needQuote(collection.toArray()), false, false);
