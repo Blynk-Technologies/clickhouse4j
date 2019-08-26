@@ -33,14 +33,38 @@ public final class LittleEndianDataInputStream extends FilterInputStream impleme
         throw new UnsupportedOperationException("readLine is not supported");
     }
 
+    private static void readFully(InputStream in, byte[] b, int off, int len) throws IOException {
+        Objects.requireNonNull(in);
+        Objects.requireNonNull(b);
+
+        if (len < 0) {
+            throw new IndexOutOfBoundsException("len is negative");
+        }
+
+        int total = 0;
+        while (total < len) {
+            int result = in.read(b, off + total, len - total);
+            if (result == -1) {
+                break;
+            }
+            total += result;
+        }
+        int read = total;
+
+        if (read != len) {
+            throw new EOFException(
+                    "reached end of stream after reading " + read + " bytes; " + len + " bytes expected");
+        }
+    }
+
     @Override
     public void readFully(byte[] b) throws IOException {
-        ByteStreams.readFully(this, b);
+        readFully(this, b, 0, b.length);
     }
 
     @Override
     public void readFully(byte[] b, int off, int len) throws IOException {
-        ByteStreams.readFully(this, b, off, len);
+        readFully(this, b, off, len);
     }
 
     @Override
