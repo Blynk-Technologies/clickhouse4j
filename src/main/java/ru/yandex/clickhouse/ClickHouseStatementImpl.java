@@ -528,7 +528,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(new ClickHouseStreamHttpEntity(callback, getConnection().getTimeZone(), properties), sql, ClickHouseFormat.RowBinary, uri);
+        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback,
+                getConnection().getTimeZone(), properties);
+
+        httpConnector.sendStream(content, sql, ClickHouseFormat.RowBinary, uri);
     }
 
     @Override
@@ -540,8 +543,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(
-                new ClickHouseStreamHttpEntity(callback, getConnection().getTimeZone(), properties), sql, ClickHouseFormat.Native, uri);
+        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback,
+                getConnection().getTimeZone(), properties);
+
+        httpConnector.sendStream(content, sql, ClickHouseFormat.Native, uri);
     }
 
     @Override
@@ -550,13 +555,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void sendStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
+    public void sendStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws ClickHouseException {
         String query = "INSERT INTO " + table;
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.sendStream(content, query, TabSeparated, uri);
     }
 
-    void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
+    void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.sendStream(batchRows, sql, TabSeparated, uri);
     }
@@ -571,25 +578,46 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return closeOnCompletion;
     }
 
-    private ClickHouseResultSet createResultSet(InputStream is, int bufferSize, String db, String table, boolean usesWithTotals,
-    		ClickHouseStatement statement, TimeZone timezone, ClickHouseProperties properties) throws IOException {
-    	if(isResultSetScrollable) {
-    		return new ClickHouseScrollableResultSet(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
-    	} else {
-    		return new ClickHouseResultSet(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
-    	}
+    private ClickHouseResultSet createResultSet(InputStream is,
+                                                int bufferSize,
+                                                String db,
+                                                String table,
+                                                boolean usesWithTotals,
+                                                ClickHouseStatement statement,
+                                                TimeZone timezone,
+                                                ClickHouseProperties properties) throws IOException {
+        if (isResultSetScrollable) {
+            return new ClickHouseScrollableResultSet(is,
+                    bufferSize,
+                    db,
+                    table,
+                    usesWithTotals,
+                    statement,
+                    timezone,
+                    properties);
+        } else {
+            return new ClickHouseResultSet(is,
+                    bufferSize,
+                    db, table,
+                    usesWithTotals,
+                    statement,
+                    timezone,
+                    properties);
+        }
     }
 
     private Map<ClickHouseQueryParam, String> addQueryIdTo(Map<ClickHouseQueryParam, String> parameters) {
-        if (this.queryId != null)
+        if (this.queryId != null) {
             return parameters;
+        }
 
         String queryId = parameters.get(ClickHouseQueryParam.QUERY_ID);
         if (queryId == null) {
             this.queryId = UUID.randomUUID().toString();
             parameters.put(ClickHouseQueryParam.QUERY_ID, this.queryId);
-        } else
+        } else {
             this.queryId = queryId;
+        }
 
         return parameters;
     }

@@ -4,7 +4,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -13,9 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.yandex.clickhouse.ClickHouseConnection;
 import ru.yandex.clickhouse.ClickHouseExternalData;
-import ru.yandex.clickhouse.ClickHouseStatementImpl;
 import ru.yandex.clickhouse.LZ4EntityWrapper;
 import ru.yandex.clickhouse.except.ClickHouseException;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
@@ -34,10 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +55,8 @@ public class HttpConnector {
         }
     }
 
-    public InputStream requestUrl(String sql, List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException {
+    public InputStream requestUrl(String sql, List<ClickHouseExternalData> externalData, URI uri)
+            throws ClickHouseException {
         HttpEntity requestEntity;
         if (externalData == null || externalData.isEmpty()) {
             requestEntity = new StringEntity(sql, StandardCharsets.UTF_8);
@@ -113,7 +108,8 @@ public class HttpConnector {
         } catch (ClickHouseException e) {
             throw e;
         } catch (Exception e) {
-            log.info("Error during connection to {}, reporting failure to data source, message: {}", properties, e.getMessage());
+            log.info("Error during connection to {}, reporting failure to data source, message: {}",
+                    properties, e.getMessage());
             EntityUtils.consumeQuietly(entity);
             log.info("Error sql: {}", sql);
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
@@ -138,7 +134,8 @@ public class HttpConnector {
         return uri;
     }
 
-    private void checkForErrorAndThrow(HttpEntity entity, HttpResponse response) throws IOException, ClickHouseException {
+    private void checkForErrorAndThrow(HttpEntity entity, HttpResponse response)
+            throws IOException, ClickHouseException {
         if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
             InputStream messageStream = entity.getContent();
             byte[] bytes = StreamUtils.toByteArray(messageStream);
@@ -156,7 +153,8 @@ public class HttpConnector {
         }
     }
 
-    public void sendStream(HttpEntity content, String sql, ClickHouseFormat format, URI uri) throws ClickHouseException {
+    public void sendStream(HttpEntity content, String sql, ClickHouseFormat format, URI uri)
+            throws ClickHouseException {
         // echo -ne '10\n11\n12\n' | POST 'http://localhost:8123/?query=INSERT INTO t FORMAT TabSeparated'
         HttpEntity entity = null;
         try {
@@ -180,24 +178,28 @@ public class HttpConnector {
         }
     }
 
-    public void sendStream(InputStream content, String query, ClickHouseFormat format, URI uri) throws ClickHouseException {
+    public void sendStream(InputStream content, String query, ClickHouseFormat format, URI uri)
+            throws ClickHouseException {
         sendStream(new InputStreamEntity(content, -1), query, format, uri);
     }
 
-    public void sendStream(List<byte[]> batchRows, String sql, ClickHouseFormat format, URI uri) throws ClickHouseException {
+    public void sendStream(List<byte[]> batchRows, String sql, ClickHouseFormat format, URI uri)
+            throws ClickHouseException {
         sendStream(new BatchHttpEntity(batchRows), sql, format, uri);
     }
 
     public void cleanConnections() {
         client.getConnectionManager().closeExpiredConnections();
-        client.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(), TimeUnit.MILLISECONDS);
+        client.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(),
+                TimeUnit.MILLISECONDS);
     }
 
     public void close() throws SQLException {
         try {
             client.close();
         } catch (IOException e) {
-            throw new ClickHouseUnknownException("HTTP client close exception", e, properties.getHost(), properties.getPort());
+            throw new ClickHouseUnknownException("HTTP client close exception",
+                    e, properties.getHost(), properties.getPort());
         }
     }
 }

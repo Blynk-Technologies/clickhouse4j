@@ -152,7 +152,8 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams, List<ClickHouseExternalData> externalData) throws SQLException {
+    public ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData) throws SQLException {
         return super.executeQuery(buildSql(), additionalDBParams, externalData);
     }
 

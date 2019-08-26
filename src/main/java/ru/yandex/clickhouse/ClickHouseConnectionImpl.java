@@ -61,9 +61,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             throw new IllegalArgumentException(e);
         }
 
-        initTimeZone(this.properties);
-
         this.httpConnector = new HttpConnector(properties);
+        initTimeZone(this.properties);
     }
 
     private void initTimeZone(ClickHouseProperties properties) {
