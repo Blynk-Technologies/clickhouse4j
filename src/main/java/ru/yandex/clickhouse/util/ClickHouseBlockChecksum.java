@@ -8,7 +8,7 @@ public class ClickHouseBlockChecksum {
     private final long first;
     private final long second;
 
-    public ClickHouseBlockChecksum(long first, long second) {
+    ClickHouseBlockChecksum(long first, long second) {
         this.first = first;
         this.second = second;
     }
@@ -34,7 +34,7 @@ public class ClickHouseBlockChecksum {
         return calculate(buffer.array());
     }
 
-    public byte[] asBytes() {
+    byte[] asBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(16)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putLong(first)
