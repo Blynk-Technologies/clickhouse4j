@@ -16,7 +16,6 @@ import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseFormat;
 import ru.yandex.clickhouse.util.ClickHouseRowBinaryInputStream;
 import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
-import ru.yandex.clickhouse.util.ClickHouseStreamHttpEntity;
 import ru.yandex.clickhouse.util.Utils;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
@@ -79,8 +78,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     private static final String[] selectKeywords = new String[]{"SELECT", "WITH", "SHOW", "DESC", "EXISTS"};
     private static final String databaseKeyword = "CREATE DATABASE";
 
-    public ClickHouseStatementImpl(HttpConnector connector, ClickHouseConnection connection,
-                                   ClickHouseProperties properties, int resultSetType) {
+    ClickHouseStatementImpl(HttpConnector connector, ClickHouseConnection connection,
+                            ClickHouseProperties properties, int resultSetType) {
         this.connection = connection;
         this.properties = properties == null ? new ClickHouseProperties() : properties;
         this.initialDatabase = this.properties.getDatabase();
@@ -528,10 +527,12 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback,
-                getConnection().getTimeZone(), properties);
-
-        httpConnector.sendStream(content, sql, ClickHouseFormat.RowBinary, uri);
+        httpConnector.sendStream(sql,
+                ClickHouseFormat.RowBinary,
+                uri,
+                callback,
+                getConnection().getTimeZone(),
+                properties);
     }
 
     @Override
@@ -543,10 +544,12 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback,
-                getConnection().getTimeZone(), properties);
-
-        httpConnector.sendStream(content, sql, ClickHouseFormat.Native, uri);
+        httpConnector.sendStream(sql,
+                ClickHouseFormat.Native,
+                uri,
+                callback,
+                getConnection().getTimeZone(),
+                properties);
     }
 
     @Override

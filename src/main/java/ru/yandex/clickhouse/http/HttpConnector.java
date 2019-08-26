@@ -20,6 +20,7 @@ import ru.yandex.clickhouse.response.ClickHouseLZ4Stream;
 import ru.yandex.clickhouse.response.FastByteArrayOutputStream;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.ClickHouseFormat;
+import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class HttpConnector {
@@ -151,7 +153,19 @@ public class HttpConnector {
         }
     }
 
-    public void sendStream(HttpEntity content, String sql, ClickHouseFormat format, URI uri)
+    public void sendStream(String sql,
+                           ClickHouseFormat format,
+                           URI uri,
+                           ClickHouseStreamCallback callback,
+                           TimeZone timeZone,
+                           ClickHouseProperties properties)
+            throws ClickHouseException {
+
+        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback, timeZone, properties);
+        sendStream(content, sql, format, uri);
+    }
+
+    private void sendStream(HttpEntity content, String sql, ClickHouseFormat format, URI uri)
             throws ClickHouseException {
         // echo -ne '10\n11\n12\n' | POST 'http://localhost:8123/?query=INSERT INTO t FORMAT TabSeparated'
         HttpEntity entity = null;
