@@ -103,12 +103,6 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
                 new ClickHouseStatementImpl(httpConnector, this, properties, resultSetType));
     }
 
-    @Deprecated
-    @Override
-    public ClickHouseStatement createClickHouseStatement() {
-        return createStatement();
-    }
-
     @Override
     public TimeZone getTimeZone() {
         return timezone;
