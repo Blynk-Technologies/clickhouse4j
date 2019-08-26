@@ -1,4 +1,4 @@
-package ru.yandex.clickhouse.util;
+package ru.yandex.clickhouse.http;
 
 import org.apache.http.conn.DnsResolver;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;

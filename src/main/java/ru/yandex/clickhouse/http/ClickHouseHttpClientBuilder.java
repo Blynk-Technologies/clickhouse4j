@@ -21,7 +21,6 @@ import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.IpVersionPriorityResolver;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 import ru.yandex.clickhouse.util.ssl.NonValidatingTrustManager;
 
