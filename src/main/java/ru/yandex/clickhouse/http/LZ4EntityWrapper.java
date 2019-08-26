@@ -1,4 +1,4 @@
-package ru.yandex.clickhouse;
+package ru.yandex.clickhouse.http;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.AbstractHttpEntity;

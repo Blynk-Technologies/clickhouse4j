@@ -1,6 +1,5 @@
 package ru.yandex.clickhouse;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.http.HttpConnector;
@@ -9,6 +8,7 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.LogProxy;
 import ru.yandex.clickhouse.util.TypeUtils;
 
+import java.io.InterruptedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Array;
@@ -384,7 +384,7 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
             statement.close();
             return true;
         } catch (Exception e) {
-            boolean isFailOnConnectionTimeout = e.getCause() instanceof ConnectTimeoutException;
+            boolean isFailOnConnectionTimeout = e.getCause() instanceof InterruptedIOException;
 
             if (!isFailOnConnectionTimeout) {
                 log.warn("Something had happened while validating a connection", e);
