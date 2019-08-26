@@ -1,8 +1,5 @@
 package ru.yandex.clickhouse;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.except.ClickHouseException;
@@ -26,12 +23,14 @@ import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static ru.yandex.clickhouse.util.ClickHouseFormat.CSVWithNames;
 import static ru.yandex.clickhouse.util.ClickHouseFormat.JSONCompact;
@@ -39,7 +38,7 @@ import static ru.yandex.clickhouse.util.ClickHouseFormat.RowBinary;
 import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparated;
 import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparatedWithNamesAndTypes;
 
-///todo
+//todo
 public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseStatementImpl.class);
@@ -675,38 +674,41 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             boolean ignoreDatabase
     ) {
         try {
-            List<NameValuePair> queryParams = getUrlQueryParams(
+            String query = getUrlQueryParams(
                     sql,
                     externalData,
                     additionalClickHouseDBParams,
                     additionalRequestParams,
                     ignoreDatabase
-            );
+            ).stream()
+                    .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
+                    .collect(Collectors.joining("&"));
 
-            return new URIBuilder()
-                    .setScheme(properties.getSsl() ? "https" : "http")
-                    .setHost(properties.getHost())
-                    .setPort(properties.getPort())
-                    .setPath("/")
-                    .setParameters(queryParams)
-                    .build();
+            return new URI(properties.getSsl() ? "https" : "http",
+                    null,
+                    properties.getHost(),
+                    properties.getPort(),
+                    "/",
+                    query,
+                    null
+            );
         } catch (URISyntaxException e) {
             log.error("Mailformed URL: {}", e.getMessage());
             throw new IllegalStateException("illegal configuration of db");
         }
     }
 
-    private List<NameValuePair> getUrlQueryParams(
+    private List<SimpleImmutableEntry<String, String>> getUrlQueryParams(
             String sql,
             List<ClickHouseExternalData> externalData,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             Map<String, String> additionalRequestParams,
             boolean ignoreDatabase
     ) {
-        List<NameValuePair> result = new ArrayList<>();
+        List<SimpleImmutableEntry<String, String>> result = new ArrayList<>();
 
         if (sql != null) {
-            result.add(new BasicNameValuePair("query", sql));
+            result.add(new SimpleImmutableEntry<>("query", sql));
         }
 
         if (externalData != null) {
@@ -717,13 +719,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 String structure = externalDataItem.getStructure();
 
                 if (format != null && !format.isEmpty()) {
-                    result.add(new BasicNameValuePair(name + "_format", format));
+                    result.add(new SimpleImmutableEntry<>(name + "_format", format));
                 }
                 if (types != null && !types.isEmpty()) {
-                    result.add(new BasicNameValuePair(name + "_types", types));
+                    result.add(new SimpleImmutableEntry<>(name + "_types", types));
                 }
                 if (structure != null && !structure.isEmpty()) {
-                    result.add(new BasicNameValuePair(name + "_structure", structure));
+                    result.add(new SimpleImmutableEntry<>(name + "_structure", structure));
                 }
             }
         }
@@ -742,7 +744,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         for (Map.Entry<ClickHouseQueryParam, String> entry : params.entrySet()) {
             String s = entry.getValue();
             if (!(s == null || s.isEmpty())) {
-                result.add(new BasicNameValuePair(entry.getKey().toString(), entry.getValue()));
+                result.add(new SimpleImmutableEntry<>(entry.getKey().toString(), entry.getValue()));
             }
         }
 
@@ -750,7 +752,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             for (Map.Entry<String, String> entry : additionalRequestParams.entrySet()) {
                 String s = entry.getValue();
                 if (!(s == null || s.isEmpty())) {
-                    result.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+                    result.add(new SimpleImmutableEntry<>(entry.getKey(), entry.getValue()));
                 }
             }
         }
