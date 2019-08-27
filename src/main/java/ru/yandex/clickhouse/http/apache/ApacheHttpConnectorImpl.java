@@ -20,8 +20,6 @@ import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.response.ClickHouseLZ4Stream;
 import ru.yandex.clickhouse.response.FastByteArrayOutputStream;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.ClickHouseFormat;
-import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +31,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class ApacheHttpConnectorImpl implements HttpConnector {
@@ -56,7 +53,15 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
         }
     }
 
-    public InputStream requestUrl(String sql, List<ClickHouseExternalData> externalData, URI uri)
+    @Override
+    public void post(String sql, InputStream stream, URI uri) throws ClickHouseException {
+        HttpEntity requestEntity = new BodyEntityWrapper(sql, new InputStreamEntity(stream, -1));
+        InputStream is = sendEntity(sql, uri, requestEntity);
+        StreamUtils.close(is);
+    }
+
+    @Override
+    public InputStream post(String sql, List<ClickHouseExternalData> externalData, URI uri)
             throws ClickHouseException {
         HttpEntity requestEntity;
         if (externalData == null || externalData.isEmpty()) {
@@ -66,6 +71,7 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
 
             try {
                 for (ClickHouseExternalData externalDataItem : externalData) {
+
                     // clickhouse may return 400 (bad request) when chunked encoding is used with multipart request
                     // so read content to byte array to avoid chunked encoding
                     // TODO do not read stream into memory when this issue is fixed in clickhouse
@@ -83,16 +89,18 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
             requestEntity = entityBuilder.build();
         }
 
-        if (properties.isDecompress()) {
-            requestEntity = new LZ4EntityWrapper(requestEntity, properties.getMaxCompressBufferSize());
-        }
+        return sendEntity(sql, uri, requestEntity);
+    }
 
+    private InputStream sendEntity(String sql, URI uri, HttpEntity requestEntity) throws ClickHouseException {
         HttpEntity entity = null;
         try {
             uri = followRedirects(uri);
             HttpPost post = new HttpPost(uri);
+            if (properties.isDecompress()) {
+                requestEntity = new LZ4EntityWrapper(requestEntity, properties.getMaxCompressBufferSize());
+            }
             post.setEntity(requestEntity);
-
             HttpResponse response = client.execute(post);
             entity = response.getEntity();
             checkForErrorAndThrow(entity, response);
@@ -116,6 +124,24 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
+
+    @Override
+    public void cleanConnections() {
+        client.getConnectionManager().closeExpiredConnections();
+        client.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(),
+                TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void closeClient() throws SQLException {
+        try {
+            client.close();
+        } catch (IOException e) {
+            throw new ClickHouseUnknownException("HTTP client closeClient exception",
+                    e, properties.getHost(), properties.getPort());
+        }
+    }
+
 
     private URI followRedirects(URI uri) throws IOException, URISyntaxException {
         if (properties.isCheckForRedirects()) {
@@ -151,68 +177,6 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
             EntityUtils.consumeQuietly(entity);
             String chMessage = new String(bytes, StandardCharsets.UTF_8);
             throw ClickHouseExceptionSpecifier.specify(chMessage, properties.getHost(), properties.getPort());
-        }
-    }
-
-    public void sendStream(ClickHouseStreamCallback callback,
-                           TimeZone timeZone,
-                           ClickHouseProperties properties,
-                           String sql,
-                           ClickHouseFormat format,
-                           URI uri)
-            throws ClickHouseException {
-
-        ClickHouseStreamHttpEntity content = new ClickHouseStreamHttpEntity(callback, timeZone, properties);
-        sendStream(content, sql, format, uri);
-    }
-
-    private void sendStream(HttpEntity content, String sql, ClickHouseFormat format, URI uri)
-            throws ClickHouseException {
-        // echo -ne '10\n11\n12\n' | POST 'http://localhost:8123/?query=INSERT INTO t FORMAT TabSeparated'
-        HttpEntity entity = null;
-        try {
-            uri = followRedirects(uri);
-            HttpEntity requestEntity = new BodyEntityWrapper(sql + " FORMAT " + format.name(), content);
-
-            HttpPost httpPost = new HttpPost(uri);
-            if (properties.isDecompress()) {
-                requestEntity = new LZ4EntityWrapper(requestEntity, properties.getMaxCompressBufferSize());
-            }
-            httpPost.setEntity(requestEntity);
-            HttpResponse response = client.execute(httpPost);
-            entity = response.getEntity();
-            checkForErrorAndThrow(entity, response);
-        } catch (ClickHouseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        } finally {
-            EntityUtils.consumeQuietly(entity);
-        }
-    }
-
-    public void sendStream(InputStream content, String query, ClickHouseFormat format, URI uri)
-            throws ClickHouseException {
-        sendStream(new InputStreamEntity(content, -1), query, format, uri);
-    }
-
-    public void sendStream(List<byte[]> batchRows, String sql, ClickHouseFormat format, URI uri)
-            throws ClickHouseException {
-        sendStream(new BatchHttpEntity(batchRows), sql, format, uri);
-    }
-
-    public void cleanConnections() {
-        client.getConnectionManager().closeExpiredConnections();
-        client.getConnectionManager().closeIdleConnections(2 * properties.getSocketTimeout(),
-                TimeUnit.MILLISECONDS);
-    }
-
-    public void closeClient() throws SQLException {
-        try {
-            client.close();
-        } catch (IOException e) {
-            throw new ClickHouseUnknownException("HTTP client closeClient exception",
-                    e, properties.getHost(), properties.getPort());
         }
     }
 }

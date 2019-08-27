@@ -12,10 +12,13 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseFormat;
 import ru.yandex.clickhouse.util.ClickHouseRowBinaryInputStream;
+import ru.yandex.clickhouse.util.ClickHouseRowBinaryStream;
 import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 import ru.yandex.clickhouse.util.Utils;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -170,13 +173,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             if (isSelect(sql)) {
                 currentUpdateCount = -1;
                 currentResult = createResultSet(properties.isCompress()
-                                                        ? new ClickHouseLZ4Stream(is) : is, properties.getBufferSize(),
-                                                extractDBName(sql),
-                                                extractTableName(sql),
-                                                extractWithTotals(sql),
-                                                this,
-                                                getConnection().getTimeZone(),
-                                                properties
+                                ? new ClickHouseLZ4Stream(is) : is, properties.getBufferSize(),
+                        extractDBName(sql),
+                        extractTableName(sql),
+                        extractWithTotals(sql),
+                        this,
+                        getConnection().getTimeZone(),
+                        properties
                 );
                 currentResult.setMaxRows(maxRows);
                 return currentResult;
@@ -444,9 +447,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             if (isSelect(sql)) {
                 currentUpdateCount = -1;
                 currentRowBinaryResult = new ClickHouseRowBinaryInputStream(properties.isCompress()
-                                                                                    ? new ClickHouseLZ4Stream(is) : is,
-                                                                            getConnection().getTimeZone(),
-                                                                            properties);
+                        ? new ClickHouseLZ4Stream(is) : is,
+                        getConnection().getTimeZone(),
+                        properties);
                 return currentRowBinaryResult;
             } else {
                 currentUpdateCount = 0;
@@ -525,10 +528,16 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(callback, getConnection().getTimeZone(), properties, sql,
-                ClickHouseFormat.RowBinary,
-                uri
-        );
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            TimeZone timeZone = getConnection().getTimeZone();
+            ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
+            callback.writeTo(stream);
+        } catch (IOException e) {
+            throw new ClickHouseException(0, e, null, 0);
+        }
+        sql = sql + " FORMAT " + ClickHouseFormat.RowBinary.name();
+        httpConnector.post(sql, new ByteArrayInputStream(out.toByteArray()), uri);
     }
 
     @Override
@@ -540,10 +549,18 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(callback, getConnection().getTimeZone(), properties, sql,
-                ClickHouseFormat.Native,
-                uri
-        );
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            TimeZone timeZone = getConnection().getTimeZone();
+            ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
+            callback.writeTo(stream);
+        } catch (IOException e) {
+            throw new ClickHouseException(0, e, null, 0);
+        }
+
+        sql = sql + " FORMAT " + ClickHouseFormat.Native.name();
+        httpConnector.post(sql, new ByteArrayInputStream(out.toByteArray()), uri);
     }
 
     @Override
@@ -556,16 +573,20 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             throws ClickHouseException {
         String query = "INSERT INTO " + table;
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(content, query, TabSeparated, uri);
+        query = query + " FORMAT " + TabSeparated.name();
+        httpConnector.post(query, content, uri);
     }
 
     void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.sendStream(batchRows, sql, TabSeparated, uri);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        batchRows.forEach(stream::writeBytes);
+
+        sql = sql + " FORMAT " + TabSeparated.name();
+        httpConnector.post(sql, new ByteArrayInputStream(stream.toByteArray()), uri);
     }
-
-
 
     public void closeOnCompletion() {
         closeOnCompletion = true;
@@ -658,7 +679,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         log.debug("Request url: {}", uri);
 
 
-        return httpConnector.requestUrl(sql, externalData, uri);
+        return httpConnector.post(sql, externalData, uri);
     }
 
     URI buildRequestUri(
