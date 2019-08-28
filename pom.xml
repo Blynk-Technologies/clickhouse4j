@@ -7,7 +7,7 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>clickhouse-jdbc</name>
+    <name>clickhousej4</name>
     <description>JDBC driver for ClickHouse</description>
     <url>https://github.com/blynkkk/clickhouse4j.git</url>
     <licenses>
@@ -43,7 +43,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <httpclient.version>4.5.2</httpclient.version>
+        <httpclient.version>4.5.9</httpclient.version>
         <slf4j-api.version>1.7.28</slf4j-api.version>
 
         <!-- test dependencies -->
