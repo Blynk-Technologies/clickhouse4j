@@ -528,16 +528,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            TimeZone timeZone = getConnection().getTimeZone();
-            ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
-            callback.writeTo(stream);
-        } catch (IOException e) {
-            throw new ClickHouseException(0, e, null, 0);
-        }
         sql = sql + " FORMAT " + ClickHouseFormat.RowBinary.name();
-        httpConnector.post(sql, new ByteArrayInputStream(out.toByteArray()), uri);
+        sendStream(sql, callback, uri);
     }
 
     @Override
@@ -549,7 +541,11 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
+        sql = sql + " FORMAT " + ClickHouseFormat.Native.name();
+        sendStream(sql, callback, uri);
+    }
 
+    private void sendStream(String sql, ClickHouseStreamCallback callback, URI uri) throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             TimeZone timeZone = getConnection().getTimeZone();
@@ -559,7 +555,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             throw new ClickHouseException(0, e, null, 0);
         }
 
-        sql = sql + " FORMAT " + ClickHouseFormat.Native.name();
         httpConnector.post(sql, new ByteArrayInputStream(out.toByteArray()), uri);
     }
 
@@ -664,6 +659,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
+            log.debug("Request url: {}", uri);
+            return httpConnector.post(sql, uri);
         } else {
             // write sql in query params when there is external data
             // as it is impossible to pass both external data and sql in body
@@ -675,11 +672,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
+            log.debug("Request url: {}", uri);
+            return httpConnector.post(externalData, uri);
         }
-        log.debug("Request url: {}", uri);
-
-
-        return httpConnector.post(sql, externalData, uri);
     }
 
     URI buildRequestUri(

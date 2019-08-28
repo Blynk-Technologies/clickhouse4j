@@ -11,7 +11,10 @@ import java.util.List;
 public interface HttpConnector {
 
     InputStream post(String sql,
-                     List<ClickHouseExternalData> externalData,
+                     URI uri)
+            throws ClickHouseException;
+
+    InputStream post(List<ClickHouseExternalData> externalData,
                      URI uri)
             throws ClickHouseException;
 

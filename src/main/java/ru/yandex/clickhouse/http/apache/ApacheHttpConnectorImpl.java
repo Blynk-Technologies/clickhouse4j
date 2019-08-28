@@ -56,43 +56,44 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
     @Override
     public void post(String sql, InputStream stream, URI uri) throws ClickHouseException {
         HttpEntity requestEntity = new BodyEntityWrapper(sql, new InputStreamEntity(stream, -1));
-        InputStream is = sendEntity(sql, uri, requestEntity);
+        InputStream is = sendEntity(uri, requestEntity);
         StreamUtils.close(is);
     }
 
     @Override
-    public InputStream post(String sql, List<ClickHouseExternalData> externalData, URI uri)
+    public InputStream post(String sql, URI uri)
             throws ClickHouseException {
-        HttpEntity requestEntity;
-        if (externalData == null || externalData.isEmpty()) {
-            requestEntity = new StringEntity(sql, StandardCharsets.UTF_8);
-        } else {
-            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-
-            try {
-                for (ClickHouseExternalData externalDataItem : externalData) {
-
-                    // clickhouse may return 400 (bad request) when chunked encoding is used with multipart request
-                    // so read content to byte array to avoid chunked encoding
-                    // TODO do not read stream into memory when this issue is fixed in clickhouse
-                    entityBuilder.addBinaryBody(
-                            externalDataItem.getName(),
-                            StreamUtils.toByteArray(externalDataItem.getContent()),
-                            ContentType.APPLICATION_OCTET_STREAM,
-                            externalDataItem.getName()
-                    );
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            requestEntity = entityBuilder.build();
-        }
-
-        return sendEntity(sql, uri, requestEntity);
+        HttpEntity requestEntity = new StringEntity(sql, StandardCharsets.UTF_8);
+        return sendEntity(uri, requestEntity);
     }
 
-    private InputStream sendEntity(String sql, URI uri, HttpEntity requestEntity) throws ClickHouseException {
+    @Override
+    public InputStream post(List<ClickHouseExternalData> externalData, URI uri)
+            throws ClickHouseException {
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+
+        try {
+            for (ClickHouseExternalData externalDataItem : externalData) {
+
+                // clickhouse may return 400 (bad request) when chunked encoding is used with multipart request
+                // so read content to byte array to avoid chunked encoding
+                // TODO do not read stream into memory when this issue is fixed in clickhouse
+                entityBuilder.addBinaryBody(
+                        externalDataItem.getName(),
+                        StreamUtils.toByteArray(externalDataItem.getContent()),
+                        ContentType.APPLICATION_OCTET_STREAM,
+                        externalDataItem.getName()
+                );
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        HttpEntity requestEntity = entityBuilder.build();
+        return sendEntity(uri, requestEntity);
+    }
+
+    private InputStream sendEntity(URI uri, HttpEntity requestEntity) throws ClickHouseException {
         HttpEntity entity = null;
         try {
             uri = followRedirects(uri);
@@ -120,7 +121,6 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
             log.info("Error during connection to {}, reporting failure to data source, message: {}",
                     properties, e.getMessage());
             EntityUtils.consumeQuietly(entity);
-            log.info("Error sql: {}", sql);
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
