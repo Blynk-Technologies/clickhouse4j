@@ -18,8 +18,11 @@ public interface HttpConnector {
                      URI uri)
             throws ClickHouseException;
 
-    void post(String sql,
-              InputStream content,
+    void post(InputStream content,
+              URI uri)
+            throws ClickHouseException;
+
+    void post(byte[] bytes,
               URI uri)
             throws ClickHouseException;
 

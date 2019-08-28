@@ -17,12 +17,12 @@ import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
 import ru.yandex.clickhouse.util.Utils;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -547,6 +547,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private void sendStream(String sql, ClickHouseStreamCallback callback, URI uri) throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.writeBytes((sql + "\n").getBytes(StandardCharsets.UTF_8));
         try {
             TimeZone timeZone = getConnection().getTimeZone();
             ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
@@ -555,7 +556,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             throw new ClickHouseException(0, e, null, 0);
         }
 
-        httpConnector.post(sql, new ByteArrayInputStream(out.toByteArray()), uri);
+        httpConnector.post(out.toByteArray(), uri);
     }
 
     @Override
@@ -564,23 +565,33 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void sendStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams)
+    public void sendStream(InputStream stream, String table, Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
-        String query = "INSERT INTO " + table;
+        String sql = "INSERT INTO " + table + " FORMAT " + TabSeparated.name() + "\n";
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
+        try {
+            out.writeBytes(stream.readAllBytes());
+        } catch (IOException e) {
+            throw new ClickHouseException(0, e, null, 0);
+        }
+
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        query = query + " FORMAT " + TabSeparated.name();
-        httpConnector.post(query, content, uri);
+        httpConnector.post(out.toByteArray(), uri);
     }
 
     void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        batchRows.forEach(stream::writeBytes);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        sql = sql + " FORMAT " + TabSeparated.name();
-        httpConnector.post(sql, new ByteArrayInputStream(stream.toByteArray()), uri);
+        sql = sql + " FORMAT " + TabSeparated.name() + "\n";
+        out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
+
+        batchRows.forEach(out::writeBytes);
+        httpConnector.post(out.toByteArray(), uri);
     }
 
     public void closeOnCompletion() {

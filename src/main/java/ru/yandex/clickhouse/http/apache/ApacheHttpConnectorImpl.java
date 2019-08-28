@@ -54,9 +54,13 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
     }
 
     @Override
-    public void post(String sql, InputStream stream, URI uri) throws ClickHouseException {
-        HttpEntity requestEntity = new BodyEntityWrapper(sql, new InputStreamEntity(stream, -1));
-        InputStream is = sendEntity(uri, requestEntity);
+    public void post(InputStream stream, URI uri) throws ClickHouseException {
+        //todo implement if needed
+    }
+
+    @Override
+    public void post(byte[] bytes, URI uri) throws ClickHouseException {
+        InputStream is = sendEntity(uri, new InputStreamEntity(new ByteArrayInputStream(bytes), -1));
         StreamUtils.close(is);
     }
 
