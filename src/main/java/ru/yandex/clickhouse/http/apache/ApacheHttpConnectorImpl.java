@@ -9,6 +9,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +55,9 @@ public class ApacheHttpConnectorImpl implements HttpConnector {
     }
 
     @Override
-    public void post(InputStream stream, URI uri) throws ClickHouseException {
+    public InputStream post(InputStream stream, URI uri) throws ClickHouseException {
         //todo implement if needed
+        return EmptyInputStream.INSTANCE;
     }
 
     @Override

@@ -62,14 +62,10 @@ public final class StreamUtils {
         return out.toByteArray();
     }
 
-    private static void copy(InputStream from, OutputStream to) throws IOException {
-        byte[] buf = new byte[BUF_SIZE];
-        while (true) {
-            int r = from.read(buf);
-            if (r == -1) {
-                break;
-            }
-            to.write(buf, 0, r);
+    public static void copy(InputStream from, OutputStream to) throws IOException {
+        byte[] buffer = new byte[BUF_SIZE];
+        for (int len = from.read(buffer); len != -1; len = from.read(buffer)) {
+            to.write(buffer, 0, len);
         }
     }
 
