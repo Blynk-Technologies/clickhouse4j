@@ -10,19 +10,21 @@ import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.ClickHouseLZ4OutputStream;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 public class DefaultHttpConnector implements HttpConnector {
-
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
 
     protected final ClickHouseProperties properties;
@@ -46,15 +48,35 @@ public class DefaultHttpConnector implements HttpConnector {
 
     @Override
     public InputStream post(List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException {
-        return null;
+        String boundaryString = UUID.randomUUID().toString();
+        HttpURLConnection connection = buildConnection(uri);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
+
+        byte[] bytes = buildMultipartData(externalData, boundaryString);
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        return sendPostRequest(inputStream, connection);
     }
 
     @Override
     public InputStream post(InputStream inputStream, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
+        return sendPostRequest(inputStream, connection);
+    }
 
-        try (inputStream; DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
+    @Override
+    public void cleanConnections() {
 
+    }
+
+    @Override
+    public void closeClient() {
+
+    }
+
+    private InputStream sendPostRequest(InputStream inputStream, HttpURLConnection connection)
+            throws ClickHouseException {
+        try (inputStream;
+             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
             if (properties.isDecompress()) {
                 ClickHouseLZ4OutputStream lz4Stream =
                         new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
@@ -68,28 +90,43 @@ public class DefaultHttpConnector implements HttpConnector {
             checkForErrorAndThrow(connection);
             return connection.getInputStream();
         } catch (IOException e) {
-            e.printStackTrace();
-            //todo
-            throw new RuntimeException(e);
-//        } finally {
-            //todo manage connections
-//            if (connection != null) {
-//                connection.disconnect();
-//            }
+            log.error("Http POST request failed.", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
 
-    @Override
-    public void cleanConnections() {
+    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString) throws ClickHouseException {
+        ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
+        BufferedWriter httpRequestBodyWriter =
+                new BufferedWriter(new OutputStreamWriter(requestBodyStream));
 
+        try (requestBodyStream; httpRequestBodyWriter) {
+            for (ClickHouseExternalData data : externalData) {
+                httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
+                httpRequestBodyWriter.write("Content-Disposition: form-data;"
+                        + " name=\"" + data.getName() + "\";"
+                        + " filename=\"" + data.getName() + "\"" + "\r\n");
+                httpRequestBodyWriter.write("Content-Type: application/octet-stream" + "\r\n");
+                httpRequestBodyWriter.write("Content-Transfer-Encoding: binary" + "\r\n" + "\r\n");
+                httpRequestBodyWriter.flush();
+
+                StreamUtils.copy(data.getContent(), requestBodyStream);
+
+                requestBodyStream.flush();
+            }
+
+            httpRequestBodyWriter.write("\r\n" + "--" + boundaryString + "--" + "\r\n");
+            httpRequestBodyWriter.flush();
+
+            return requestBodyStream.toByteArray();
+
+        } catch (IOException e) {
+            log.error("Building Multipart Body failed.", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        }
     }
 
-    @Override
-    public void closeClient() throws SQLException {
-
-    }
-
-    private HttpURLConnection buildConnection(URI uri) {
+    private HttpURLConnection buildConnection(URI uri) throws ClickHouseException {
         try {
             URL url = uri.toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -98,19 +135,15 @@ public class DefaultHttpConnector implements HttpConnector {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
-
             return connection;
-
         } catch (IOException e) {
-            e.printStackTrace();
-            //todo
-            throw new RuntimeException();
+            log.error("Can't build connection.", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
 
     private void checkForErrorAndThrow(HttpURLConnection connection)
             throws IOException, ClickHouseException {
-
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             InputStream messageStream = connection.getErrorStream();
 
@@ -120,7 +153,7 @@ public class DefaultHttpConnector implements HttpConnector {
                     messageStream = new ClickHouseLZ4Stream(new ByteArrayInputStream(bytes));
                     bytes = StreamUtils.toByteArray(messageStream);
                 } catch (IOException e) {
-                    log.warn("error while read compressed stream", e.getMessage());
+                    log.warn("Error while read compressed stream.", e.getMessage());
                 }
             }
 
