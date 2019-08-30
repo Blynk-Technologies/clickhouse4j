@@ -9,11 +9,21 @@ import ru.yandex.clickhouse.response.ClickHouseLZ4Stream;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.ClickHouseLZ4OutputStream;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
+import ru.yandex.clickhouse.util.ssl.NonValidatingTrustManager;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -21,10 +31,19 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-public class DefaultHttpConnector implements HttpConnector {
+class DefaultHttpConnector implements HttpConnector {
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
 
     protected final ClickHouseProperties properties;
@@ -135,11 +154,44 @@ public class DefaultHttpConnector implements HttpConnector {
             connection.setRequestMethod("POST");
             connection.setDoInput(true);
             connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+
+            connection.setConnectTimeout(properties.getConnectionTimeout());
+
+            setDefaultHeaders(connection);
+
+            if (connection instanceof HttpsURLConnection) {
+                configureHttps((HttpsURLConnection) connection);
+            }
+
             return connection;
         } catch (IOException e) {
             log.error("Can't build connection.", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        }
+    }
+
+    private void setDefaultHeaders(HttpURLConnection connection) {
+        connection.addRequestProperty("Authorization", properties.getHttpAuthorization());
+        connection.addRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+    }
+
+    private void configureHttps(HttpsURLConnection connection) throws ClickHouseException {
+
+        if (properties.getSsl()) {
+            try {
+                SSLContext sslContext = getSSLContext();
+                HostnameVerifier verifier = "strict".equals(properties.getSslMode())
+                        ? HttpsURLConnection.getDefaultHostnameVerifier()
+                        : TrustAllHostnameVerifier.getInstance();
+
+                connection.setHostnameVerifier(verifier);
+
+                SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+                connection.setSSLSocketFactory(socketFactory);
+            } catch (Exception e) {
+                throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+            }
+
         }
     }
 
@@ -162,5 +214,70 @@ public class DefaultHttpConnector implements HttpConnector {
             String chMessage = new String(bytes, StandardCharsets.UTF_8);
             throw ClickHouseExceptionSpecifier.specify(chMessage, properties.getHost(), properties.getPort());
         }
+    }
+
+    private SSLContext getSSLContext()
+            throws CertificateException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, KeyManagementException {
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        TrustManager[] tms = null;
+        KeyManager[] kms = null;
+        SecureRandom sr = null;
+
+        switch (properties.getSslMode()) {
+            case "none":
+                tms = new TrustManager[]{new NonValidatingTrustManager()};
+                kms = new KeyManager[]{};
+                sr = new SecureRandom();
+                break;
+            case "strict":
+                if (!properties.getSslRootCertificate().isEmpty()) {
+                    TrustManagerFactory tmf = TrustManagerFactory
+                            .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+                    tmf.init(getKeyStore());
+                    tms = tmf.getTrustManagers();
+                    kms = new KeyManager[]{};
+                    sr = new SecureRandom();
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("unknown ssl mode '" + properties.getSslMode() + "'");
+        }
+
+        ctx.init(kms, tms, sr);
+        return ctx;
+    }
+
+    private KeyStore getKeyStore()
+            throws NoSuchAlgorithmException, IOException, CertificateException, KeyStoreException {
+        KeyStore ks;
+        try {
+            ks = KeyStore.getInstance("jks");
+            ks.load(null, null); // needed to initialize the key store
+        } catch (KeyStoreException e) {
+            throw new NoSuchAlgorithmException("jks KeyStore not available");
+        }
+
+        InputStream caInputStream;
+        try {
+            caInputStream = new FileInputStream(properties.getSslRootCertificate());
+        } catch (FileNotFoundException ex) {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            caInputStream = cl.getResourceAsStream(properties.getSslRootCertificate());
+            if (caInputStream == null) {
+                throw new IOException(
+                        "Could not open SSL/TLS root certificate file '" + properties
+                                .getSslRootCertificate() + "'", ex);
+            }
+        }
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        Iterator<? extends Certificate> caIt = cf.generateCertificates(caInputStream).iterator();
+        StreamUtils.close(caInputStream);
+        for (int i = 0; caIt.hasNext(); i++) {
+            ks.setCertificateEntry("cert" + i, caIt.next());
+        }
+
+        return ks;
     }
 }
