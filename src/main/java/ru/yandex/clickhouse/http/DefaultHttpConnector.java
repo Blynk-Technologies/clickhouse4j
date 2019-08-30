@@ -95,7 +95,8 @@ public class DefaultHttpConnector implements HttpConnector {
         }
     }
 
-    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString) throws ClickHouseException {
+    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString)
+            throws ClickHouseException {
         ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
         BufferedWriter httpRequestBodyWriter =
                 new BufferedWriter(new OutputStreamWriter(requestBodyStream));
