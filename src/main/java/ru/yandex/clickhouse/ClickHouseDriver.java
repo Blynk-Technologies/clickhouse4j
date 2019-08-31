@@ -13,12 +13,6 @@ import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * URL Format
@@ -32,8 +26,6 @@ import java.util.concurrent.TimeUnit;
 public final class ClickHouseDriver implements Driver {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickHouseDriver.class);
-
-    private static final ConcurrentMap<ClickHouseConnectionImpl, Boolean> connections = new ConcurrentHashMap<>();
 
     static {
         ClickHouseDriver driver = new ClickHouseDriver();
@@ -56,12 +48,7 @@ public final class ClickHouseDriver implements Driver {
         }
         logger.debug("Creating connection");
         ClickHouseConnectionImpl connection = new ClickHouseConnectionImpl(url, properties);
-        registerConnection(connection);
         return LogProxy.wrap(ClickHouseConnection.class, connection);
-    }
-
-    private void registerConnection(ClickHouseConnectionImpl connection) {
-        connections.put(connection, Boolean.TRUE);
     }
 
     @Override
@@ -115,36 +102,4 @@ public final class ClickHouseDriver implements Driver {
         throw new SQLFeatureNotSupportedException();
     }
 
-    /**
-     * Schedules connections cleaning at a rate. Turned off by default.
-     * See https://hc.apache.org/httpcomponents-client-4.5.x/tutorial/html/connmgmt.html#d5e418
-     *
-     * @param rate     period when checking would be performed
-     * @param timeUnit time unit of rate
-     */
-    void scheduleConnectionsCleaning(int rate, TimeUnit timeUnit) {
-        ScheduledConnectionCleaner.INSTANCE.scheduleAtFixedRate(() -> {
-            try {
-                for (ClickHouseConnectionImpl connection : connections.keySet()) {
-                    connection.cleanConnections();
-                }
-            } catch (Exception e) {
-                logger.error("error evicting connections: " + e);
-            }
-        }, 0, rate, timeUnit);
-    }
-
-    static class ScheduledConnectionCleaner {
-        static final ScheduledExecutorService INSTANCE =
-                Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
-
-        static class DaemonThreadFactory implements ThreadFactory {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = Executors.defaultThreadFactory().newThread(r);
-                thread.setDaemon(true);
-                return thread;
-            }
-        }
-    }
 }

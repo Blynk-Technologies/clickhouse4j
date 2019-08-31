@@ -270,41 +270,6 @@ public final class BalancedClickhouseDataSource implements DataSource {
         throw new SQLFeatureNotSupportedException();
     }
 
-    /**
-     * set time period of removing connections
-     *
-     * @param rate     value for time unit
-     * @param timeUnit time unit for checking
-     * @return this datasource with changed settings
-     * @see ClickHouseDriver#scheduleConnectionsCleaning
-     */
-    public BalancedClickhouseDataSource withConnectionsCleaning(int rate, TimeUnit timeUnit) {
-        driver.scheduleConnectionsCleaning(rate, timeUnit);
-        return this;
-    }
-
-    /**
-     * set time period for checking availability connections
-     *
-     * @param delay    value for time unit
-     * @param timeUnit time unit for checking
-     * @return this datasource with changed settings
-     */
-    public BalancedClickhouseDataSource scheduleActualization(int delay, TimeUnit timeUnit) {
-        ClickHouseDriver.ScheduledConnectionCleaner.INSTANCE.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    actualize();
-                } catch (Exception e) {
-                    log.error("Unable to actualize urls", e);
-                }
-            }
-        }, 0, delay, timeUnit);
-
-        return this;
-    }
-
     public List<String> getAllClickhouseUrls() {
         return allUrls;
     }
