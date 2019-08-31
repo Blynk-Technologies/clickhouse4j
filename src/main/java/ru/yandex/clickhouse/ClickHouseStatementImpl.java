@@ -145,7 +145,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public ResultSet executeQuery(String sql,
                                   Map<ClickHouseQueryParam, String> additionalDBParams,
-                                  List<ClickHouseExternalData> externalData) throws SQLException {
+                                  List<ClickHouseExternalData> externalData)
+            throws SQLException {
         return executeQuery(sql, additionalDBParams, externalData, null);
     }
 
@@ -452,9 +453,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             if (isSelect(sql)) {
                 currentUpdateCount = -1;
                 currentRowBinaryResult = new ClickHouseRowBinaryInputStream(properties.isCompress()
-                                                                                    ? new ClickHouseLZ4Stream(is) : is,
-                                                                            getConnection().getTimeZone(),
-                                                                            properties);
+                        ? new ClickHouseLZ4Stream(is) : is,
+                        getConnection().getTimeZone(),
+                        properties);
                 return currentRowBinaryResult;
             } else {
                 currentUpdateCount = 0;
@@ -549,7 +550,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
             callback.writeTo(stream);
         } catch (IOException e) {
-            throw new ClickHouseException(0, e, null, 0);
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
 
         httpConnector.post(out.toByteArray(), uri);
@@ -565,13 +566,20 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated + "\n";
+        sendSqlWithStream(stream, sql, additionalDBParams);
+    }
 
+    private void sendSqlWithStream(InputStream stream,
+                                   String sql,
+                                   Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
+
         try {
-            out.writeBytes(stream.readAllBytes());
+            StreamUtils.copy(stream, out);
         } catch (IOException e) {
-            throw new ClickHouseException(0, e, null, 0);
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
 
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
@@ -581,10 +589,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendCSVStream(InputStream content,
                               String table,
-                              Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
-        String query = "INSERT INTO " + table;
-        //todo finish
-        //sendStream(new InputStreamEntity(content, -1), query, ClickHouseFormat.CSV, additionalDBParams);
+                              Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws ClickHouseException {
+        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name() + "\n";
+        sendSqlWithStream(content, sql, additionalDBParams);
     }
 
     @Override
@@ -595,14 +603,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendStreamSQL(InputStream content, String sql,
                               Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
-        //todo finish
-        //sendStreamSQL(new InputStreamEntity(content, -1), sql, additionalDBParams);
+        sql = sql + "\n";
+        sendSqlWithStream(content, sql, additionalDBParams);
     }
 
     @Override
     public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
-        //todo finish
-        //sendStreamSQL(new InputStreamEntity(content, -1), sql, null);
+        sendStreamSQL(content, sql, null);
     }
 
     void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)

@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +23,7 @@ import static ru.yandex.clickhouse.ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFI
  * <p> Database for clickhouse jdbc connections.
  * <p> It has list of database urls.
  * For every {@link #getConnection() getConnection} invocation, it returns connection to random host from the list.
- * Furthermore, this class has method {@link #scheduleActualization(int, TimeUnit) scheduleActualization}
+ * Furthermore, this class has method { #scheduleActualization(int, TimeUnit) scheduleActualization}
  * which test hosts for availability. By default, this option is turned off.
  */
 public final class BalancedClickhouseDataSource implements DataSource {
