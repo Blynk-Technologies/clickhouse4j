@@ -128,17 +128,17 @@ public final class ClickHouseColumnInfo {
         int numParens = 0;
         if (lowCardinality) {
             int start = originalTypeName.indexOf(KEYWORD_LOW_CARDINALITY);
-            sb.append(originalTypeName.substring(idx, start));
+            sb.append(originalTypeName, idx, start);
             numParens++;
             idx = start + KEYWORD_LOW_CARDINALITY.length() + 1;
         }
         if (nullable) {
             int start = originalTypeName.indexOf(KEYWORD_NULLABLE, idx);
-            sb.append(originalTypeName.substring(idx, start));
+            sb.append(originalTypeName, idx, start);
             numParens++;
             idx = start + KEYWORD_NULLABLE.length() + 1;
         }
-        sb.append(originalTypeName.substring(idx, originalTypeName.length() - numParens));
+        sb.append(originalTypeName, idx, originalTypeName.length() - numParens);
         return sb.toString();
     }
 
