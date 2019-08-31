@@ -43,7 +43,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <httpclient.version>4.5.9</httpclient.version>
         <slf4j-api.version>1.7.28</slf4j-api.version>
 
         <!-- test dependencies -->
@@ -63,16 +62,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.lz4</groupId>
             <artifactId>lz4-java</artifactId>
@@ -218,20 +207,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.apache.httpcomponents:*</include>
-                                    <include>commons-logging:*</include>
-                                    <include>commons-codec:*</include>
-                                </includes>
-                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>org</pattern>
                                     <shadedPattern>ru.yandex.repackaged.org</shadedPattern>
-                                    <includes>
-                                        <include>org.apache.**</include>
-                                    </includes>
                                 </relocation>
                             </relocations>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
