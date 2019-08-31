@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
  */
-public class ClickHouseRowBinaryStream {
+public final class ClickHouseRowBinaryStream {
 
     private static final int U_INT8_MAX = (1 << 8) - 1;
     private static final int U_INT16_MAX = (1 << 16) - 1;

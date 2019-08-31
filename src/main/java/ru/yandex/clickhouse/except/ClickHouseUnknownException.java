@@ -1,12 +1,12 @@
 package ru.yandex.clickhouse.except;
 
-public class ClickHouseUnknownException extends ClickHouseException {
+class ClickHouseUnknownException extends ClickHouseException {
 
     ClickHouseUnknownException(Throwable cause, String host, int port) {
         super(ClickHouseErrorCode.UNKNOWN_EXCEPTION, cause, host, port);
     }
 
-    public ClickHouseUnknownException(String message, Throwable cause, String host, int port) {
+    ClickHouseUnknownException(String message, Throwable cause, String host, int port) {
         super(ClickHouseErrorCode.UNKNOWN_EXCEPTION, message, cause, host, port);
     }
 

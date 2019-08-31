@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static ru.yandex.clickhouse.util.ClickHouseRowBinaryStream.MILLIS_IN_DAY;
 
-public class ClickHouseRowBinaryInputStream implements Closeable {
+public final class ClickHouseRowBinaryInputStream implements Closeable {
 
     private final LittleEndianDataInputStream in;
     private final TimeZone timeZone;

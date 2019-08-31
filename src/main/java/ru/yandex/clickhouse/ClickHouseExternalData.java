@@ -5,7 +5,7 @@ import java.io.InputStream;
 /**
  * @author zgmnkv
  */
-public class ClickHouseExternalData {
+public final class ClickHouseExternalData {
 
     private String name;
     private InputStream content;

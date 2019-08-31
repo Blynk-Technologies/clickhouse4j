@@ -4,7 +4,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class ClickHouseBlockChecksum {
+public final class ClickHouseBlockChecksum {
     private final long first;
     private final long second;
 

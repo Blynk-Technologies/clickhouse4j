@@ -579,7 +579,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void sendCSVStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
+    public void sendCSVStream(InputStream content,
+                              String table,
+                              Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
         String query = "INSERT INTO " + table;
         //todo finish
         //sendStream(new InputStreamEntity(content, -1), query, ClickHouseFormat.CSV, additionalDBParams);

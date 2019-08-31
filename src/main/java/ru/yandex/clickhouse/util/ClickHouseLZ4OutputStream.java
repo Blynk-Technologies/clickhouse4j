@@ -8,7 +8,7 @@ import ru.yandex.clickhouse.util.guava.LittleEndianDataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ClickHouseLZ4OutputStream extends OutputStream {
+public final class ClickHouseLZ4OutputStream extends OutputStream {
 
     private static final LZ4Factory factory = LZ4Factory.safeInstance();
     private final LittleEndianDataOutputStream dataWrapper;

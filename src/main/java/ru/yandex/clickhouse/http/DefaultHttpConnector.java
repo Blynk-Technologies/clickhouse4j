@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 class DefaultHttpConnector implements HttpConnector {
+
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
 
     protected final ClickHouseProperties properties;
@@ -109,7 +110,7 @@ class DefaultHttpConnector implements HttpConnector {
             checkForErrorAndThrow(connection);
             return connection.getInputStream();
         } catch (IOException e) {
-            log.error("Http POST request failed.", e.getMessage());
+            log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
@@ -141,7 +142,7 @@ class DefaultHttpConnector implements HttpConnector {
             return requestBodyStream.toByteArray();
 
         } catch (IOException e) {
-            log.error("Building Multipart Body failed.", e.getMessage());
+            log.error("Building Multipart Body failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
@@ -165,7 +166,7 @@ class DefaultHttpConnector implements HttpConnector {
 
             return connection;
         } catch (IOException e) {
-            log.error("Can't build connection.", e.getMessage());
+            log.error("Can't build connection. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
@@ -206,7 +207,7 @@ class DefaultHttpConnector implements HttpConnector {
                     messageStream = new ClickHouseLZ4Stream(new ByteArrayInputStream(bytes));
                     bytes = StreamUtils.toByteArray(messageStream);
                 } catch (IOException e) {
-                    log.warn("Error while read compressed stream.", e.getMessage());
+                    log.warn("Error while read compressed stream. {}", e.getMessage());
                 }
             }
 

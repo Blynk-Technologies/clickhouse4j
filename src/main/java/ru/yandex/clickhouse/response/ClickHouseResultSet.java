@@ -2,6 +2,7 @@ package ru.yandex.clickhouse.response;
 
 import ru.yandex.clickhouse.ClickHouseArray;
 import ru.yandex.clickhouse.ClickHouseStatement;
+import ru.yandex.clickhouse.domain.ClickHouseDataType;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
@@ -27,12 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import ru.yandex.clickhouse.ClickHouseArray;
-import ru.yandex.clickhouse.ClickHouseStatement;
-import ru.yandex.clickhouse.domain.ClickHouseDataType;
-import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import static ru.yandex.clickhouse.response.ByteFragmentUtils.parseArray;
 
@@ -526,13 +521,13 @@ public class ClickHouseResultSet extends AbstractResultSet {
             int type = chType.getSqlType();
             switch (type) {
                 case Types.BIGINT:
-                    if (!chType.isSigned()){
+                    if (!chType.isSigned()) {
                         String stringVal = getString(columnIndex);
                         return new BigInteger(stringVal);
                     }
                     return getLong(columnIndex);
                 case Types.INTEGER:
-                    if (!chType.isSigned()){
+                    if (!chType.isSigned()) {
                         return getLong(columnIndex);
                     }
                     return getInt(columnIndex);
@@ -628,10 +623,9 @@ public class ClickHouseResultSet extends AbstractResultSet {
     private int asColNum(String column) {
         for (int i = 0; i < columns.size(); i++) {
             if (column.equals(columns.get(i).getColumnName())) {
-                return i+1;
+                return i + 1;
             }
         }
-        // TODO Java8
         throw new RuntimeException("no column " + column + " in columns list " + getColumnNames());
     }
 

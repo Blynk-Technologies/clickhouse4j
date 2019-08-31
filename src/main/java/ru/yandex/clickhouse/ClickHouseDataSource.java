@@ -11,8 +11,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-
-public class ClickHouseDataSource implements DataSource {
+public final class ClickHouseDataSource implements DataSource {
 
     private final ClickHouseDriver driver = new ClickHouseDriver();
     protected final String url;

@@ -27,7 +27,7 @@ import static ru.yandex.clickhouse.ClickhouseJdbcUrlParser.JDBC_CLICKHOUSE_PREFI
  * Furthermore, this class has method {@link #scheduleActualization(int, TimeUnit) scheduleActualization}
  * which test hosts for availability. By default, this option is turned off.
  */
-public class BalancedClickhouseDataSource implements DataSource {
+public final class BalancedClickhouseDataSource implements DataSource {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(BalancedClickhouseDataSource.class);
     private static final Pattern URL_TEMPLATE =

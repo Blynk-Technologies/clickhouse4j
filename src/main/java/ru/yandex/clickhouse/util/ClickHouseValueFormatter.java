@@ -1,5 +1,8 @@
 package ru.yandex.clickhouse.util;
 
+import ru.yandex.clickhouse.ClickHouseArray;
+import ru.yandex.clickhouse.ClickHouseUtil;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Date;
@@ -10,41 +13,30 @@ import java.util.Collection;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import ru.yandex.clickhouse.ClickHouseArray;
-import ru.yandex.clickhouse.ClickHouseUtil;
-
 public final class ClickHouseValueFormatter {
 
-    public static final String NULL_MARKER  = "\\N";
+    public static final String NULL_MARKER = "\\N";
 
-    private static ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd");
-        }
-    };
+    private static ThreadLocal<SimpleDateFormat> dateFormat =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd"));
 
-    private static ThreadLocal<SimpleDateFormat> dateTimeFormat = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        }
-    };
+    private static ThreadLocal<SimpleDateFormat> dateTimeFormat =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
     public static String formatBytes(byte[] bytes) {
         if (bytes == null) {
             return null;
         }
         char[] hexArray =
-            {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+                {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         char[] hexChars = new char[bytes.length * 4];
         int v;
-        for ( int j = 0; j < bytes.length; j++ ) {
+        for (int j = 0; j < bytes.length; j++) {
             v = bytes[j] & 0xFF;
-            hexChars[j * 4]     = '\\';
+            hexChars[j * 4] = '\\';
             hexChars[j * 4 + 1] = 'x';
-            hexChars[j * 4 + 2] = hexArray[v/16];
-            hexChars[j * 4 + 3] = hexArray[v%16];
+            hexChars[j * 4 + 2] = hexArray[v / 16];
+            hexChars[j * 4 + 3] = hexArray[v % 16];
         }
         return new String(hexChars);
     }
@@ -108,17 +100,16 @@ public final class ClickHouseValueFormatter {
         return getDateTimeFormat().format(time);
     }
 
-    public static String formatUUID(UUID x) {
+    private static String formatUUID(UUID x) {
         return x.toString();
     }
 
-    public static String formatBigInteger(BigInteger x) {
+    private static String formatBigInteger(BigInteger x) {
         return x.toString();
     }
 
     public static String formatObject(Object x, TimeZone dateTimeZone,
-        TimeZone dateTimeTimeZone)
-    {
+                                      TimeZone dateTimeTimeZone) {
         if (x == null) {
             return null;
         }
@@ -129,15 +120,15 @@ public final class ClickHouseValueFormatter {
         } else if (x instanceof BigDecimal) {
             return formatBigDecimal((BigDecimal) x);
         } else if (x instanceof Short) {
-            return formatShort(((Short) x).shortValue());
+            return formatShort((Short) x);
         } else if (x instanceof Integer) {
-            return formatInt(((Integer) x).intValue());
+            return formatInt((Integer) x);
         } else if (x instanceof Long) {
-            return formatLong(((Long) x).longValue());
+            return formatLong((Long) x);
         } else if (x instanceof Float) {
-            return formatFloat(((Float) x).floatValue());
+            return formatFloat((Float) x);
         } else if (x instanceof Double) {
-            return formatDouble(((Double) x).doubleValue());
+            return formatDouble((Double) x);
         } else if (x instanceof byte[]) {
             return formatBytes((byte[]) x);
         } else if (x instanceof Date) {
@@ -147,7 +138,7 @@ public final class ClickHouseValueFormatter {
         } else if (x instanceof Timestamp) {
             return formatTimestamp((Timestamp) x, dateTimeTimeZone);
         } else if (x instanceof Boolean) {
-            return formatBoolean(((Boolean) x).booleanValue());
+            return formatBoolean((Boolean) x);
         } else if (x instanceof UUID) {
             return formatUUID((UUID) x);
         } else if (x instanceof BigInteger) {

@@ -7,9 +7,9 @@ import java.nio.charset.StandardCharsets;
 
 public class ByteFragment {
 
-    protected final byte[] buf;
+    final byte[] buf;
     protected final int start;
-    protected final int len;
+    final int len;
     private static final ByteFragment EMPTY = new ByteFragment(new byte[0], 0, 0);
 
     public ByteFragment(byte[] buf, int start, int len) {
@@ -106,7 +106,7 @@ public class ByteFragment {
         }
     }
 
-    public int getLen() {
+    int getLen() {
         return len;
     }
 

@@ -1,31 +1,26 @@
 package ru.yandex.clickhouse.util;
 
+import ru.yandex.clickhouse.ClickHouseUtil;
+
 import java.util.Collection;
 import java.util.TimeZone;
-
-import ru.yandex.clickhouse.ClickHouseUtil;
 
 /**
  * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
  */
-public class ClickHouseArrayUtil {
+public final class ClickHouseArrayUtil {
 
     private ClickHouseArrayUtil() {
-        // NOP
     }
 
     /**
-     * @param object
-     *            the object to convert to ClickHouse-string representation
-     * @param dateTimeZone
-     *            TimeZone to use when formatting date values
-     * @param dateTimeTimeZone
-     *            TimeZone to use when formatting datetime values
+     * @param object           the object to convert to ClickHouse-string representation
+     * @param dateTimeZone     TimeZone to use when formatting date values
+     * @param dateTimeTimeZone TimeZone to use when formatting datetime values
      * @return string representation of an object
      */
     public static String arrayToString(Object object, TimeZone dateTimeZone,
-        TimeZone dateTimeTimeZone)
-    {
+                                       TimeZone dateTimeTimeZone) {
         if (!object.getClass().isArray()) {
             throw new IllegalArgumentException("Object must be array");
         }
@@ -37,7 +32,8 @@ public class ClickHouseArrayUtil {
 
 
     public static String toString(Object[] values, TimeZone dateTimeZone, TimeZone dateTimeTimeZone) {
-        if (values.length > 0 && values[0] != null && (values[0].getClass().isArray() || values[0] instanceof Collection)) {
+        if (values.length > 0 && values[0] != null && (values[0].getClass().isArray()
+                || values[0] instanceof Collection)) {
             // quote is false to avoid escaping inner '['
             ArrayBuilder builder = new ArrayBuilder(false, dateTimeZone, dateTimeTimeZone);
             for (Object value : values) {
@@ -58,8 +54,7 @@ public class ClickHouseArrayUtil {
     }
 
     public static String toString(Collection<?> collection, TimeZone dateTimeZone,
-        TimeZone dateTimeTimeZone)
-    {
+                                  TimeZone dateTimeTimeZone) {
         return toString(collection.toArray(), dateTimeZone, dateTimeTimeZone);
     }
 
@@ -173,7 +168,7 @@ public class ClickHouseArrayUtil {
         return objects.length == 0 || ClickHouseValueFormatter.needsQuoting(o);
     }
 
-    private static class ArrayBuilder {
+    private final static class ArrayBuilder {
 
         private final StringBuilder builder;
         private final boolean quote;
@@ -187,8 +182,7 @@ public class ClickHouseArrayUtil {
         }
 
         private ArrayBuilder(boolean quote, TimeZone dateTimeZone,
-            TimeZone dateTimeTimeZone)
-        {
+                             TimeZone dateTimeTimeZone) {
             this.quote = quote;
             this.builder = new StringBuilder("[");
             this.dateTimeZone = dateTimeZone;
@@ -210,7 +204,7 @@ public class ClickHouseArrayUtil {
                     builder.append(quote ? ClickHouseUtil.escape((String) value) : value);
                 } else {
                     builder.append(ClickHouseValueFormatter.formatObject(
-                        value, dateTimeZone, dateTimeTimeZone));
+                            value, dateTimeZone, dateTimeTimeZone));
                 }
                 if (quote) {
                     builder.append('\'');

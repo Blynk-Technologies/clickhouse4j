@@ -1,8 +1,8 @@
 package ru.yandex.clickhouse.response;
 
-import java.util.TimeZone;
-
 import ru.yandex.clickhouse.domain.ClickHouseDataType;
+
+import java.util.TimeZone;
 
 public final class ClickHouseColumnInfo {
 
@@ -54,8 +54,7 @@ public final class ClickHouseColumnInfo {
         column.scale = dataType.getDefaultScale();
         currIdx = endIdx;
         if (endIdx == typeInfo.length()
-            || !typeInfo.startsWith("(", currIdx))
-        {
+            || !typeInfo.startsWith("(", currIdx)) {
             return column;
         }
 
@@ -65,8 +64,7 @@ public final class ClickHouseColumnInfo {
                 if (argsTZ.length == 1) {
                     // unfortunately this will fall back to GMT if the time zone
                     // cannot be resolved
-                    TimeZone tz = TimeZone.getTimeZone(argsTZ[0].replace("'", ""));
-                    column.timeZone = tz;
+                    column.timeZone = TimeZone.getTimeZone(argsTZ[0].replace("'", ""));
                 }
                 break;
             case Decimal :

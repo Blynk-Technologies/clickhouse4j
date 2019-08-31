@@ -2,6 +2,7 @@ package ru.yandex.clickhouse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.domain.ClickHouseDataType;
 import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.http.HttpConnectorFactory;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
@@ -33,18 +34,7 @@ import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.yandex.clickhouse.domain.ClickHouseDataType;
-import ru.yandex.clickhouse.except.ClickHouseUnknownException;
-import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.LogProxy;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
-
-
-public class ClickHouseConnectionImpl implements ClickHouseConnection {
+public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseConnectionImpl.class);
 

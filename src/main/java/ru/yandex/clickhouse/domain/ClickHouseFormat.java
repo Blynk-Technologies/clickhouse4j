@@ -42,7 +42,7 @@ public enum ClickHouseFormat {
         if (statement == null || statement.isEmpty()) {
             return false;
         }
-        // TODO: Proper parsing of comments etc.
+        // TODO Proper parsing of comments etc.
         String s = statement.replaceAll("[;\\s]", "");
         for (ClickHouseFormat f : values()) {
             if (s.endsWith(f.name())) {

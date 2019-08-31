@@ -11,7 +11,7 @@ import ru.yandex.clickhouse.domain.ClickHouseDataType;
 /**
  * @author Dmitry Andreev <a href="mailto:AndreevDm@yandex-team.ru"></a>
  */
-public class ClickHouseArray implements Array {
+public final class ClickHouseArray implements Array {
 
     private ClickHouseDataType elementType;
     private Object array;

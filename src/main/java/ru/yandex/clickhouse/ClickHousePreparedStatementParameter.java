@@ -1,8 +1,8 @@
 package ru.yandex.clickhouse;
 
-import java.util.TimeZone;
-
 import ru.yandex.clickhouse.util.ClickHouseValueFormatter;
+
+import java.util.TimeZone;
 
 public final class ClickHousePreparedStatementParameter {
 
@@ -13,8 +13,7 @@ public final class ClickHousePreparedStatementParameter {
     private final boolean quoteNeeded;
 
     public static ClickHousePreparedStatementParameter fromObject(Object x,
-        TimeZone dateTimeZone, TimeZone dateTimeTimeZone)
-    {
+        TimeZone dateTimeZone, TimeZone dateTimeTimeZone) {
         if (x == null) {
             return NULL_PARAM;
         }
@@ -28,8 +27,7 @@ public final class ClickHousePreparedStatementParameter {
     }
 
     public ClickHousePreparedStatementParameter(String stringValue,
-        boolean quoteNeeded)
-    {
+        boolean quoteNeeded) {
         this.stringValue = stringValue == null
             ? ClickHouseValueFormatter.NULL_MARKER
             : stringValue;

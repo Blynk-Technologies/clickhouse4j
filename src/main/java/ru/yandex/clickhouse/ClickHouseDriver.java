@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * for example, jdbc:clickhouse://localhost:8123
  */
-public class ClickHouseDriver implements Driver {
+public final class ClickHouseDriver implements Driver {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickHouseDriver.class);
 
