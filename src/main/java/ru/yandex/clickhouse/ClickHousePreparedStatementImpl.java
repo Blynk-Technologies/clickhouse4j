@@ -39,7 +39,8 @@ import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl implements ClickHousePreparedStatement {
+public final class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl
+        implements ClickHousePreparedStatement {
 
     static final String PARAM_MARKER = "?";
 
