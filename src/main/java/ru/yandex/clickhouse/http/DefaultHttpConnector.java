@@ -43,7 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-class DefaultHttpConnector implements HttpConnector {
+final class DefaultHttpConnector implements HttpConnector {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
 

@@ -3,7 +3,7 @@ package ru.yandex.clickhouse.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
-class TrustAllHostnameVerifier implements HostnameVerifier {
+final class TrustAllHostnameVerifier implements HostnameVerifier {
 
     private final static TrustAllHostnameVerifier INSTANCE = new TrustAllHostnameVerifier();
 
