@@ -5,20 +5,18 @@ import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
-
 
 public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     private final ClickHouseResultSet resultSet;
 
-    public ClickHouseResultSetMetaData(ClickHouseResultSet resultSet) {
+    ClickHouseResultSetMetaData(ClickHouseResultSet resultSet) {
         this.resultSet = resultSet;
     }
 
     @Override
     public int getColumnCount() throws SQLException {
-        return resultSet.getColumnNames().length;
+        return resultSet.getColumns().size();
     }
 
     @Override
@@ -43,12 +41,14 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) throws SQLException {
-        return columnTypeAt(column).startsWith("Nullable(") ? columnNullable : columnNoNulls;
+        return getCol(column).isNullable()
+            ? columnNullable
+            : columnNoNulls;
     }
 
     @Override
     public boolean isSigned(int column) throws SQLException {
-        return !TypeUtils.isUnsigned(columnTypeAt(column));
+        return getCol(column).getClickHouseDataType().isSigned();
     }
 
     @Override
@@ -58,12 +58,12 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnLabel(int column) throws SQLException {
-        return resultSet.getColumnNames()[column - 1];
+        return getColumnName(column);
     }
 
     @Override
     public String getColumnName(int column) throws SQLException {
-        return resultSet.getColumnNames()[column - 1];
+        return getCol(column).getColumnName();
     }
 
     @Override
@@ -73,12 +73,12 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getPrecision(int column) throws SQLException {
-        return TypeUtils.getColumnSize(getColumnTypeName(column));
+        return getCol(column).getPrecision();
     }
 
     @Override
     public int getScale(int column) throws SQLException {
-        return TypeUtils.getDecimalDigits(getColumnTypeName(column));
+        return getCol(column).getScale();
     }
 
     @Override
@@ -93,17 +93,12 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnType(int column) throws SQLException {
-        return TypeUtils.toSqlType(columnTypeAt(column));
+        return getCol(column).getClickHouseDataType().getSqlType();
     }
 
     @Override
     public String getColumnTypeName(int column) throws SQLException {
-        if (resultSet.getTypes().length < column) {
-            throw new ArrayIndexOutOfBoundsException("Array length: "
-                                                             + resultSet.getTypes().length
-                                                             + " requested: " + (column - 1));
-        }
-        return NullableType.unwrapNullableIfApplicable(columnTypeAt(column));
+        return getCol(column).getCleanTypeName();
     }
 
     @Override
@@ -123,12 +118,7 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        String columnTypeName = getColumnTypeName(column);
-        int sqlType = TypeUtils.toSqlType(columnTypeName);
-        if (sqlType == Types.ARRAY) {
-            return "java.sql.Array";
-        }
-        return TypeUtils.toClass(sqlType, -1, TypeUtils.isUnsigned(columnTypeName)).getName();
+        return getCol(column).getClickHouseDataType().getJavaClass().getCanonicalName();
     }
 
     @Override
@@ -145,7 +135,8 @@ public class ClickHouseResultSetMetaData implements ResultSetMetaData {
         return iface != null && iface.isAssignableFrom(getClass());
     }
 
-    private String columnTypeAt(int column) {
-        return resultSet.getTypes()[column - 1];
+    private ClickHouseColumnInfo getCol(int column) {
+        return resultSet.getColumns().get(column - 1);
     }
+
 }

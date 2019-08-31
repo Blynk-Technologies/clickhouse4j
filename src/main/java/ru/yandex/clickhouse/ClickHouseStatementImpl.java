@@ -98,21 +98,23 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    private static String addFormatIfAbsent(String sql, ClickHouseFormat format) {
-        sql = sql.trim();
-        String woSemicolon = sql.replace(";", "").trim();
-        if (isSelect(sql)
-                && !woSemicolon.endsWith(" " + TabSeparatedWithNamesAndTypes)
-                && !woSemicolon.endsWith(" " + TabSeparated)
-                && !woSemicolon.endsWith(" " + JSONCompact)
-                && !woSemicolon.endsWith(" " + RowBinary)
-                && !woSemicolon.endsWith(" " + CSVWithNames)) {
-            if (sql.endsWith(";")) {
-                sql = sql.substring(0, sql.length() - 1);
-            }
-            sql += " FORMAT " + format + ';';
+    private static String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
+        String cleanSQL = sql.trim();
+        if (!isSelect(cleanSQL)) {
+            return cleanSQL;
         }
-        return sql;
+        if (ClickHouseFormat.containsFormat(cleanSQL)) {
+            return cleanSQL;
+        }
+        StringBuilder sb = new StringBuilder();
+        int idx = cleanSQL.endsWith(";")
+                ? cleanSQL.length() - 1
+                : cleanSQL.length();
+        sb.append(cleanSQL.substring(0, idx))
+                .append(" FORMAT ")
+                .append(format.name())
+                .append(';');
+        return sb.toString();
     }
 
     static boolean isSelect(String sql) {
@@ -268,6 +270,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             String sql,
             Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
         return executeQueryClickhouseRowBinaryStream(sql, additionalDBParams, null);
+    }
+
+    @Override
+    public void cancel() throws SQLException {
+        if (this.queryId == null || isClosed()) {
+            return;
+        }
+
+        executeQuery(String.format("KILL QUERY WHERE query_id='%s'", queryId));
     }
 
     @Override
@@ -447,9 +458,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             if (isSelect(sql)) {
                 currentUpdateCount = -1;
                 currentRowBinaryResult = new ClickHouseRowBinaryInputStream(properties.isCompress()
-                        ? new ClickHouseLZ4Stream(is) : is,
-                        getConnection().getTimeZone(),
-                        properties);
+                                                                                    ? new ClickHouseLZ4Stream(is) : is,
+                                                                            getConnection().getTimeZone(),
+                                                                            properties);
                 return currentRowBinaryResult;
             } else {
                 currentUpdateCount = 0;
@@ -460,15 +471,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             StreamUtils.close(is);
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
-    }
-
-    @Override
-    public void cancel() throws SQLException {
-        if (this.queryId == null || isClosed()) {
-            return;
-        }
-
-        executeQuery(String.format("KILL QUERY WHERE query_id='%s'", queryId));
     }
 
     private String extractTableName(String sql) {
@@ -706,14 +708,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
                     .collect(Collectors.joining("&"));
 
-            return new URI(properties.getSsl() ? "https" : "http",
-                    null,
-                    properties.getHost(),
-                    properties.getPort(),
-                    "/",
-                    query,
-                    null
-            );
+            return new URIBuilder()
+                .setScheme(properties.getSsl() ? "https" : "http")
+                .setHost(properties.getHost())
+                .setPort(properties.getPort())
+                .setPath((properties.getPath() == null || properties.getPath().isEmpty() ? "/" : properties.getPath()))
+                .setParameters(queryParams)
+                .build();
         } catch (URISyntaxException e) {
             log.error("Mailformed URL: {}", e.getMessage());
             throw new IllegalStateException("illegal configuration of db");

@@ -1,18 +1,8 @@
 package ru.yandex.clickhouse.integration;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-import ru.yandex.clickhouse.ClickHouseArray;
-import ru.yandex.clickhouse.ClickHouseConnection;
-import ru.yandex.clickhouse.ClickHouseDataSource;
-import ru.yandex.clickhouse.ClickHousePreparedStatement;
-import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,24 +10,32 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import ru.yandex.clickhouse.ClickHouseArray;
+import ru.yandex.clickhouse.ClickHouseConnection;
+import ru.yandex.clickhouse.ClickHouseDataSource;
+import ru.yandex.clickhouse.ClickHousePreparedStatement;
+import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
+import ru.yandex.clickhouse.domain.ClickHouseDataType;
+import ru.yandex.clickhouse.response.ClickHouseResponse;
+import ru.yandex.clickhouse.settings.ClickHouseProperties;
+
+import static java.util.Collections.singletonList;
+
 public class ClickHousePreparedStatementTest {
+
     private ClickHouseDataSource dataSource;
     private Connection connection;
-
-    private String randomEncodedUUID() {
-        final UUID uuid = UUID.randomUUID();
-        final byte[] bts = ByteBuffer.allocate(16)
-                .putLong(uuid.getMostSignificantBits())
-                .putLong(uuid.getLeastSignificantBits())
-                .array();
-        return "\\x" + encode(bts);
-    }
 
     @BeforeTest
     public void setUp() throws Exception {
@@ -65,11 +63,11 @@ public class ClickHousePreparedStatementTest {
         PreparedStatement statement = connection.prepareStatement("INSERT INTO test.array_test (i, a) VALUES (?, ?)");
 
         statement.setInt(1, 1);
-        statement.setArray(2, new ClickHouseArray(Types.INTEGER, new int[]{1, 2, 3}));
+        statement.setArray(2, new ClickHouseArray(ClickHouseDataType.Int32, new int[]{1, 2, 3}));
         statement.addBatch();
 
         statement.setInt(1, 2);
-        statement.setArray(2, new ClickHouseArray(Types.INTEGER, new int[]{2, 3, 4, 5}));
+        statement.setArray(2, new ClickHouseArray(ClickHouseDataType.Int32, new int[]{2, 3, 4, 5}));
         statement.addBatch();
         statement.executeBatch();
 
@@ -98,7 +96,7 @@ public class ClickHousePreparedStatementTest {
         statement.setObject(1, null);
         statement.setObject(2, null);
         statement.setObject(3, new String[]{"a", null, "c"});
-        statement.setArray(4, new ClickHouseArray(Types.INTEGER, new Integer[]{1, null, 3}));
+        statement.setArray(4, new ClickHouseArray(ClickHouseDataType.Int32, new Integer[]{1, null, 3}));
         statement.addBatch();
         statement.executeBatch();
 
@@ -136,11 +134,11 @@ public class ClickHousePreparedStatementTest {
         PreparedStatement statement = connection.prepareStatement("INSERT INTO test.array_fixed_string_test (i, a) VALUES (?, ?)");
 
         statement.setInt(1, 1);
-        statement.setArray(2, new ClickHouseArray(Types.BINARY, new String[]{randomEncodedUUID(), randomEncodedUUID()}));
+        statement.setArray(2, new ClickHouseArray(ClickHouseDataType.FixedString, new byte[][]{randomEncodedUUID(), randomEncodedUUID()}));
         statement.addBatch();
 
         statement.setInt(1, 2);
-        statement.setArray(2, new ClickHouseArray(Types.BINARY, new String[]{randomEncodedUUID(), randomEncodedUUID()}));
+        statement.setArray(2, new ClickHouseArray(ClickHouseDataType.FixedString, new byte[][]{randomEncodedUUID(), randomEncodedUUID()}));
         statement.addBatch();
         statement.executeBatch();
 
@@ -172,7 +170,6 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(bigUInt64, new BigInteger("18446744073709551606"));
     }
 
-
     @Test
     public void testInsertUUID() throws SQLException {
         connection.createStatement().execute("DROP TABLE IF EXISTS test.uuid_insert");
@@ -180,9 +177,31 @@ public class ClickHousePreparedStatementTest {
                 "CREATE TABLE IF NOT EXISTS test.uuid_insert (ui32 UInt32, uuid UUID) ENGINE = TinyLog"
         );
         PreparedStatement stmt = connection.prepareStatement("insert into test.uuid_insert (ui32, uuid) values (?, ?)");
-        stmt.setObject(1, 4294967286L);
+        stmt.setObject(1, Long.valueOf(4294967286L));
         stmt.setObject(2, UUID.fromString("bef35f40-3b03-45b0-b1bd-8ec6593dcaaa"));
         stmt.execute();
+        Statement select = connection.createStatement();
+        ResultSet rs = select.executeQuery("select ui32, uuid from test.uuid_insert");
+        rs.next();
+        Object bigUInt32 = rs.getObject(1);
+        Assert.assertTrue(bigUInt32 instanceof Long);
+        Assert.assertEquals(((Long)bigUInt32).longValue(), 4294967286L);
+        Object uuid = rs.getObject(2);
+        Assert.assertTrue(uuid instanceof UUID);
+        Assert.assertEquals(uuid, UUID.fromString("bef35f40-3b03-45b0-b1bd-8ec6593dcaaa"));
+    }
+
+    @Test
+    public void testInsertUUIDBatch() throws SQLException {
+        connection.createStatement().execute("DROP TABLE IF EXISTS test.uuid_insert");
+        connection.createStatement().execute(
+                "CREATE TABLE IF NOT EXISTS test.uuid_insert (ui32 UInt32, uuid UUID) ENGINE = TinyLog"
+        );
+        PreparedStatement stmt = connection.prepareStatement("insert into test.uuid_insert (ui32, uuid) values (?, ?)");
+        stmt.setObject(1, 4294967286L);
+        stmt.setObject(2, UUID.fromString("bef35f40-3b03-45b0-b1bd-8ec6593dcaaa"));
+        stmt.addBatch();
+        stmt.executeBatch();
         Statement select = connection.createStatement();
         ResultSet rs = select.executeQuery("select ui32, uuid from test.uuid_insert");
         rs.next();
@@ -321,6 +340,14 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(rs.getMetaData().getColumnType(1), Types.DOUBLE);
         Assert.assertEquals(rs.getObject(1).getClass(), Double.class);
         Assert.assertEquals(rs.getDouble(1), 0.1);
+    }
+
+    @Test
+    public void testExecuteQueryClickhouseResponse() throws SQLException {
+        ClickHousePreparedStatement sth = (ClickHousePreparedStatement) connection.prepareStatement("select ? limit 5");
+        sth.setObject(1, 314);
+        ClickHouseResponse resp = sth.executeQueryClickhouseResponse();
+        Assert.assertEquals(resp.getData(), singletonList(singletonList("314")));
     }
 
     @Test
@@ -502,6 +529,28 @@ public class ClickHousePreparedStatementTest {
         rs.close();
     }
 
+    public void testBytes() throws Exception {
+        connection.createStatement().execute(
+            "DROP TABLE IF EXISTS test.strings_versus_bytes");
+        connection.createStatement().execute(
+            "CREATE TABLE IF NOT EXISTS test.strings_versus_bytes"
+          + "(s String, fs FixedString(8)) "
+          + "ENGINE = TinyLog"
+        );
+        PreparedStatement insertStmt = connection.prepareStatement(
+            "INSERT INTO test.strings_versus_bytes (s, fs) VALUES (?, ?)");
+        insertStmt.setBytes(1, "foo".getBytes(Charset.forName("UTF-8")));
+        insertStmt.setBytes(2, "bar".getBytes(Charset.forName("UTF-8")));
+        insertStmt.executeUpdate();
+        ResultSet rs = connection.createStatement().executeQuery(
+            "SELECT s, fs FROM test.strings_versus_bytes");
+        rs.next();
+        Assert.assertEquals(rs.getString(1), "foo");
+        // TODO: The actual String returned by our ResultSet is rather strange
+        // ['b' 'a' 'r' 0 0 0 0 0]
+        Assert.assertEquals(rs.getString(2).trim(), "bar");
+    }
+
     @Test
     public void testInsertWithFunctionsAddBatch() throws Exception {
         connection.createStatement().execute(
@@ -525,7 +574,6 @@ public class ClickHousePreparedStatementTest {
     @SuppressWarnings("boxing")
     @Test
     public void testMultiLineValues() throws Exception {
-
         connection.createStatement().execute(
             "DROP TABLE IF EXISTS test.multiline");
         connection.createStatement().execute(
@@ -564,29 +612,37 @@ public class ClickHousePreparedStatementTest {
         Assert.assertFalse(rs.next());
     }
 
-    @Test
-    public void testInClause() throws Exception {
-        String unbindedStatement = "SELECT test.example WHERE id IN (?)";
-        ClickHousePreparedStatement statement = (ClickHousePreparedStatement)
-                connection.prepareStatement(unbindedStatement);
-        Assert.assertEquals(statement.asSql(), unbindedStatement);
+    // Issue 153
+    public void testArrayDateTime() throws Exception {
+        connection.createStatement().execute(
+            "DROP TABLE IF EXISTS test.date_time_array");
+        connection.createStatement().execute(
+            "CREATE TABLE IF NOT EXISTS test.date_time_array"
+          + "(foo Array(DateTime)) "
+          + "ENGINE = TinyLog"
+        );
+        PreparedStatement stmt = connection.prepareStatement(
+            "INSERT INTO test.date_time_array (foo) VALUES (?)");
+        stmt.setArray(1, connection.createArrayOf("DateTime",
+            new Timestamp[] {
+                new Timestamp(1557136800000L),
+                new Timestamp(1560698526598L)
+            }));
+        stmt.execute();
 
-        statement.setObject(1, Arrays.asList(123, 456));
-        Assert.assertEquals(statement.asSql(), "SELECT test.example WHERE id IN (123,456)");
+        ResultSet rs = connection.createStatement().executeQuery(
+            "SELECT foo FROM test.date_time_array");
+        rs.next();
+        Timestamp[] result = (Timestamp[]) rs.getArray(1).getArray();
+        Assert.assertEquals(result[0].getTime(), 1557136800000L);
+        Assert.assertEquals(result[1].getTime(), 1560698526598L);
     }
 
-    private final static char[] HEX = new char[]{
-            '0', '1', '2', '3', '4', '5', '6', '7',
-            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-
-    private static String encode(byte[] byteArray) {
-        StringBuffer hexBuffer = new StringBuffer(byteArray.length * 2);
-        for (byte aByteArray : byteArray) {
-            for (int j = 1; j >= 0; j--) {
-                hexBuffer.append(HEX[(aByteArray >> (j * 4)) & 0xF]);
-            }
-        }
-        return hexBuffer.toString().substring(0,16);
+    private static byte[] randomEncodedUUID() {
+        UUID uuid = UUID.randomUUID();
+        return ByteBuffer.allocate(16)
+            .putLong(uuid.getMostSignificantBits())
+            .putLong(uuid.getLeastSignificantBits())
+            .array();
     }
 }
