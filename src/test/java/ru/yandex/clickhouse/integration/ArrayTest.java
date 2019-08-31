@@ -5,6 +5,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import ru.yandex.clickhouse.ClickHouseArray;
 import ru.yandex.clickhouse.ClickHouseDataSource;
+import ru.yandex.clickhouse.domain.ClickHouseDataType;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.math.BigInteger;

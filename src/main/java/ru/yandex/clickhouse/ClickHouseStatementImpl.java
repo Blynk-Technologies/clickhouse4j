@@ -2,6 +2,7 @@ package ru.yandex.clickhouse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.domain.ClickHouseFormat;
 import ru.yandex.clickhouse.except.ClickHouseException;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
 import ru.yandex.clickhouse.http.HttpConnector;
@@ -10,7 +11,6 @@ import ru.yandex.clickhouse.response.ClickHouseResultSet;
 import ru.yandex.clickhouse.response.ClickHouseScrollableResultSet;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
-import ru.yandex.clickhouse.util.ClickHouseFormat;
 import ru.yandex.clickhouse.util.ClickHouseRowBinaryInputStream;
 import ru.yandex.clickhouse.util.ClickHouseRowBinaryStream;
 import ru.yandex.clickhouse.util.ClickHouseStreamCallback;
@@ -34,12 +34,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static ru.yandex.clickhouse.util.ClickHouseFormat.CSVWithNames;
-import static ru.yandex.clickhouse.util.ClickHouseFormat.JSONCompact;
-import static ru.yandex.clickhouse.util.ClickHouseFormat.RowBinary;
-import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparated;
-import static ru.yandex.clickhouse.util.ClickHouseFormat.TabSeparatedWithNamesAndTypes;
 
 public class ClickHouseStatementImpl implements ClickHouseStatement {
 
@@ -567,9 +561,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void sendStream(InputStream stream, String table, Map<ClickHouseQueryParam, String> additionalDBParams)
+    public void sendStream(InputStream stream, String table,
+                           Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
-        String sql = "INSERT INTO " + table + " FORMAT " + TabSeparated.name() + "\n";
+        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated + "\n";
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
@@ -583,13 +578,38 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         httpConnector.post(out.toByteArray(), uri);
     }
 
+    @Override
+    public void sendCSVStream(InputStream content, String table, Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
+        String query = "INSERT INTO " + table;
+        //todo finish
+        //sendStream(new InputStreamEntity(content, -1), query, ClickHouseFormat.CSV, additionalDBParams);
+    }
+
+    @Override
+    public void sendCSVStream(InputStream content, String table) throws ClickHouseException {
+        sendCSVStream(content, table, null);
+    }
+
+    @Override
+    public void sendStreamSQL(InputStream content, String sql,
+                              Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
+        //todo finish
+        //sendStreamSQL(new InputStreamEntity(content, -1), sql, additionalDBParams);
+    }
+
+    @Override
+    public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
+        //todo finish
+        //sendStreamSQL(new InputStreamEntity(content, -1), sql, null);
+    }
+
     void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        sql = sql + " FORMAT " + TabSeparated.name() + "\n";
+        sql = sql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
         out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
 
         batchRows.forEach(out::writeBytes);
@@ -708,13 +728,14 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
                     .collect(Collectors.joining("&"));
 
-            return new URIBuilder()
-                .setScheme(properties.getSsl() ? "https" : "http")
-                .setHost(properties.getHost())
-                .setPort(properties.getPort())
-                .setPath((properties.getPath() == null || properties.getPath().isEmpty() ? "/" : properties.getPath()))
-                .setParameters(queryParams)
-                .build();
+            return new URI(properties.getSsl() ? "https" : "http",
+                           null,
+                           properties.getHost(),
+                           properties.getPort(),
+                           properties.getPath() == null || properties.getPath().isEmpty() ? "/" : properties.getPath(),
+                           query,
+                           null
+            );
         } catch (URISyntaxException e) {
             log.error("Mailformed URL: {}", e.getMessage());
             throw new IllegalStateException("illegal configuration of db");

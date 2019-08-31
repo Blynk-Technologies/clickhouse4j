@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.response.ClickHouseResultBuilder;
 import ru.yandex.clickhouse.util.ClickHouseVersionNumberUtil;
 import ru.yandex.clickhouse.util.NullableType;
-import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

@@ -27,7 +27,6 @@ import ru.yandex.clickhouse.ClickHouseDataSource;
 import ru.yandex.clickhouse.ClickHousePreparedStatement;
 import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
 import ru.yandex.clickhouse.domain.ClickHouseDataType;
-import ru.yandex.clickhouse.response.ClickHouseResponse;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import static java.util.Collections.singletonList;
@@ -340,14 +339,6 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(rs.getMetaData().getColumnType(1), Types.DOUBLE);
         Assert.assertEquals(rs.getObject(1).getClass(), Double.class);
         Assert.assertEquals(rs.getDouble(1), 0.1);
-    }
-
-    @Test
-    public void testExecuteQueryClickhouseResponse() throws SQLException {
-        ClickHousePreparedStatement sth = (ClickHousePreparedStatement) connection.prepareStatement("select ? limit 5");
-        sth.setObject(1, 314);
-        ClickHouseResponse resp = sth.executeQueryClickhouseResponse();
-        Assert.assertEquals(resp.getData(), singletonList(singletonList("314")));
     }
 
     @Test

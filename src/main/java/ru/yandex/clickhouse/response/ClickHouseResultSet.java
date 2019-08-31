@@ -4,7 +4,6 @@ import ru.yandex.clickhouse.ClickHouseArray;
 import ru.yandex.clickhouse.ClickHouseStatement;
 import ru.yandex.clickhouse.except.ClickHouseExceptionSpecifier;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,7 +119,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
             throw new IllegalArgumentException("ClickHouse response without column types");
         }
         String[] types = toStringArray(typesFragment);
-        columns = new ArrayList<ClickHouseColumnInfo>(cols.length);
+        columns = new ArrayList<>(cols.length);
         for (int i = 0; i < cols.length; i++) {
             columns.add(ClickHouseColumnInfo.parse(types[i], cols[i]));
         }
@@ -176,25 +175,6 @@ public class ClickHouseResultSet extends AbstractResultSet {
             return true;
         }
         return false;
-    }
-
-    static long[] toLongArray(ByteFragment value) {
-        if (value.isNull()) {
-            return null;
-        }
-        if (value.charAt(0) != '[' || value.charAt(value.length() - 1) != ']') {
-            throw new IllegalArgumentException("not an array: " + value);
-        }
-        if (value.length() == 2) {
-            return EMPTY_LONG_ARRAY;
-        }
-        ByteFragment trim = value.subseq(1, value.length() - 2);
-        ByteFragment[] values = trim.split((byte) ',');
-        long[] result = new long[values.length];
-        for (int i = 0; i < values.length; i++) {
-            result[i] = ByteFragmentUtils.parseLong(values[i]);
-        }
-        return result;
     }
 
     private void checkValues(List<ClickHouseColumnInfo> columns, ByteFragment[] values,
@@ -576,12 +556,10 @@ public class ClickHouseResultSet extends AbstractResultSet {
                 case Types.DECIMAL:
                     return getBigDecimal(columnIndex);
             }
-            switch (chType) {
-                case UUID :
-                    return getObject(columnIndex, UUID.class);
-                default :
-                    return getString(columnIndex);
+            if (chType == ClickHouseDataType.UUID) {
+                return getObject(columnIndex, UUID.class);
             }
+            return getString(columnIndex);
         } catch (Exception e) {
             throw new RuntimeException("Parse exception: " + values[columnIndex - 1].toString(), e);
         }
@@ -589,44 +567,12 @@ public class ClickHouseResultSet extends AbstractResultSet {
 
     /////////////////////////////////////////////////////////
 
-    private static byte toByte(ByteFragment value) {
-        if (value.isNull()) {
-            return 0;
-        }
-        return Byte.parseByte(value.asString());
-    }
-
-    private static short toShort(ByteFragment value) {
-        if (value.isNull()) {
-            return 0;
-        }
-        return Short.parseShort(value.asString());
-    }
-
-    private static boolean toBoolean(ByteFragment value) {
-        if (value.isNull()) {
-            return false;
-        }
-        return "1".equals(value.asString());    // 1 or 0 there
-    }
-
-    private static byte[] toBytes(ByteFragment value) {
-        if (value.isNull()) {
-            return null;
-        }
-        return value.unescape();
-    }
-
-    private static String toString(ByteFragment value) {
-        return value.asString(true);
-    }
-
     static long[] toLongArray(ByteFragment value) {
         if (value.isNull()) {
             return null;
         }
-        if (value.charAt(0) != '[' || value.charAt(value.length()-1) != ']') {
-            throw new IllegalArgumentException("not an array: "+value);
+        if (value.charAt(0) != '[' || value.charAt(value.length() - 1) != ']') {
+            throw new IllegalArgumentException("not an array: " + value);
         }
         if (value.length() == 2) {
             return EMPTY_LONG_ARRAY;

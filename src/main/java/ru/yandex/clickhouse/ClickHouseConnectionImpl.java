@@ -7,7 +7,6 @@ import ru.yandex.clickhouse.http.HttpConnectorFactory;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.util.LogProxy;
-import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.io.InterruptedIOException;
 import java.net.URI;
@@ -41,7 +40,6 @@ import ru.yandex.clickhouse.domain.ClickHouseDataType;
 import ru.yandex.clickhouse.except.ClickHouseUnknownException;
 import ru.yandex.clickhouse.settings.ClickHouseConnectionSettings;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.util.ClickHouseHttpClientBuilder;
 import ru.yandex.clickhouse.util.LogProxy;
 import ru.yandex.clickhouse.util.guava.StreamUtils;
 
@@ -427,8 +425,8 @@ public class ClickHouseConnectionImpl implements ClickHouseConnection {
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         return new ClickHouseArray(
-            ClickHouseDataType.resolveDefaultArrayDataType(typeName),
-            elements);
+                ClickHouseDataType.resolveDefaultArrayDataType(typeName),
+                elements);
     }
 
     @Override

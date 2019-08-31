@@ -8,10 +8,10 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.TimeZone;
 
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import static org.testng.Assert.assertEquals;
@@ -236,7 +236,7 @@ public class ClickHousePreparedStatementTest {
         ClickHouseProperties props) throws Exception
     {
         return new ClickHousePreparedStatementImpl(
-            Mockito.mock(CloseableHttpClient.class),
+            Mockito.mock(HttpConnector.class),
             Mockito.mock(ClickHouseConnection.class),
             props,
             "INSERT INTO foo (bar) VALUES (?)",

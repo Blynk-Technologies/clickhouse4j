@@ -81,7 +81,7 @@ public class ClickHouseArray implements Array {
     }
 
     @Override
-    public void free() {
+    public void free() throws SQLException {
         array = null;
     }
 }

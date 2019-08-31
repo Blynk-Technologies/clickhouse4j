@@ -1,7 +1,6 @@
 package ru.yandex.clickhouse.response;
 
 import ru.yandex.clickhouse.util.NullableType;
-import ru.yandex.clickhouse.util.TypeUtils;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

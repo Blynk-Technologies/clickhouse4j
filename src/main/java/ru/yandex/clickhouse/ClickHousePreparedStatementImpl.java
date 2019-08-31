@@ -1,15 +1,16 @@
 package ru.yandex.clickhouse;
 
-import java.io.IOException;
 import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
 import ru.yandex.clickhouse.util.ClickHouseArrayUtil;
+import ru.yandex.clickhouse.util.ClickHouseValueFormatter;
 
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -37,12 +38,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.yandex.clickhouse.response.ClickHouseResponse;
-import ru.yandex.clickhouse.settings.ClickHouseProperties;
-import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
-import ru.yandex.clickhouse.util.ClickHouseArrayUtil;
-import ru.yandex.clickhouse.util.ClickHouseValueFormatter;
-import ru.yandex.clickhouse.util.guava.StreamUtils;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl implements ClickHousePreparedStatement {
@@ -60,13 +56,12 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
-    public ClickHousePreparedStatementImpl(HttpConnector connector,
-                                           ClickHouseConnection connection,
-                                           ClickHouseProperties properties,
-                                           String sql,
-                                           TimeZone serverTimeZone,
-                                           int resultSetType) throws SQLException
-    {
+    ClickHousePreparedStatementImpl(HttpConnector connector,
+                                    ClickHouseConnection connection,
+                                    ClickHouseProperties properties,
+                                    String sql,
+                                    TimeZone serverTimeZone,
+                                    int resultSetType) {
         super(connector, connection, properties, resultSetType);
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
@@ -152,7 +147,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     private void setBind(int parameterIndex, ClickHousePreparedStatementParameter parameter) {
-        binds[parameterIndex -1] = parameter;
+        binds[parameterIndex - 1] = parameter;
     }
 
     private void setNull(int parameterIndex) {
@@ -218,9 +213,9 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     public void setDate(int parameterIndex, Date x) throws SQLException {
         if (x != null) {
             setBind(
-                parameterIndex,
-                ClickHouseValueFormatter.formatDate(x, dateTimeZone),
-                true);
+                    parameterIndex,
+                    ClickHouseValueFormatter.formatDate(x, dateTimeZone),
+                    true);
         } else {
             setNull(parameterIndex);
         }
@@ -230,9 +225,9 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     public void setTime(int parameterIndex, Time x) throws SQLException {
         if (x != null) {
             setBind(
-                parameterIndex,
-                ClickHouseValueFormatter.formatTime(x, dateTimeTimeZone),
-                true);
+                    parameterIndex,
+                    ClickHouseValueFormatter.formatTime(x, dateTimeTimeZone),
+                    true);
         } else {
             setNull(parameterIndex);
         }
@@ -242,9 +237,9 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         if (x != null) {
             setBind(
-                parameterIndex,
-                ClickHouseValueFormatter.formatTimestamp(x, dateTimeTimeZone),
-                true);
+                    parameterIndex,
+                    ClickHouseValueFormatter.formatTimestamp(x, dateTimeTimeZone),
+                    true);
         } else {
             setNull(parameterIndex);
         }
@@ -276,7 +271,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     @Override
     public void setArray(int parameterIndex, Collection collection) throws SQLException {
         setBind(parameterIndex, ClickHouseArrayUtil.toString(collection, dateTimeZone, dateTimeTimeZone),
-            false);
+                false);
     }
 
     @Override
@@ -287,16 +282,16 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
         setBind(parameterIndex, ClickHouseArrayUtil.arrayToString(x.getArray(), dateTimeZone, dateTimeTimeZone),
-            false);
+                false);
     }
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
         if (x != null) {
             setBind(
-                parameterIndex,
-                ClickHousePreparedStatementParameter.fromObject(
-                    x, dateTimeZone, dateTimeTimeZone));
+                    parameterIndex,
+                    ClickHousePreparedStatementParameter.fromObject(
+                            x, dateTimeZone, dateTimeTimeZone));
         } else {
             setNull(parameterIndex);
         }
@@ -326,7 +321,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
                 }
                 sb.append(j < pList.size() - 1 ? "\t" : "\n");
             }
-            newBatches.add(sb.toString().getBytes(StandardCharsets.UTF_8));
+            newBatches.add(sb.toString().getBytes(UTF_8));
             sb = new StringBuilder();
         }
         return newBatches;
@@ -354,7 +349,6 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
         batchRows = new ArrayList<>();
         return result;
     }
-
 
 
     @Override
@@ -391,7 +385,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
             return null;
         }
         ResultSet myRs = executeQuery(Collections.singletonMap(
-            ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
+                ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
         return myRs != null ? myRs.getMetaData() : null;
     }
 
@@ -411,7 +405,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void setNull(int parameterIndex, int sqlType, String typeName) {
+    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         setNull(parameterIndex, sqlType);
     }
 
@@ -431,7 +425,7 @@ public class ClickHousePreparedStatementImpl extends ClickHouseStatementImpl imp
     }
 
     @Override
-    public void setNString(int parameterIndex, String value) {
+    public void setNString(int parameterIndex, String value) throws SQLException {
         setString(parameterIndex, value);
     }
 
