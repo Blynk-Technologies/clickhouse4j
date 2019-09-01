@@ -39,7 +39,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseStatementImpl.class);
 
-    private final HttpConnector httpConnector;
+    final HttpConnector httpConnector;
 
     protected final ClickHouseProperties properties;
 
@@ -610,19 +610,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
         sendStreamSQL(content, sql, null);
-    }
-
-    void sendStream(List<byte[]> batchRows, String sql, Map<ClickHouseQueryParam, String> additionalDBParams)
-            throws ClickHouseException {
-        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        sql = sql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
-        out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
-
-        batchRows.forEach(out::writeBytes);
-        httpConnector.post(out.toByteArray(), uri);
     }
 
     public void closeOnCompletion() {

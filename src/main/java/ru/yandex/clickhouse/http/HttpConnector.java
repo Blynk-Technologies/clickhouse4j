@@ -16,6 +16,8 @@ public interface HttpConnector {
 
     void post(byte[] bytes, URI uri) throws ClickHouseException;
 
+    void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException;
+
     void cleanConnections();
 
     void closeClient() throws SQLException;

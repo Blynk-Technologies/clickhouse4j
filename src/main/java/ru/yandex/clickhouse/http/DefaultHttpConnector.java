@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -51,6 +52,13 @@ final class DefaultHttpConnector implements HttpConnector {
 
     DefaultHttpConnector(ClickHouseProperties properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException {
+        HttpURLConnection connection = buildConnection(uri);
+        InputStream is = sendPostRequest(sqlBytes, data, connection);
+        StreamUtils.close(is);
     }
 
     @Override
@@ -88,25 +96,47 @@ final class DefaultHttpConnector implements HttpConnector {
 
     }
 
-    private InputStream sendPostRequest(InputStream inputStream, HttpURLConnection connection)
+    private InputStream sendPostRequest(byte[] sqlBytes, List<byte[]> batches, HttpURLConnection connection)
             throws ClickHouseException {
-        try (inputStream;
-             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new DataOutputStream(connection.getOutputStream());
             if (properties.isDecompress()) {
-                ClickHouseLZ4OutputStream lz4Stream =
-                        new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
-
-                StreamUtils.copy(inputStream, lz4Stream);
-                lz4Stream.flush();
-            } else {
-                StreamUtils.copy(inputStream, outputStream);
+                outputStream = new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
             }
-
+            outputStream.write(sqlBytes);
+            for (byte[] batch : batches) {
+                outputStream.write(batch);
+            }
+            outputStream.flush();
             checkForErrorAndThrow(connection);
             return connection.getInputStream();
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        } finally {
+            StreamUtils.close(outputStream);
+        }
+    }
+
+    private InputStream sendPostRequest(InputStream inputStream, HttpURLConnection connection)
+            throws ClickHouseException {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new DataOutputStream(connection.getOutputStream());
+            if (properties.isDecompress()) {
+                outputStream = new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
+            }
+            StreamUtils.copy(inputStream, outputStream);
+            outputStream.flush();
+            checkForErrorAndThrow(connection);
+            return connection.getInputStream();
+        } catch (IOException e) {
+            log.error("Http POST request failed. {}", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        } finally {
+            StreamUtils.close(inputStream);
+            StreamUtils.close(outputStream);
         }
     }
 

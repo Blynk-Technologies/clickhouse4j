@@ -1,5 +1,6 @@
 package ru.yandex.clickhouse;
 
+import ru.yandex.clickhouse.domain.ClickHouseFormat;
 import ru.yandex.clickhouse.http.HttpConnector;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 import ru.yandex.clickhouse.settings.ClickHouseQueryParam;
@@ -9,6 +10,7 @@ import ru.yandex.clickhouse.util.ClickHouseValueFormatter;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
@@ -344,7 +346,12 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         }
         int valuePosition = matcher.start();
         String insertSql = sql.substring(0, valuePosition);
-        sendStream(batchRows, insertSql, additionalDBParams);
+
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
+        insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
+        byte[] sqlBytes = insertSql.getBytes(UTF_8);
+
+        httpConnector.post(sqlBytes, batchRows, uri);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
         batchRows = new ArrayList<>();
