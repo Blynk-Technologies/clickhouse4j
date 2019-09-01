@@ -10,21 +10,11 @@ import java.util.List;
 
 public interface HttpConnector {
 
-    InputStream post(String sql,
-                     URI uri)
-            throws ClickHouseException;
+    InputStream post(String sql, URI uri) throws ClickHouseException;
 
-    InputStream post(List<ClickHouseExternalData> externalData,
-                     URI uri)
-            throws ClickHouseException;
+    InputStream post(List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException;
 
-    InputStream post(InputStream content,
-                     URI uri)
-            throws ClickHouseException;
-
-    void post(byte[] bytes,
-              URI uri)
-            throws ClickHouseException;
+    void post(byte[] bytes, URI uri) throws ClickHouseException;
 
     void cleanConnections();
 

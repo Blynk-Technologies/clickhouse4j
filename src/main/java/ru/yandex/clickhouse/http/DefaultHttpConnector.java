@@ -55,15 +55,16 @@ final class DefaultHttpConnector implements HttpConnector {
 
     @Override
     public void post(byte[] bytes, URI uri) throws ClickHouseException {
-        InputStream is = post(new ByteArrayInputStream(bytes), uri);
+        HttpURLConnection connection = buildConnection(uri);
+        InputStream is = sendPostRequest(new ByteArrayInputStream(bytes), connection);
         StreamUtils.close(is);
     }
 
     @Override
-    public InputStream post(String sql, URI uri)
-            throws ClickHouseException {
+    public InputStream post(String sql, URI uri) throws ClickHouseException {
         byte[] bytes = sql.getBytes(StandardCharsets.UTF_8);
-        return post(new ByteArrayInputStream(bytes), uri);
+        HttpURLConnection connection = buildConnection(uri);
+        return sendPostRequest(new ByteArrayInputStream(bytes), connection);
     }
 
     @Override
@@ -74,12 +75,6 @@ final class DefaultHttpConnector implements HttpConnector {
 
         byte[] bytes = buildMultipartData(externalData, boundaryString);
         InputStream inputStream = new ByteArrayInputStream(bytes);
-        return sendPostRequest(inputStream, connection);
-    }
-
-    @Override
-    public InputStream post(InputStream inputStream, URI uri) throws ClickHouseException {
-        HttpURLConnection connection = buildConnection(uri);
         return sendPostRequest(inputStream, connection);
     }
 
