@@ -37,8 +37,13 @@ final class PreparedStatementParser {
         return parser;
     }
 
-    List<String>[] getParameters() {
-        return parameters.toArray(new List[0]);
+    String[][] getParameters() {
+        String[][] list = new String[parameters.size()][];
+        int i = 0;
+        for (List<String> param : parameters) {
+            list[i++] = param.toArray(new String[0]);
+        }
+        return list;
     }
 
     List<String> getParts() {

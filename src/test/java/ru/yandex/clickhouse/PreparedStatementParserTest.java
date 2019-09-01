@@ -117,9 +117,9 @@ public class PreparedStatementParserTest {
     public void testNoCommasQuestionMarks() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (a, b) VALUES (foo ? bar ?)");
-        List<String>[] matrix = s.getParameters();
+        String[][] matrix = s.getParameters();
         assertEquals(matrix.length, 1);
-        assertEquals(matrix[0].size(), 1);
+        assertEquals(matrix[0].length, 1);
     }
 
     @Test
@@ -345,10 +345,10 @@ public class PreparedStatementParserTest {
     public void testNullValuesSelect() throws Exception {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "SELECT 1 FROM foo WHERE bar IN (?, NULL)");
-        List<String>[] params = s.getParameters();
+        String[][] params = s.getParameters();
         assertEquals(params.length, 1);
-        assertEquals(params[0].size(), 1);
-        assertEquals(params[0].get(0), "?");
+        assertEquals(params[0].length, 1);
+        assertEquals(params[0][0], "?");
     }
 
     @Test
@@ -442,7 +442,7 @@ public class PreparedStatementParserTest {
     }
 
     private static void assertMatchParams(String[][] expected, PreparedStatementParser stmt) {
-        List<String>[] actual = stmt.getParameters();
+        String[][] actual = stmt.getParameters();
         if (expected.length != actual.length) {
             assertEquals(formatParamsList(actual), formatParams(expected));
         }
@@ -451,7 +451,7 @@ public class PreparedStatementParserTest {
         }
         for (int i = 0; i < expected.length; i++) {
             String[] expRow = expected[i];
-            String[] actRow = actual[i].toArray(new String[0]);
+            String[] actRow = actual[i];
             assertEquals(actRow.length, expRow.length);
             for (int j = 0; j < expRow.length; j++) {
                 assertEquals(actRow[j], expRow[j]);
@@ -459,13 +459,13 @@ public class PreparedStatementParserTest {
         }
     }
 
-    private static String formatParamsList(List<String>[] params) {
+    private static String formatParamsList(String[][] params) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < params.length; i++) {
             sb.append("row ")
               .append(i)
               .append(": ")
-              .append(formatRow(params[i].toArray(new String[0])))
+              .append(formatRow(params[i]))
               .append("\n");
         }
         return sb.length() > 1 ?

@@ -51,7 +51,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final String sql;
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
-    private final List<String>[] parameterList;
+    private final String[][] parameterList;
     private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
@@ -307,9 +307,10 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         StringBuilder sb;
         for (int i = 0, p = 0; i < parameterList.length; i++) {
             sb = new StringBuilder();
-            List<String> pList = parameterList[i];
-            for (int j = 0; j < pList.size(); j++) {
-                String pValue = pList.get(j);
+            String[] batchParams = parameterList[i];
+            int batchParamsLength = batchParams.length;
+            for (int j = 0; j < batchParamsLength; j++) {
+                String pValue = batchParams[j];
                 if (PARAM_MARKER.equals(pValue)) {
                     if (insertBatchMode) {
                         sb.append(binds[p++].getBatchValue());
@@ -319,7 +320,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
                 } else {
                     sb.append(pValue);
                 }
-                sb.append(j < pList.size() - 1 ? "\t" : "\n");
+                char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';
+                sb.append(appendChar);
             }
             newBatch[i]  = sb.toString().getBytes(UTF_8);
         }
@@ -515,7 +517,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     private int countNonConstantParams() {
         int count = 0;
-        for (List<String> pList : parameterList) {
+        for (String[] pList : parameterList) {
             for (String aPList : pList) {
                 if (PARAM_MARKER.equals(aPList)) {
                     count += 1;
@@ -527,10 +529,10 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     private String getParameter(int paramIndex) {
         for (int i = 0, count = paramIndex; i < parameterList.length; i++) {
-            List<String> pList = parameterList[i];
-            count -= pList.size();
+            String[] pList = parameterList[i];
+            count -= pList.length;
             if (count < 0) {
-                return pList.get(pList.size() + count);
+                return pList[pList.length + count];
             }
         }
         return null;
