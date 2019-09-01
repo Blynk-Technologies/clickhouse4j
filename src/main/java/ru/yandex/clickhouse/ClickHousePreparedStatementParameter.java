@@ -12,7 +12,7 @@ public final class ClickHousePreparedStatementParameter {
     private final String stringValue;
     private final boolean quoteNeeded;
 
-    public static ClickHousePreparedStatementParameter fromObject(Object x,
+    static ClickHousePreparedStatementParameter fromObject(Object x,
         TimeZone dateTimeZone, TimeZone dateTimeTimeZone) {
         if (x == null) {
             return NULL_PARAM;
@@ -22,12 +22,11 @@ public final class ClickHousePreparedStatementParameter {
             ClickHouseValueFormatter.needsQuoting(x));
     }
 
-    public static ClickHousePreparedStatementParameter nullParameter() {
+    static ClickHousePreparedStatementParameter nullParameter() {
         return NULL_PARAM;
     }
 
-    public ClickHousePreparedStatementParameter(String stringValue,
-        boolean quoteNeeded) {
+    ClickHousePreparedStatementParameter(String stringValue, boolean quoteNeeded) {
         this.stringValue = stringValue == null
             ? ClickHouseValueFormatter.NULL_MARKER
             : stringValue;
@@ -35,11 +34,13 @@ public final class ClickHousePreparedStatementParameter {
     }
 
     String getRegularValue() {
-        return !ClickHouseValueFormatter.NULL_MARKER.equals(stringValue)
-            ? quoteNeeded
-                ? "'" + stringValue + "'"
-                : stringValue
-            : "null";
+        if (ClickHouseValueFormatter.NULL_MARKER.equals(stringValue)) {
+            return "null";
+        }
+        if (quoteNeeded) {
+            return "'" + stringValue + "'";
+        }
+        return stringValue;
     }
 
     String getBatchValue() {
