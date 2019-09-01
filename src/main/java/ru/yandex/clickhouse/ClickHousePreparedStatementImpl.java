@@ -51,7 +51,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final String sql;
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
-    private final List<List<String>> parameterList;
+    private final List<String>[] parameterList;
     private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
@@ -298,15 +298,16 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void addBatch() throws SQLException {
-        batchRows.addAll(buildBatch());
+        Collections.addAll(batchRows, buildBatch());
     }
 
-    private List<byte[]> buildBatch() throws SQLException {
+    private byte[][] buildBatch() throws SQLException {
         checkBinded();
-        List<byte[]> newBatches = new ArrayList<>(parameterList.size());
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0, p = 0; i < parameterList.size(); i++) {
-            List<String> pList = parameterList.get(i);
+        byte[][] newBatch = new byte[parameterList.length][];
+        StringBuilder sb;
+        for (int i = 0, p = 0; i < parameterList.length; i++) {
+            sb = new StringBuilder();
+            List<String> pList = parameterList[i];
             for (int j = 0; j < pList.size(); j++) {
                 String pValue = pList.get(j);
                 if (PARAM_MARKER.equals(pValue)) {
@@ -320,10 +321,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
                 }
                 sb.append(j < pList.size() - 1 ? "\t" : "\n");
             }
-            newBatches.add(sb.toString().getBytes(UTF_8));
-            sb = new StringBuilder();
+            newBatch[i]  = sb.toString().getBytes(UTF_8);
         }
-        return newBatches;
+        return newBatch;
     }
 
     @Override
@@ -526,8 +526,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     private String getParameter(int paramIndex) {
-        for (int i = 0, count = paramIndex; i < parameterList.size(); i++) {
-            List<String> pList = parameterList.get(i);
+        for (int i = 0, count = paramIndex; i < parameterList.length; i++) {
+            List<String> pList = parameterList[i];
             count -= pList.size();
             if (count < 0) {
                 return pList.get(pList.size() + count);

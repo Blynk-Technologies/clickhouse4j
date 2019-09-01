@@ -1,9 +1,12 @@
 package ru.yandex.clickhouse;
 
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.List;
+
+import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
 
 /**
@@ -86,7 +89,7 @@ public class PreparedStatementParserTest {
     public void testParseEscapedQuoteBroken() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (a, b) VALUES (?, 'foo\'bar')");
-        Assert.assertTrue(s.getParameters().isEmpty()); // Is this expected?
+        assertEquals(0, s.getParameters().length); // Is this expected?
     }
 
     @Test
@@ -114,9 +117,9 @@ public class PreparedStatementParserTest {
     public void testNoCommasQuestionMarks() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (a, b) VALUES (foo ? bar ?)");
-        List<List<String>> matrix = s.getParameters();
-        Assert.assertEquals(matrix.size(), 1);
-        Assert.assertEquals(matrix.get(0).size(), 1);
+        List<String>[] matrix = s.getParameters();
+        assertEquals(matrix.length, 1);
+        assertEquals(matrix[0].size(), 1);
     }
 
     @Test
@@ -183,7 +186,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (\"foo.bar\") VALUES (?)");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(s.getParts().get(0), "INSERT INTO t (\"foo.bar\") VALUES (");
+        assertEquals(s.getParts().get(0), "INSERT INTO t (\"foo.bar\") VALUES (");
     }
 
     @Test
@@ -191,7 +194,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (\"foo.bar\") VALUES (\"baz\")");
         assertMatchParams(new String[][] {{"\"baz\""}}, s);
-        Assert.assertEquals(s.getParts().get(0), "INSERT INTO t (\"foo.bar\") VALUES (");
+        assertEquals(s.getParts().get(0), "INSERT INTO t (\"foo.bar\") VALUES (");
     }
 
     @Test
@@ -199,7 +202,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t ('foo.bar') VALUES (?)");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(s.getParts().get(0), "INSERT INTO t ('foo.bar') VALUES (");
+        assertEquals(s.getParts().get(0), "INSERT INTO t ('foo.bar') VALUES (");
     }
 
     @Test
@@ -207,24 +210,24 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t ('foo.bar') VALUES ('baz')");
         assertMatchParams(new String[][] {{"'baz'"}}, s);
-        Assert.assertEquals(s.getParts().get(0), "INSERT INTO t ('foo.bar') VALUES (");
+        assertEquals(s.getParts().get(0), "INSERT INTO t ('foo.bar') VALUES (");
     }
 
     @Test
     public void testParseInsertSelect() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (a, b) SELECT x, y");
-        Assert.assertEquals(s.getParts().get(0), "INSERT INTO t (a, b) SELECT x, y");
-        Assert.assertTrue(s.getParameters().isEmpty());
+        assertEquals(s.getParts().get(0), "INSERT INTO t (a, b) SELECT x, y");
+        assertEquals(s.getParameters().length, 0);
     }
 
     @Test
     public void testParseInsertSelectParams() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO t (a, b) SELECT x FROM u WHERE y = ? AND z = ?");
-        Assert.assertEquals(s.getParts().get(0),
+        assertEquals(s.getParts().get(0),
             "INSERT INTO t (a, b) SELECT x FROM u WHERE y = ");
-        Assert.assertEquals(" AND z = ", s.getParts().get(1));
+        assertEquals(" AND z = ", s.getParts().get(1));
         assertMatchParams(new String[][] {{"?",  "?"}}, s);
     }
 
@@ -232,11 +235,11 @@ public class PreparedStatementParserTest {
     public void testParseSelectGroupBy() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "SELECT SUM(x) FROM t WHERE y = ? GROUP BY ? HAVING COUNT(z) > ? ORDER BY z DESC");
-        Assert.assertEquals("SELECT SUM(x) FROM t WHERE y = ",
+        assertEquals("SELECT SUM(x) FROM t WHERE y = ",
             s.getParts().get(0));
-        Assert.assertEquals(s.getParts().get(1), " GROUP BY ");
-        Assert.assertEquals(s.getParts().get(2), " HAVING COUNT(z) > ");
-        Assert.assertEquals(s.getParts().get(3), " ORDER BY z DESC");
+        assertEquals(s.getParts().get(1), " GROUP BY ");
+        assertEquals(s.getParts().get(2), " HAVING COUNT(z) > ");
+        assertEquals(s.getParts().get(3), " ORDER BY z DESC");
         assertMatchParams(new String[][] {{"?", "?", "?"}}, s);
     }
 
@@ -244,8 +247,8 @@ public class PreparedStatementParserTest {
     public void testParseWithComment1() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "select a --what is it?\nfrom t where a = ? and b = 1");
-        Assert.assertEquals( s.getParts().get(0), "select a --what is it?\nfrom t where a = ");
-        Assert.assertEquals(s.getParts().get(1), " and b = 1");
+        assertEquals( s.getParts().get(0), "select a --what is it?\nfrom t where a = ");
+        assertEquals(s.getParts().get(1), " and b = 1");
         assertMatchParams(new String[][] {{"?"}}, s);
     }
 
@@ -265,7 +268,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "SELECT * FROM tbl");
         assertMatchParts(new String[] {"SELECT * FROM tbl"}, s);
-        Assert.assertTrue(s.getParameters().isEmpty());
+        assertEquals(s.getParameters().length, 0);
     }
 
     @Test
@@ -296,12 +299,12 @@ public class PreparedStatementParserTest {
           + "WHERE (`foo`.`bar`.`id` <= 32 "
           + "AND (`foo`.`bar`.`name` like ?))");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(0),
             "SELECT count(*) AS `count` FROM `foo`.`bar` "
           + "WHERE (`foo`.`bar`.`id` <= 32 "
           + "AND (`foo`.`bar`.`name` like ");
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(1),
             "))");
     }
@@ -313,12 +316,12 @@ public class PreparedStatementParserTest {
           + "WHERE (`foo`.`bar`.`id` <= 32 "
           + "AND (`foo`.`bar`.`name` like ?   ))");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(0),
             "SELECT count(*) AS `count` FROM `foo`.`bar` "
           + "WHERE (`foo`.`bar`.`id` <= 32 "
           + "AND (`foo`.`bar`.`name` like ");
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(1),
             "   ))");
     }
@@ -329,11 +332,11 @@ public class PreparedStatementParserTest {
             "SELECT count(*) AS `count` FROM `foo`.`bar` "
           + "WHERE toMonday(`foo`.`bar`.`date`) = toMonday(?)");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(0),
             "SELECT count(*) AS `count` FROM `foo`.`bar` "
           + "WHERE toMonday(`foo`.`bar`.`date`) = toMonday(");
-        Assert.assertEquals(
+        assertEquals(
             s.getParts().get(1),
             ")");
     }
@@ -342,10 +345,10 @@ public class PreparedStatementParserTest {
     public void testNullValuesSelect() throws Exception {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "SELECT 1 FROM foo WHERE bar IN (?, NULL)");
-        List<List<String>> params = s.getParameters();
-        Assert.assertEquals(params.size(), 1);
-        Assert.assertEquals(params.get(0).size(), 1);
-        Assert.assertEquals(params.get(0).get(0), "?");
+        List<String>[] params = s.getParameters();
+        assertEquals(params.length, 1);
+        assertEquals(params[0].size(), 1);
+        assertEquals(params[0].get(0), "?");
     }
 
     @Test
@@ -368,13 +371,13 @@ public class PreparedStatementParserTest {
           + "AND eventDate <= toDate(?) "
           + "ORDER BY time DESC LIMIT ?, ?");
         assertMatchParams(new String[][] {{"?", "?", "?", "?", "?"}}, s);
-        Assert.assertEquals(s.getParts().size(), 6);
-        Assert.assertEquals(s.getParts().get(0), "SELECT * FROM decisions PREWHERE userID = ");
-        Assert.assertEquals(s.getParts().get(1), " AND eventDate >= toDate(");
-        Assert.assertEquals(s.getParts().get(2), ") AND eventDate <= toDate(");
-        Assert.assertEquals(s.getParts().get(3), ") ORDER BY time DESC LIMIT ");
-        Assert.assertEquals(s.getParts().get(4), ", ");
-        Assert.assertEquals(s.getParts().get(5), "");
+        assertEquals(s.getParts().size(), 6);
+        assertEquals(s.getParts().get(0), "SELECT * FROM decisions PREWHERE userID = ");
+        assertEquals(s.getParts().get(1), " AND eventDate >= toDate(");
+        assertEquals(s.getParts().get(2), ") AND eventDate <= toDate(");
+        assertEquals(s.getParts().get(3), ") ORDER BY time DESC LIMIT ");
+        assertEquals(s.getParts().get(4), ", ");
+        assertEquals(s.getParts().get(5), "");
     }
     
     @Test
@@ -382,7 +385,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "SELECT '`' as `'` WHERE 0 = ?");
         assertMatchParams(new String[][] {{"?"}}, s);
-        Assert.assertEquals(s.getParts().get(0), "SELECT '`' as `'` WHERE 0 = ");
+        assertEquals(s.getParts().get(0), "SELECT '`' as `'` WHERE 0 = ");
     }
 
 
@@ -407,62 +410,62 @@ public class PreparedStatementParserTest {
           + "\t\tVALUES\n"
           + "(?, ?) , \r\n"
           + "\t(?,?),(?,?)\n");
-        Assert.assertTrue(s.isValuesMode());
+        assertTrue(s.isValuesMode());
         assertMatchParams(new String[][] {{"?", "?"}, {"?", "?"}, {"?", "?"}}, s);
-        Assert.assertEquals(s.getParts().get(0),
+        assertEquals(s.getParts().get(0),
             "INSERT INTO table1\n"
           + "\t(foo, bar)\r\n"
           + "\t\tVALUES\n"
           + "(");
-        Assert.assertEquals(7, s.getParts().size());
-        Assert.assertEquals(s.getParts().get(0),
+        assertEquals(7, s.getParts().size());
+        assertEquals(s.getParts().get(0),
             "INSERT INTO table1\n"
           + "\t(foo, bar)\r\n"
           + "\t\tVALUES\n"
           + "(");
-        Assert.assertEquals(s.getParts().get(1), ", ");
-        Assert.assertEquals(s.getParts().get(2),
+        assertEquals(s.getParts().get(1), ", ");
+        assertEquals(s.getParts().get(2),
             ") , \r\n"
           + "\t(");
-        Assert.assertEquals(s.getParts().get(3), ",");
-        Assert.assertEquals(s.getParts().get(4), "),(");
-        Assert.assertEquals(s.getParts().get(5), ",");
-        Assert.assertEquals(s.getParts().get(6), ")\n");
+        assertEquals(s.getParts().get(3), ",");
+        assertEquals(s.getParts().get(4), "),(");
+        assertEquals(s.getParts().get(5), ",");
+        assertEquals(s.getParts().get(6), ")\n");
     }
 
     private static void assertMatchParts(String[] expected, PreparedStatementParser stmt) {
         List<String> parts = stmt.getParts();
-        Assert.assertEquals( parts.size(), expected.length);
+        assertEquals( parts.size(), expected.length);
         for (int i = 0; i < expected.length; i++) {
-            Assert.assertEquals(parts.get(i), expected[i]);
+            assertEquals(parts.get(i), expected[i]);
         }
     }
 
     private static void assertMatchParams(String[][] expected, PreparedStatementParser stmt) {
-        List<List<String>> actual = stmt.getParameters();
-        if (expected.length != actual.size()) {
-            Assert.assertEquals(formatParamsList(actual), formatParams(expected));
+        List<String>[] actual = stmt.getParameters();
+        if (expected.length != actual.length) {
+            assertEquals(formatParamsList(actual), formatParams(expected));
         }
-        if (expected.length == 0 && actual.isEmpty()) {
+        if (expected.length == 0 && actual.length == 0) {
             return;
         }
         for (int i = 0; i < expected.length; i++) {
             String[] expRow = expected[i];
-            String[] actRow = actual.get(i).toArray(new String[actual.get(i).size()]);
-            Assert.assertEquals(actRow.length, expRow.length);
+            String[] actRow = actual[i].toArray(new String[0]);
+            assertEquals(actRow.length, expRow.length);
             for (int j = 0; j < expRow.length; j++) {
-                Assert.assertEquals(actRow[j], expRow[j]);
+                assertEquals(actRow[j], expRow[j]);
             }
         }
     }
 
-    private static String formatParamsList(List<List<String>> params) {
+    private static String formatParamsList(List<String>[] params) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < params.length; i++) {
             sb.append("row ")
               .append(i)
               .append(": ")
-              .append(formatRow(params.get(i).toArray(new String[params.get(i).size()])))
+              .append(formatRow(params[i].toArray(new String[0])))
               .append("\n");
         }
         return sb.length() > 1 ?

@@ -37,8 +37,8 @@ final class PreparedStatementParser {
         return parser;
     }
 
-    List<List<String>> getParameters() {
-        return Collections.unmodifiableList(parameters);
+    List<String>[] getParameters() {
+        return parameters.toArray(new List[0]);
     }
 
     List<String> getParts() {
