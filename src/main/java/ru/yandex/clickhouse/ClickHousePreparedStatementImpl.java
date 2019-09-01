@@ -142,7 +142,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     private void setBind(int parameterIndex, String bind, boolean quote) {
-        binds[parameterIndex - 1] = new ClickHousePreparedStatementParameter(bind, quote);
+        setBind(parameterIndex, new ClickHousePreparedStatementParameter(bind, quote));
     }
 
     private void setBind(int parameterIndex, ClickHousePreparedStatementParameter parameter) {
@@ -310,16 +310,16 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
             String[] batchParams = parameterList[i];
             int batchParamsLength = batchParams.length;
             for (int j = 0; j < batchParamsLength; j++) {
-                String pValue = batchParams[j];
-                if (PARAM_MARKER.equals(pValue)) {
+                String batchVal = batchParams[j];
+                if (PARAM_MARKER.equals(batchVal)) {
+                    ClickHousePreparedStatementParameter param = binds[p++];
                     if (insertBatchMode) {
-                        sb.append(binds[p++].getBatchValue());
+                        batchVal = param.getBatchValue();
                     } else {
-                        sb.append(binds[p++].getRegularValue());
+                        batchVal = param.getRegularValue();
                     }
-                } else {
-                    sb.append(pValue);
                 }
+                sb.append(batchVal);
                 char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';
                 sb.append(appendChar);
             }
