@@ -314,7 +314,7 @@ public class ClickHouseProperties {
             params.put(ClickHouseQueryParam.PRIORITY, String.valueOf(priority));
         }
 
-        if (!(database == null || database.isBlank()) && !ignoreDatabase) {
+        if (!(database == null || database.isEmpty()) && !ignoreDatabase) {
             params.put(ClickHouseQueryParam.DATABASE, getDatabase());
         }
 
@@ -329,7 +329,7 @@ public class ClickHouseProperties {
             params.put(ClickHouseQueryParam.EXTREMES, "1");
         }
 
-        if (profile == null || profile.isBlank()) {
+        if (profile == null || profile.isEmpty()) {
             if (getMaxThreads() != null) {
                 params.put(ClickHouseQueryParam.MAX_THREADS, String.valueOf(maxThreads));
             }

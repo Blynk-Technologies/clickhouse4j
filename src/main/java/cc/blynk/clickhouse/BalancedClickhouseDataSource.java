@@ -298,7 +298,7 @@ public final class BalancedClickhouseDataSource implements DataSource {
     }
 
     private static Properties getFromUrlWithoutDefault(String url) {
-        if (url == null || url.isBlank()) {
+        if (url == null || url.isEmpty()) {
             return new Properties();
         }
 

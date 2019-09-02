@@ -29,7 +29,7 @@ final class PreparedStatementParser {
     }
 
     static PreparedStatementParser parse(String sql) {
-        if (sql == null || sql.isBlank()) {
+        if (sql == null || sql.isEmpty()) {
             throw new IllegalArgumentException("SQL may not be blank");
         }
         PreparedStatementParser parser = new PreparedStatementParser();

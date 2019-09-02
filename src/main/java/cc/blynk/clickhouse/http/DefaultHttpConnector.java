@@ -146,7 +146,7 @@ final class DefaultHttpConnector implements HttpConnector {
         BufferedWriter httpRequestBodyWriter =
                 new BufferedWriter(new OutputStreamWriter(requestBodyStream));
 
-        try (requestBodyStream; httpRequestBodyWriter) {
+        try {
             for (ClickHouseExternalData data : externalData) {
                 httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
                 httpRequestBodyWriter.write("Content-Disposition: form-data;"
@@ -169,6 +169,9 @@ final class DefaultHttpConnector implements HttpConnector {
         } catch (IOException e) {
             log.error("Building Multipart Body failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        } finally {
+            StreamUtils.close(requestBodyStream);
+            StreamUtils.close(httpRequestBodyWriter);
         }
     }
 

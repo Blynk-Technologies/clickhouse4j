@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,17 +15,19 @@ final class ByteFragmentUtils {
     private static final char ARRAY_ELEMENTS_SEPARATOR = ',';
     private static final char STRING_QUOTATION = '\'';
 
-    private static final Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = Map.of(
-            Boolean.class, boolean.class,
-            Byte.class, byte.class,
-            Character.class, char.class,
-            Double.class, double.class,
-            Float.class, float.class,
-            Integer.class, int.class,
-            Long.class, long.class,
-            Short.class, short.class,
-            Void.class, void.class
-    );
+    private static final Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = new HashMap<Class, Class>() {
+        {
+            put(Boolean.class, boolean.class);
+            put(Byte.class, byte.class);
+            put(Character.class, char.class);
+            put(Double.class, double.class);
+            put(Float.class, float.class);
+            put(Integer.class, int.class);
+            put(Long.class, long.class);
+            put(Short.class, short.class);
+            put(Void.class, void.class);
+        }
+    };
 
     private ByteFragmentUtils() {
     }
@@ -184,7 +187,7 @@ final class ByteFragmentUtils {
         int index = 0;
         Object array = java.lang.reflect.Array.newInstance(
                 useObjects ? elementClass : unwrap(elementClass),
-            getArrayLength(trim)
+                getArrayLength(trim)
         );
         int fieldStart = 0;
         boolean inQuotation = false;
@@ -271,7 +274,7 @@ final class ByteFragmentUtils {
                         }
                     }
                     java.lang.reflect.Array.set(array, index++, dateValue);
-                } else  if (elementClass == Timestamp.class) {
+                } else if (elementClass == Timestamp.class) {
                     Timestamp dateTimeValue;
                     if (fragment.isNull()) {
                         dateTimeValue = null;
@@ -283,7 +286,7 @@ final class ByteFragmentUtils {
                         }
                     }
                     java.lang.reflect.Array.set(array, index++, dateTimeValue);
-                } else  {
+                } else {
                     throw new IllegalStateException();
                 }
 

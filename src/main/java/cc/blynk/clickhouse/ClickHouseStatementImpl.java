@@ -544,8 +544,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private void sendStream(String sql, ClickHouseStreamCallback callback, URI uri) throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.writeBytes((sql + "\n").getBytes(StandardCharsets.UTF_8));
         try {
+            out.write((sql + "\n").getBytes(StandardCharsets.UTF_8));
             TimeZone timeZone = getConnection().getTimeZone();
             ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
             callback.writeTo(stream);
@@ -571,12 +571,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private void sendSqlWithStream(InputStream stream,
                                    String sql,
-                                   Map<ClickHouseQueryParam, String> additionalDBParams)
-            throws ClickHouseException {
+                                   Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.writeBytes(sql.getBytes(StandardCharsets.UTF_8));
-
         try {
+            out.write(sql.getBytes(StandardCharsets.UTF_8));
             StreamUtils.copy(stream, out);
         } catch (IOException e) {
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
