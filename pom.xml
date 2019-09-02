@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cc.blynk.clickhouse</groupId>
-    <artifactId>clickhousej4</artifactId>
+    <artifactId>clickhouse4j</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>clickhousej4</name>
+    <name>clickhouse4j</name>
     <description>Light and fast JDBC driver for ClickHouse</description>
     <url>https://github.com/blynkkk/clickhouse4j.git</url>
     <licenses>
@@ -28,6 +28,11 @@
             <id>doom369</id>
             <name>Dmitriy Dumanskiy</name>
             <email>dmitriy@blynk.cc</email>
+        </developer>
+        <developer>
+            <id>dmitriy-sych</id>
+            <name>Dmitriy Sych</name>
+            <email>forsaken@owl.net.ua</email>
         </developer>
         <developer>
             <id>serebrserg</id>
