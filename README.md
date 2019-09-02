@@ -1,9 +1,20 @@
-[![clickhouse-jdbc](https://maven-badges.herokuapp.com/maven-central/ru.yandex.clickhouse/clickhouse-jdbc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ru.yandex.clickhouse/clickhouse-jdbc) [![Build Status](https://travis-ci.org/yandex/clickhouse-jdbc.svg?branch=master)](https://travis-ci.org/yandex/clickhouse-jdbc)
-ClickHouse JDBC driver
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/cc.blynk.clickhouse/clickhouse4j/badge.svg)](https://github.com/blynkkk/clickhouse4j) [![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
+Lighter and faster alternative for the official ClickHouse JDBC driver
 ===============
 
-This is a basic and restricted implementation of jdbc driver for ClickHouse.
-It has support of a minimal subset of features to be usable.
+The main differences between this and official driver are:
+
+- Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**);
+- All unnecessary dependencies (Apache HttpClient, Jackson, Guava) were removed;
+- A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**);
+- Checkstyle applied to the code to make contributions easier;
+- Allow to set unknown number of values for IN clause
+- Only 2 dependencies left: lz4 and slf4j and updated to the latest version;
+- Compiled against Java 8;
+- Cleaned up all code and IDE warnings;
+- Decreased visibility of public methods;
+- Simplified code structure, removed unnecessary inheritance, removed many useless legacy code;
+
 
 ### Usage
 ```xml
@@ -14,6 +25,12 @@ It has support of a minimal subset of features to be usable.
 </dependency>
 ```
 
+### Migration from the offical driver
+
+All you need to do is replace:
+
+`ru.yandex.clickhouse.ClickHouseDriver` to `cc.blynk.clickhouse.ClickHouseDriver`
+
 URL syntax: 
 `jdbc:clickhouse://<host>:<port>[/<database>]`, e.g. `jdbc:clickhouse://localhost:8123/test`
 
@@ -22,13 +39,14 @@ JDBC Driver Class:
 
 additionally, if you have a few instances, you can use `BalancedClickhouseDataSource`.
 
+### Build requirements
+
+In order to build the jdbc client one need to have jdk 1.8 or higher.
+
 ### Compiling with maven
-The driver is built with maven.
+
 `mvn package -DskipTests=true`
 
 To build a jar with dependencies use
 
 `mvn package assembly:single -DskipTests=true`
-
-### Build requirements
-In order to build the jdbc client one need to have jdk 1.6 or higher.

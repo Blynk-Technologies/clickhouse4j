@@ -1,10 +1,15 @@
-0.2.0
+1.0.0
   * Driver now compiled with Java 11
   * Allow to set unknown number of values for IN clause
-  * Unnecessary dependency excluded;
-  * Allow to perform CSV selects (response is still not processed correctly)
-  * Faster toString() fucntion for primitive arrays
-  * Cleanup
+  * Smaller size. 850kb vs 5.6mb of the original driver (**7x jar size improvement**);
+  * A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**);
+  * Checkstyle applied to the code to make contributions easier;
+  * All unnecessary dependencies (Apache HttpClient, Jackson, Guava) were removed;
+  * Only 2 dependencies left: lz4 and slf4j and updated to the latest version;
+  * Compiled against Java 8;
+  * Cleaned up all code and IDE warnings;
+  * Decreased visibility of public methods;
+  * Simplified code structure, removed unnecessary inheritance, removed many useless legacy code;
 
 0.1.55
 NOTE: behavior for byte[] parameters changed. See https://github.com/yandex/clickhouse-jdbc/pull/352
