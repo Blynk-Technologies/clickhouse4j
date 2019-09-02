@@ -5,17 +5,11 @@ Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC d
 
 The main differences between this and official driver are:
 
-- Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**);
-- All unnecessary dependencies (Apache HttpClient, Jackson, Guava) were removed;
-- A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**);
-- Checkstyle applied to the code to make contributions easier;
-- Allow to set unknown number of values for IN clause
-- Only 2 dependencies left: lz4 and slf4j and updated to the latest version;
-- Compiled against Java 8;
-- Cleaned up all code and IDE warnings;
-- Decreased visibility of public methods;
-- Simplified code structure, removed unnecessary inheritance, removed many useless legacy code;
+- Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
+- A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
+- Compiled against Java 8 and many other things.
 
+For more detailed changes please check [changelog](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG).
 
 ### Usage
 ```xml
