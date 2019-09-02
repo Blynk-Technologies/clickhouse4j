@@ -17,7 +17,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class ClickHousePreparedStatementRealTablesTest {
 
-    private static int RECORDS = 10_000_000;
+    private static int RECORDS = 3_000_000;
     private ClickHouseDataSource dataSource;
     private Connection connection;
 
