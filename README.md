@@ -1,5 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/cc.blynk.clickhouse/clickhouse4j/badge.svg)](https://github.com/blynkkk/clickhouse4j) [![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
-Lighter and faster alternative for the official ClickHouse JDBC driver
+
+Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC driver
 ===============
 
 The main differences between this and official driver are:
