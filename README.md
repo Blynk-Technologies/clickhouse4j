@@ -8,9 +8,9 @@ It has support of a minimal subset of features to be usable.
 ### Usage
 ```xml
 <dependency>
-    <groupId>ru.yandex.clickhouse</groupId>
-    <artifactId>clickhouse-jdbc</artifactId>
-    <version>0.1.55</version>
+    <groupId>cc.blynk.clickhouse</groupId>
+    <artifactId>clickhouse4j</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ URL syntax:
 `jdbc:clickhouse://<host>:<port>[/<database>]`, e.g. `jdbc:clickhouse://localhost:8123/test`
 
 JDBC Driver Class:
-`ru.yandex.clickhouse.ClickHouseDriver`
+`cc.blynk.clickhouse.ClickHouseDriver`
 
 additionally, if you have a few instances, you can use `BalancedClickhouseDataSource`.
 

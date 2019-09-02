@@ -2,13 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.yandex.clickhouse</groupId>
+    <groupId>cc.blynk.clickhouse</groupId>
     <artifactId>clickhousej4</artifactId>
-    <version>0.1.56-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>clickhousej4</name>
-    <description>JDBC driver for ClickHouse</description>
+    <description>Light and fast JDBC driver for ClickHouse</description>
     <url>https://github.com/blynkkk/clickhouse4j.git</url>
     <licenses>
         <license>
@@ -24,6 +24,11 @@
     </scm>
 
     <developers>
+        <developer>
+            <id>doom369</id>
+            <name>Dmitriy Dumanskiy</name>
+            <email>dmitriy@blynk.cc</email>
+        </developer>
         <developer>
             <id>serebrserg</id>
             <name>Sergey Serebryanik</name>
@@ -207,15 +212,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org</pattern>
-                                    <shadedPattern>ru.yandex.repackaged.org</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
