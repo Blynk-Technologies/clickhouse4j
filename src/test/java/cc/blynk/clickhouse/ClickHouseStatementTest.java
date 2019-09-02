@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -100,11 +101,14 @@ public class ClickHouseStatementTest {
                 ResultSet.TYPE_FORWARD_ONLY
         );
 
+        Map<String, String> params = new HashMap<>();
+        params.put("cache_namespace", "aaaa");
+
         URI uri = statement.buildRequestUri(
                 null,
                 null,
                 null,
-                Map.of("cache_namespace", "aaaa"),
+                params,
                 false
         );
         String query = uri.getQuery();
