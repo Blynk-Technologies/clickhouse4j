@@ -3,8 +3,8 @@ sudo: required
 language: java
 install: mvn install -DskipTests=true -Dgpg.skip=true
 jdk:
-  - openjdk11
-  - oraclejdk11
+  - openjdk8
+  - oraclejdk8
 services:
   - docker
 before_script:
