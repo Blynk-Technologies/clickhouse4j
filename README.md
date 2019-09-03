@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/cc.blynk.clickhouse/clickhouse4j/badge.svg)](https://github.com/blynkkk/clickhouse4j) [![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
+[![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
 
 Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC driver
 ===============
@@ -7,9 +7,7 @@ The main differences between this and official driver are:
 
 - Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
-- Compiled against Java 8 and many other things.
-
-For more detailed changes please check [changelog](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG).
+- Compiled against Java 8 and many [other things](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG)
 
 ### Usage
 ```xml
