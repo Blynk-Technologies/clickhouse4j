@@ -71,6 +71,14 @@ public final class StreamUtils {
         }
     }
 
+    public static void copy(Reader from, Writer to) throws IOException {
+        char[] buffer = new char[BUF_SIZE];
+        int len;
+        while ((len = from.read(buffer)) >= 0) {
+            to.write(buffer, 0, len);
+        }
+    }
+
     public static void close(Closeable closeable) {
         if (closeable == null) {
             return;
