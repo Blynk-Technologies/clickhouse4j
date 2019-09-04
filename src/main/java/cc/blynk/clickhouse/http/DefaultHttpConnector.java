@@ -55,6 +55,12 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
+    public void post(InputStream from, OutputStream to, URI uri) throws ClickHouseException {
+        HttpURLConnection connection = buildConnection(uri);
+        sendPostRequest(from, to, connection);
+    }
+
+    @Override
     public void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
         InputStream is = sendPostRequest(sqlBytes, data, connection);
@@ -63,27 +69,30 @@ final class DefaultHttpConnector implements HttpConnector {
 
     @Override
     public void post(byte[] bytes, URI uri) throws ClickHouseException {
-        HttpURLConnection connection = buildConnection(uri);
-        InputStream is = sendPostRequest(new ByteArrayInputStream(bytes), connection);
-        StreamUtils.close(is);
+        post(new ByteArrayInputStream(bytes), uri);
     }
 
     @Override
-    public InputStream post(String sql, URI uri) throws ClickHouseException {
+    public void post(InputStream from, URI uri) throws ClickHouseException {
+        post(from, null, uri);
+    }
+
+    @Override
+    public void post(String sql, OutputStream to, URI uri) throws ClickHouseException {
         byte[] bytes = sql.getBytes(StandardCharsets.UTF_8);
-        HttpURLConnection connection = buildConnection(uri);
-        return sendPostRequest(new ByteArrayInputStream(bytes), connection);
+        post(new ByteArrayInputStream(bytes), to, uri);
     }
 
     @Override
-    public InputStream post(List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException {
+    public void post(List<ClickHouseExternalData> externalData, OutputStream to, URI uri) throws ClickHouseException {
         String boundaryString = UUID.randomUUID().toString();
         HttpURLConnection connection = buildConnection(uri);
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
 
         byte[] bytes = buildMultipartData(externalData, boundaryString);
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        return sendPostRequest(inputStream, connection);
+        InputStream from = new ByteArrayInputStream(bytes);
+
+        sendPostRequest(from, to, connection);
     }
 
     @Override
@@ -119,24 +128,35 @@ final class DefaultHttpConnector implements HttpConnector {
         }
     }
 
-    private InputStream sendPostRequest(InputStream inputStream, HttpURLConnection connection)
+    private void sendPostRequest(InputStream from, OutputStream to, HttpURLConnection connection)
             throws ClickHouseException {
-        OutputStream outputStream = null;
+        OutputStream requestStream = null;
+        InputStream responseStream = null;
+
         try {
-            outputStream = new DataOutputStream(connection.getOutputStream());
+            requestStream = new DataOutputStream(connection.getOutputStream());
             if (properties.isDecompress()) {
-                outputStream = new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
+                requestStream = new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
             }
-            StreamUtils.copy(inputStream, outputStream);
-            outputStream.flush();
+            StreamUtils.copy(from, requestStream);
+            requestStream.flush();
             checkForErrorAndThrow(connection);
-            return connection.getInputStream();
+
+            responseStream = properties.isCompress()
+                    ? new ClickHouseLZ4Stream(connection.getInputStream())
+                    : connection.getInputStream();
+
+            if (to != null) {
+                StreamUtils.copy(responseStream, to);
+                to.flush();
+            }
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         } finally {
-            StreamUtils.close(inputStream);
-            StreamUtils.close(outputStream);
+            StreamUtils.close(from);
+            StreamUtils.close(requestStream);
+            StreamUtils.close(responseStream);
         }
     }
 

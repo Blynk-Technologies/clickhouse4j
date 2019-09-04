@@ -21,9 +21,9 @@ public class ClickHousePreparedStatementRealTablesTest {
     private ClickHouseDataSource dataSource;
     private Connection connection;
 
-    @BeforeTest
-    public void setUp() throws Exception {
+    public void setUp(boolean compress) throws SQLException {
         ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setCompress(compress);
         dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
         connection = dataSource.getConnection();
         connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS test");
@@ -38,6 +38,8 @@ public class ClickHousePreparedStatementRealTablesTest {
 
     @Test
     public void testBatchInsertOf1kkOfReocords() throws SQLException {
+        setUp(true);
+
         connection.createStatement().execute("DROP TABLE IF EXISTS test.reporting_user_actions");
         connection.createStatement().execute(
                 "CREATE TABLE IF NOT EXISTS test.reporting_user_actions"
@@ -78,6 +80,8 @@ public class ClickHousePreparedStatementRealTablesTest {
 
     @Test
     public void testBatchInsertOf1kkOfReocordsWithoutCompression() throws SQLException {
+        setUp(false);
+
         connection.createStatement().execute("DROP TABLE IF EXISTS test.reporting_user_actions");
         connection.createStatement().execute(
                 "CREATE TABLE IF NOT EXISTS test.reporting_user_actions"
