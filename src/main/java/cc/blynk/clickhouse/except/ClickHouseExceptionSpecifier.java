@@ -23,6 +23,10 @@ public final class ClickHouseExceptionSpecifier {
         return specify(cause != null ? cause.getMessage() : null, cause, host, port);
     }
 
+    public static ClickHouseException specify(Throwable cause) {
+        return specify(cause != null ? cause.getMessage() : null, cause, "unknown", -1);
+    }
+
     public static ClickHouseException specify(String clickHouseMessage, String host, int port) {
         return specify(clickHouseMessage, null, host, port);
     }
