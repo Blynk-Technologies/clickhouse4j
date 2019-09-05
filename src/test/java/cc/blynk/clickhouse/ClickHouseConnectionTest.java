@@ -14,6 +14,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class ClickHouseConnectionTest {
+
     @Test
     public void testGetSetCatalog() throws SQLException {
         ClickHouseDataSource dataSource = new ClickHouseDataSource(
@@ -35,7 +36,7 @@ public class ClickHouseConnectionTest {
                 assertEquals(connection.getCatalog(), db);
                 assertEquals(connection.getProperties().getDatabase(), db);
                 assertEquals(connection.getUrl(),
-                        "jdbc:clickhouse://localhost:8123/" + db + "?option1=one%20two&option2=y");
+                             "jdbc:clickhouse://localhost:8123/" + db + "?option1=one%20two&option2=y");
 
                 ResultSet resultSet = connection.createStatement().executeQuery("SELECT field FROM some_table");
                 assertTrue(resultSet.next());
@@ -99,7 +100,9 @@ public class ClickHouseConnectionTest {
         final String sql = "SELECT currentDatabase() FROM system.tables WHERE name = ? LIMIT 1";
 
         connection.setCatalog("system");
-        PreparedStatement statement = connection.prepareStatement(sql,ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement statement = connection.prepareStatement(sql,
+                                                                  ResultSet.TYPE_FORWARD_ONLY,
+                                                                  ResultSet.CONCUR_READ_ONLY);
         statement.setString(1, "tables");
         connection.setCatalog("default");
         ResultSet resultSet = statement.executeQuery();
@@ -107,7 +110,7 @@ public class ClickHouseConnectionTest {
         assertEquals(resultSet.getString(1), "system");
         assertEquals(resultSet.getType(), ResultSet.TYPE_FORWARD_ONLY);
 
-        statement = connection.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         statement.setString(1, "tables");
         resultSet = statement.executeQuery();
         resultSet.next();
@@ -145,9 +148,8 @@ public class ClickHouseConnectionTest {
 
     @Test
     public void testCreateArrayOf() throws Exception {
-        // TODO: more
         ClickHouseDataSource dataSource = new ClickHouseDataSource(
-            "jdbc:clickhouse://localhost:8123/default");
+                "jdbc:clickhouse://localhost:8123/default");
         ClickHouseConnectionImpl connection = (ClickHouseConnectionImpl) dataSource.getConnection();
         for (ClickHouseDataType dataType : ClickHouseDataType.values()) {
             if (dataType == ClickHouseDataType.Array) {

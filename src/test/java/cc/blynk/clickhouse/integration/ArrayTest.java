@@ -25,7 +25,8 @@ import static org.testng.Assert.assertEquals;
 
 /**
  * Here it is assumed the connection to a ClickHouse instance with flights example data it available at localhost:8123
- * For ClickHouse quickstart and example dataset see <a href="https://clickhouse.yandex/tutorial.html">https://clickhouse.yandex/tutorial.html</a>
+ * For ClickHouse quickstart and example dataset see
+ * <a href="https://clickhouse.yandex/tutorial.html">https://clickhouse.yandex/tutorial.html</a>
  */
 public class ArrayTest {
 
@@ -91,17 +92,20 @@ public class ArrayTest {
         PreparedStatement statement = connection.prepareStatement(insertSql);
 
         statement.setArray(1, new ClickHouseArray(ClickHouseDataType.UInt64, new long[]{4294967286L, 4294967287L}));
-        statement.setArray(2, new ClickHouseArray(ClickHouseDataType.UInt64, new BigInteger[]{new BigInteger("18446744073709551606"), new BigInteger("18446744073709551607")}));
+        statement.setArray(2,
+                           new ClickHouseArray(ClickHouseDataType.UInt64,
+                                               new BigInteger[]{new BigInteger("18446744073709551606"), new BigInteger(
+                                                       "18446744073709551607")}));
         statement.setArray(3, new ClickHouseArray(ClickHouseDataType.Float64, new double[]{1.23, 4.56}));
         statement.execute();
 
         statement = connection.prepareStatement(insertSql);
 
-        statement.setObject(1, new Long[] {4294967286L, 4294967287L});
-        statement.setObject(2, new BigInteger[] {
+        statement.setObject(1, new Long[]{4294967286L, 4294967287L});
+        statement.setObject(2, new BigInteger[]{
                 new BigInteger("18446744073709551606"),
                 new BigInteger("18446744073709551607")});
-        statement.setObject(3, new Double[] {1.23, 4.56});
+        statement.setObject(3, new Double[]{1.23, 4.56});
         statement.execute();
 
         Statement select = connection.createStatement();

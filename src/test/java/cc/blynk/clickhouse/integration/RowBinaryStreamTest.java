@@ -101,7 +101,8 @@ public class RowBinaryStreamTest {
                 }
         );
 
-        ResultSet rs = connection.createStatement().executeQuery("SELECT count() AS cnt, sum(value) AS sum FROM test.big_data");
+        ResultSet rs = connection.createStatement().executeQuery(
+                "SELECT count() AS cnt, sum(value) AS sum FROM test.big_data");
 
         Assert.assertTrue(rs.next());
         assertEquals(rs.getInt("cnt"), count);
@@ -142,7 +143,11 @@ public class RowBinaryStreamTest {
 
         statement.sendRowBinaryStream(
                 "INSERT INTO test.raw_binary " +
-                        "(date, dateTime, string, int8, uInt8, int16, uInt16, int32, uInt32, int64, uInt64, float32, float64, dateArray, dateTimeArray, stringArray, int8Array, uInt8Array, int16Array, uInt16Array, int32Array, uInt32Array, int64Array, uInt64Array, float32Array, float64Array, uuid)",
+                        "(date, dateTime, string, int8, uInt8,"
+                        + "int16, uInt16, int32, uInt32, int64,"
+                        + "uInt64, float32, float64, dateArray, dateTimeArray,"
+                        + "stringArray, int8Array, uInt8Array, int16Array, uInt16Array,"
+                        + "int32Array, uInt32Array, int64Array, uInt64Array, float32Array, float64Array, uuid)",
                 new ClickHouseStreamCallback() {
                     @Override
                     public void writeTo(ClickHouseRowBinaryStream stream) throws IOException {
@@ -269,7 +274,8 @@ public class RowBinaryStreamTest {
 
             Assert.assertFalse(rs.next());
         } else {
-            ClickHouseRowBinaryInputStream is = connection.createStatement().executeQueryClickhouseRowBinaryStream("SELECT * FROM test.raw_binary ORDER BY date");
+            ClickHouseRowBinaryInputStream is = connection.createStatement().executeQueryClickhouseRowBinaryStream(
+                    "SELECT * FROM test.raw_binary ORDER BY date");
 
             assertEquals(is.readDate(), withTimeAtStartOfDay(date1));
             assertEquals(is.readDateTime(), date1);
@@ -356,28 +362,28 @@ public class RowBinaryStreamTest {
 
 
     @Test
-    public void testTimeZone() throws Exception{
+    public void testTimeZone() throws Exception {
         final ClickHouseStatement statement = connection.createStatement();
         connection.createStatement().execute("DROP TABLE IF EXISTS test.binary_tz");
         connection.createStatement().execute(
-            "CREATE TABLE test.binary_tz (date Date, dateTime DateTime) ENGINE = MergeTree(date, (date), 8192)"
+                "CREATE TABLE test.binary_tz (date Date, dateTime DateTime) ENGINE = MergeTree(date, (date), 8192)"
         );
 
         final Date date1 = new Date(1497474018000L);
 
         statement.sendRowBinaryStream(
-            "INSERT INTO test.binary_tz (date, dateTime)",
-            new ClickHouseStreamCallback() {
-                @Override
-                public void writeTo(ClickHouseRowBinaryStream stream) throws IOException {
-                    stream.writeDate(date1);
-                    stream.writeDateTime(date1);
+                "INSERT INTO test.binary_tz (date, dateTime)",
+                new ClickHouseStreamCallback() {
+                    @Override
+                    public void writeTo(ClickHouseRowBinaryStream stream) throws IOException {
+                        stream.writeDate(date1);
+                        stream.writeDateTime(date1);
+                    }
                 }
-            }
         );
 
         ResultSet rs = connection.createStatement().executeQuery(
-            "SELECT date, dateTime from test.binary_tz"
+                "SELECT date, dateTime from test.binary_tz"
         );
 
         Assert.assertTrue(rs.next());

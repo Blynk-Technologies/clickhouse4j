@@ -65,11 +65,11 @@ public class ClickHouseStatementImplTest {
     @Test
     public void testSingleColumnResultSet() throws SQLException {
         ResultSet rs = connection.createStatement().executeQuery("select c from (\n" +
-                "    select 'a' as c, 1 as rn\n" +
-                "    UNION ALL select 'b' as c, 2 as rn\n" +
-                "    UNION ALL select '' as c, 3 as rn\n" +
-                "    UNION ALL select 'd' as c, 4 as rn\n" +
-                " ) order by rn");
+                                                                         "    select 'a' as c, 1 as rn\n" +
+                                                                         "    UNION ALL select 'b' as c, 2 as rn\n" +
+                                                                         "    UNION ALL select '' as c, 3 as rn\n" +
+                                                                         "    UNION ALL select 'd' as c, 4 as rn\n" +
+                                                                         " ) order by rn");
         StringBuffer sb = new StringBuffer();
         while (rs.next()) {
             sb.append(rs.getString("c")).append("\n");
@@ -80,11 +80,11 @@ public class ClickHouseStatementImplTest {
     @Test
     public void readsPastLastAreSafe() throws SQLException {
         ResultSet rs = connection.createStatement().executeQuery("select c from (\n" +
-                "    select 'a' as c, 1 as rn\n" +
-                "    UNION ALL select 'b' as c, 2 as rn\n" +
-                "    UNION ALL select '' as c, 3 as rn\n" +
-                "    UNION ALL select 'd' as c, 4 as rn\n" +
-                " ) order by rn");
+                                                                         "    select 'a' as c, 1 as rn\n" +
+                                                                         "    UNION ALL select 'b' as c, 2 as rn\n" +
+                                                                         "    UNION ALL select '' as c, 3 as rn\n" +
+                                                                         "    UNION ALL select 'd' as c, 4 as rn\n" +
+                                                                         " ) order by rn");
         StringBuffer sb = new StringBuffer();
         while (rs.next()) {
             sb.append(rs.getString("c")).append("\n");
@@ -102,10 +102,10 @@ public class ClickHouseStatementImplTest {
         rs.next();
         Object smallUInt32 = rs.getObject(1);
         Assert.assertTrue(smallUInt32 instanceof Long);
-        Assert.assertEquals(((Long)smallUInt32).longValue(), 10);
+        Assert.assertEquals(((Long) smallUInt32).longValue(), 10);
         Object bigUInt32 = rs.getObject(2);
         Assert.assertTrue(bigUInt32 instanceof Long);
-        Assert.assertEquals(((Long)bigUInt32).longValue(), 4294967286L);
+        Assert.assertEquals(((Long) bigUInt32).longValue(), 4294967286L);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ClickHouseStatementImplTest {
         rs.next();
         Object smallUInt64 = rs.getObject(1);
         Assert.assertTrue(smallUInt64 instanceof BigInteger);
-        Assert.assertEquals(((BigInteger)smallUInt64).intValue(), 10);
+        Assert.assertEquals(((BigInteger) smallUInt64).intValue(), 10);
         Object bigUInt64 = rs.getObject(2);
         Assert.assertTrue(bigUInt64 instanceof BigInteger);
         Assert.assertEquals(bigUInt64, new BigInteger("18446744073709551606"));
@@ -169,7 +169,8 @@ public class ClickHouseStatementImplTest {
     public void testSelectManyRows() throws SQLException {
         Statement stmt = connection.createStatement();
         int limit = 10000;
-        ResultSet rs = stmt.executeQuery("select concat('test', toString(number)) as str from system.numbers limit " + limit);
+        ResultSet rs = stmt.executeQuery(
+                "select concat('test', toString(number)) as str from system.numbers limit " + limit);
         int i = 0;
         while (rs.next()) {
             String s = rs.getString("str");
@@ -219,7 +220,7 @@ public class ClickHouseStatementImplTest {
     }
 
     @Test
-    public void cancelTest_queryId_is_not_set() throws Exception {
+    public void cancelTestQueryIdIsNotSet() throws Exception {
         final ClickHouseStatement firstStatement = dataSource.getConnection().createStatement();
 
         final AtomicReference<Exception> exceptionAtomicReference = new AtomicReference<Exception>();
@@ -227,7 +228,8 @@ public class ClickHouseStatementImplTest {
             @Override
             public void run() {
                 try {
-                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(ClickHouseQueryParam.class);
+                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(
+                            ClickHouseQueryParam.class);
                     params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
                     firstStatement.executeQuery("SELECT count() FROM system.numbers", params);
                 } catch (Exception e) {
@@ -241,11 +243,12 @@ public class ClickHouseStatementImplTest {
 
         final long timeout = 10;
         String queryId = (String) readField(firstStatement, "queryId", timeout);
-        assertNotNull(String.format("it's actually very strange. It seems the query hasn't been executed in %s seconds", timeout), queryId);
+        assertNotNull(String.format("it's actually very strange. It seems the query hasn't been executed in %s seconds",
+                                    timeout), queryId);
         assertNull("An exception happened while the query was being executed", exceptionAtomicReference.get());
 
 
-        assertTrue("The query isn't being executed. It seems very strange", checkQuery(queryId, true,10));
+        assertTrue("The query isn't being executed. It seems very strange", checkQuery(queryId, true, 10));
         firstStatement.cancel();
         assertTrue("The query is still being executed", checkQuery(queryId, false, 10));
 
@@ -255,7 +258,7 @@ public class ClickHouseStatementImplTest {
 
 
     @Test
-    public void cancelTest_queryId_is_set() throws Exception {
+    public void cancelTestQueryIdIsSet() throws Exception {
         final String queryId = UUID.randomUUID().toString();
         final ClickHouseStatement firstStatement = dataSource.getConnection().createStatement();
 
@@ -265,7 +268,8 @@ public class ClickHouseStatementImplTest {
             @Override
             public void run() {
                 try {
-                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(ClickHouseQueryParam.class);
+                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(
+                            ClickHouseQueryParam.class);
                     params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
                     params.put(ClickHouseQueryParam.QUERY_ID, queryId);
                     countDownLatch.countDown();
@@ -278,10 +282,11 @@ public class ClickHouseStatementImplTest {
         thread.setDaemon(true);
         thread.start();
         final long timeout = 10;
-        assertTrue(String.format("it's actually very strange. It seems the query hasn't been executed in %s seconds", timeout), countDownLatch.await(timeout, TimeUnit.SECONDS));
+        assertTrue(String.format("it's actually very strange. It seems the query hasn't been executed in %s seconds",
+                                 timeout), countDownLatch.await(timeout, TimeUnit.SECONDS));
         assertNull("An exception happened while the query was being executed", exceptionAtomicReference.get());
 
-        assertTrue("The query isn't being executed. It seems very strange", checkQuery(queryId, true,10));
+        assertTrue("The query isn't being executed. It seems very strange", checkQuery(queryId, true, 10));
         firstStatement.cancel();
         assertTrue("The query is still being executed", checkQuery(queryId, false, 10));
 
@@ -297,7 +302,7 @@ public class ClickHouseStatementImplTest {
         Assert.assertEquals(rs.getMetaData().getColumnType(1), Types.ARRAY);
         Assert.assertEquals(rs.getMetaData().getColumnTypeName(1), "Array(UInt8)");
         Assert.assertEquals(rs.getMetaData().getColumnClassName(1),
-            Array.class.getCanonicalName());
+                            Array.class.getCanonicalName());
         Array arr = (Array) rs.getObject(1);
         Assert.assertEquals(((int[]) arr.getArray())[0], 42);
         Assert.assertEquals(((int[]) arr.getArray())[1], 23);

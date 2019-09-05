@@ -17,7 +17,7 @@ import static org.testng.Assert.assertEquals;
 
 public class ClickHousePreparedStatementTest {
 
-    private static final String SQL_STATEMENT= "INSERT INTO foo (bar) VALUES (";
+    private static final String SQL_STATEMENT = "INSERT INTO foo (bar) VALUES (";
 
     @Test
     public void testSetBytesNull() throws Exception {
@@ -103,7 +103,7 @@ public class ClickHousePreparedStatementTest {
         ClickHousePreparedStatement s = createStatement();
         s.setDouble(1, Double.MIN_VALUE);
         assertParamMatches(s, "4.9E-324"); // will result in 0 in Float64
-                                           // but parsing is OK
+        // but parsing is OK
     }
 
     @Test
@@ -158,8 +158,8 @@ public class ClickHousePreparedStatementTest {
     @Test
     public void testSetDateOtherTimeZone() throws Exception {
         ClickHousePreparedStatement s = createStatement(
-            TimeZone.getTimeZone("Asia/Tokyo"),
-            new ClickHouseProperties());
+                TimeZone.getTimeZone("Asia/Tokyo"),
+                new ClickHouseProperties());
         s.setDate(1, new Date(1557168043000L));
         assertParamMatches(s, "'2019-05-06'");
     }
@@ -169,8 +169,8 @@ public class ClickHousePreparedStatementTest {
         ClickHouseProperties props = new ClickHouseProperties();
         props.setUseServerTimeZoneForDates(true);
         ClickHousePreparedStatement s = createStatement(
-            TimeZone.getTimeZone("Asia/Tokyo"),
-            props);
+                TimeZone.getTimeZone("Asia/Tokyo"),
+                props);
         s.setDate(1, new Date(1557168043000L));
         assertParamMatches(s, "'2019-05-07'");
     }
@@ -192,8 +192,8 @@ public class ClickHousePreparedStatementTest {
     @Test
     public void testSetTimeNormalOtherTimeZone() throws Exception {
         ClickHousePreparedStatement s = createStatement(
-            TimeZone.getTimeZone("America/Los_Angeles"),
-            new ClickHouseProperties());
+                TimeZone.getTimeZone("America/Los_Angeles"),
+                new ClickHouseProperties());
         s.setTime(1, new Time(1557168043000L));
         assertParamMatches(s, "'2019-05-06 11:40:43'");
     }
@@ -215,8 +215,8 @@ public class ClickHousePreparedStatementTest {
     @Test
     public void testSetTimestampNormalOtherTimeZone() throws Exception {
         ClickHousePreparedStatement s = createStatement(
-            TimeZone.getTimeZone("America/Los_Angeles"),
-            new ClickHouseProperties());
+                TimeZone.getTimeZone("America/Los_Angeles"),
+                new ClickHouseProperties());
         s.setTimestamp(1, new Timestamp(1557168043000L));
         assertParamMatches(s, "'2019-05-06 11:40:43'");
     }
@@ -227,20 +227,19 @@ public class ClickHousePreparedStatementTest {
 
     private static ClickHousePreparedStatement createStatement() throws Exception {
         return createStatement(
-            TimeZone.getTimeZone("Europe/Moscow"),
-            new ClickHouseProperties());
+                TimeZone.getTimeZone("Europe/Moscow"),
+                new ClickHouseProperties());
     }
 
     private static ClickHousePreparedStatement createStatement(TimeZone timezone,
-        ClickHouseProperties props) throws Exception
-    {
+                                                               ClickHouseProperties props) throws Exception {
         return new ClickHousePreparedStatementImpl(
-            Mockito.mock(HttpConnector.class),
-            Mockito.mock(ClickHouseConnection.class),
-            props,
-            "INSERT INTO foo (bar) VALUES (?)",
-            timezone,
-            ResultSet.TYPE_FORWARD_ONLY);
+                Mockito.mock(HttpConnector.class),
+                Mockito.mock(ClickHouseConnection.class),
+                props,
+                "INSERT INTO foo (bar) VALUES (?)",
+                timezone,
+                ResultSet.TYPE_FORWARD_ONLY);
     }
 
 }

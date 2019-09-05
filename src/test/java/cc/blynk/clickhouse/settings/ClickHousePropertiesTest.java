@@ -2,12 +2,10 @@ package cc.blynk.clickhouse.settings;
 
 import cc.blynk.clickhouse.BalancedClickhouseDataSource;
 import cc.blynk.clickhouse.ClickHouseDataSource;
-import cc.blynk.clickhouse.ClickhouseJdbcUrlParser;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,10 +40,10 @@ public class ClickHousePropertiesTest {
         Boolean insertDistributedSync = true;
 
         ClickHouseProperties properties = new ClickHouseProperties();
-        properties.setConnectionTimeout( expectedConnectionTimeout );
-        properties.setMaxParallelReplicas( maxParallelReplicas );
-        properties.setMaxPartitionsPerInsertBlock( maxPartitionsPerInsertBlock );
-        properties.setCompress( isCompress );
+        properties.setConnectionTimeout(expectedConnectionTimeout);
+        properties.setMaxParallelReplicas(maxParallelReplicas);
+        properties.setMaxPartitionsPerInsertBlock(maxPartitionsPerInsertBlock);
+        properties.setCompress(isCompress);
         properties.setMaxInsertBlockSize(maxInsertBlockSize);
         properties.setInsertDeduplicate(insertDeduplicate);
         properties.setInsertDistributedSync(insertDistributedSync);
@@ -75,22 +73,23 @@ public class ClickHousePropertiesTest {
                 ClickHouseQueryParam.TOTALS_MODE.getDefaultValue()
         );
         Assert.assertEquals(
-            clickHouseDataSource.getProperties().getMaxInsertBlockSize(),
-            maxInsertBlockSize
+                clickHouseDataSource.getProperties().getMaxInsertBlockSize(),
+                maxInsertBlockSize
         );
         Assert.assertEquals(
-            clickHouseDataSource.getProperties().getInsertDeduplicate(),
-            insertDeduplicate
+                clickHouseDataSource.getProperties().getInsertDeduplicate(),
+                insertDeduplicate
         );
         Assert.assertEquals(
-            clickHouseDataSource.getProperties().getInsertDistributedSync(),
-            insertDistributedSync
+                clickHouseDataSource.getProperties().getInsertDistributedSync(),
+                insertDistributedSync
         );
     }
 
     @Test
-    public void additionalParametersTest_clickhouse_datasource() {
-        ClickHouseDataSource clickHouseDataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:1234/ppc?compress=1&decompress=1&user=root");
+    public void additionalParametersTestClickhouseDatasource() {
+        ClickHouseDataSource clickHouseDataSource = new ClickHouseDataSource(
+                "jdbc:clickhouse://localhost:1234/ppc?compress=1&decompress=1&user=root");
 
         assertTrue(clickHouseDataSource.getProperties().isCompress());
         assertTrue(clickHouseDataSource.getProperties().isDecompress());
@@ -98,8 +97,9 @@ public class ClickHousePropertiesTest {
     }
 
     @Test
-    public void additionalParametersTest_balanced_clickhouse_datasource() {
-        BalancedClickhouseDataSource clickHouseDataSource = new BalancedClickhouseDataSource("jdbc:clickhouse://localhost:1234,another.host.com:4321/ppc?compress=1&decompress=1&user=root");
+    public void additionalParametersTestBlancedClickhouseDatasource() {
+        BalancedClickhouseDataSource clickHouseDataSource = new BalancedClickhouseDataSource(
+                "jdbc:clickhouse://localhost:1234,another.host.com:4321/ppc?compress=1&decompress=1&user=root");
 
         assertTrue(clickHouseDataSource.getProperties().isCompress());
         assertTrue(clickHouseDataSource.getProperties().isDecompress());
@@ -109,8 +109,12 @@ public class ClickHousePropertiesTest {
     @Test
     public void booleanParamCanBeParsedAsZeroAndOne() throws Exception {
         Assert.assertTrue(new ClickHouseProperties().isCompress());
-        Assert.assertFalse(new ClickHouseProperties(new Properties(){{setProperty("compress", "0");}}).isCompress());
-        Assert.assertTrue(new ClickHouseProperties(new Properties(){{setProperty("compress", "1");}}).isCompress());
+        Assert.assertFalse(new ClickHouseProperties(new Properties() {{
+            setProperty("compress", "0");
+        }}).isCompress());
+        Assert.assertTrue(new ClickHouseProperties(new Properties() {{
+            setProperty("compress", "1");
+        }}).isCompress());
     }
 
     @Test
@@ -158,11 +162,13 @@ public class ClickHousePropertiesTest {
         clickHouseProperties2.setUser("readonly");
         final ClickHouseProperties merged = clickHouseProperties1.merge(clickHouseProperties2);
         // merge equals: clickHouseProperties1 overwrite with clickHouseProperties2's value or default not null value
-        Assert.assertEquals(merged.getDatabase(),"click"); // using properties1, because properties1 not setting and
+        Assert.assertEquals(merged.getDatabase(), "click"); // using properties1, because properties1 not setting and
         // default value is null
-        Assert.assertEquals(merged.getConnectionTimeout(),ClickHouseConnectionSettings.CONNECTION_TIMEOUT.getDefaultValue());// overwrite with properties2's default value
-        Assert.assertEquals(merged.getSocketTimeout(),15000);// using properties2
-        Assert.assertEquals(merged.getUser(),"readonly"); // using properties2
+        Assert.assertEquals(merged.getConnectionTimeout(),
+                            ClickHouseConnectionSettings.CONNECTION_TIMEOUT.getDefaultValue());
+        // overwrite with properties2's default value
+        Assert.assertEquals(merged.getSocketTimeout(), 15000); // using properties2
+        Assert.assertEquals(merged.getUser(), "readonly"); // using properties2
     }
 
     @Test
@@ -176,9 +182,9 @@ public class ClickHousePropertiesTest {
         properties2.put(ClickHouseQueryParam.DATABASE.getKey(), "house");
         final ClickHouseProperties merged = clickHouseProperties1.merge(properties2);
         // merge equals: clickHouseProperties1 overwrite with properties in properties2 not including default value
-        Assert.assertEquals( merged.getDatabase(),"house");// overwrite with properties2
-        Assert.assertEquals(merged.getMaxThreads().intValue(),8);// using properties1
-        Assert.assertEquals(merged.getConnectionTimeout(),13000);// using properties1
-        Assert.assertEquals(merged.getSocketTimeout(),15000);// using properties2
+        Assert.assertEquals(merged.getDatabase(), "house"); // overwrite with properties2
+        Assert.assertEquals(merged.getMaxThreads().intValue(), 8); // using properties1
+        Assert.assertEquals(merged.getConnectionTimeout(), 13000); // using properties1
+        Assert.assertEquals(merged.getSocketTimeout(), 15000); // using properties2
     }
 }

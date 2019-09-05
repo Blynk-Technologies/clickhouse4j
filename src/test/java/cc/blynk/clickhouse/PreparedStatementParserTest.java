@@ -247,7 +247,7 @@ public class PreparedStatementParserTest {
     public void testParseWithComment1() {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "select a --what is it?\nfrom t where a = ? and b = 1");
-        assertEquals( s.getParts().get(0), "select a --what is it?\nfrom t where a = ");
+        assertEquals(s.getParts().get(0), "select a --what is it?\nfrom t where a = ");
         assertEquals(s.getParts().get(1), " and b = 1");
         assertMatchParams(new String[][] {{"?"}}, s);
     }
@@ -379,7 +379,7 @@ public class PreparedStatementParserTest {
         assertEquals(s.getParts().get(4), ", ");
         assertEquals(s.getParts().get(5), "");
     }
-    
+
     @Test
     public void testSingleAndBackMixedQuotes() {
         PreparedStatementParser s = PreparedStatementParser.parse(
@@ -394,7 +394,7 @@ public class PreparedStatementParserTest {
         PreparedStatementParser s = PreparedStatementParser.parse(
             "INSERT INTO foo(id, src, dst) "
           + "VALUES (?, IPv4ToIPv6(toIPv4(?)), IPv4ToIPv6(toIPv4(?)))");
-        assertMatchParams(new String[][] {{ "?", "?", "?" }}, s);
+        assertMatchParams(new String[][] {{"?", "?", "?"}}, s);
         assertMatchParts(new String[] {
             "INSERT INTO foo(id, src, dst) VALUES (",
             ", IPv4ToIPv6(toIPv4(",
@@ -435,7 +435,7 @@ public class PreparedStatementParserTest {
 
     private static void assertMatchParts(String[] expected, PreparedStatementParser stmt) {
         List<String> parts = stmt.getParts();
-        assertEquals( parts.size(), expected.length);
+        assertEquals(parts.size(), expected.length);
         for (int i = 0; i < expected.length; i++) {
             assertEquals(parts.get(i), expected[i]);
         }

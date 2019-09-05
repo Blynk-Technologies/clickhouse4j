@@ -11,12 +11,12 @@ public class ClickHouseResultBuilderTest {
     @Test
     public void testBuild() throws Exception {
         ClickHouseResultSet resultSet = ClickHouseResultBuilder.builder(2)
-            .names("string", "int")
-            .types("String", "UInt32")
-            .addRow("ololo", 1000)
-            .addRow("o\tlo\nlo", 1000)
-            .addRow(null, null)
-            .build();
+                .names("string", "int")
+                .types("String", "UInt32")
+                .addRow("ololo", 1000)
+                .addRow("o\tlo\nlo", 1000)
+                .addRow(null, null)
+                .build();
         List<ClickHouseColumnInfo> columns = resultSet.getColumns();
 
         Assert.assertEquals("string", columns.get(0).getColumnName());

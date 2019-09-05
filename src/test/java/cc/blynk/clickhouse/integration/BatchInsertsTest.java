@@ -121,7 +121,8 @@ public class BatchInsertsTest {
                 "CREATE TABLE IF NOT EXISTS test.batch_insert3 (i Int32, s String) ENGINE = TinyLog"
         );
 
-        ClickHousePreparedStatementImpl statement = (ClickHousePreparedStatementImpl) connection.prepareStatement("INSERT INTO test.batch_insert3 (s, i) VALUES (?, ?), (?, ?)");
+        ClickHousePreparedStatementImpl statement = (ClickHousePreparedStatementImpl) connection.prepareStatement(
+                "INSERT INTO test.batch_insert3 (s, i) VALUES (?, ?), (?, ?)");
         statement.setString(1, "firstParam");
         statement.setInt(2, 1);
         statement.setString(3, "thirdParam");
@@ -144,7 +145,8 @@ public class BatchInsertsTest {
                 "CREATE TABLE IF NOT EXISTS test.batch_insert4 (i Int32, s String) ENGINE = TinyLog"
         );
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO test.batch_insert4 (i, s) VALUES (?, 'hello'), (?, ?)");
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO test.batch_insert4 (i, s) VALUES (?, 'hello'), (?, ?)");
         statement.setInt(1, 42);
         statement.setInt(2, 43);
         statement.setString(3, "first_param");
@@ -165,7 +167,8 @@ public class BatchInsertsTest {
                 "CREATE TABLE IF NOT EXISTS test.batch_insert5 (i Int32, s String) ENGINE = TinyLog"
         );
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO test.batch_insert5 (i, s) VALUES (?, 'hello'), (?, ?)");
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO test.batch_insert5 (i, s) VALUES (?, 'hello'), (?, ?)");
         statement.setInt(1, 42);
         statement.setInt(2, 43);
         statement.setString(3, "first_param");
@@ -252,7 +255,8 @@ public class BatchInsertsTest {
         statement.addBatch();
         statement.executeBatch(Collections.singletonMap(ClickHouseQueryParam.CONNECT_TIMEOUT, "1000"));
 
-        ResultSet rs = connection.createStatement().executeQuery("SELECT date, date_time, string, int32, float64 from test.batch_insert_nulls");
+        ResultSet rs = connection.createStatement().executeQuery(
+                "SELECT date, date_time, string, int32, float64 from test.batch_insert_nulls");
         Assert.assertTrue(rs.next());
 
         Assert.assertEquals(rs.getDate("date"), date);
@@ -274,7 +278,8 @@ public class BatchInsertsTest {
                 "CREATE TABLE test.batch_single_test(date Date, values String) ENGINE = StripeLog"
         );
 
-        PreparedStatement st = connection.prepareStatement("INSERT INTO test.batch_single_test (date, values) VALUES (?, ?)");
+        PreparedStatement st = connection.prepareStatement(
+                "INSERT INTO test.batch_single_test (date, values) VALUES (?, ?)");
         st.setDate(1, new Date(System.currentTimeMillis()));
         st.setString(2, "test");
 
@@ -284,7 +289,8 @@ public class BatchInsertsTest {
 
     @Test(expectedExceptions = SQLException.class)
     public void testNullParameters() throws SQLException {
-        PreparedStatement st = connection.prepareStatement("INSERT INTO test.batch_single_test (date, values) VALUES (?, ?)");
+        PreparedStatement st = connection.prepareStatement(
+                "INSERT INTO test.batch_single_test (date, values) VALUES (?, ?)");
         st.setString(2, "test");
         st.addBatch();
     }

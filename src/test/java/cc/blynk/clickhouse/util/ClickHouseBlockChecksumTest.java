@@ -19,16 +19,16 @@ public class ClickHouseBlockChecksumTest {
         int uncompressedSizeBytes = 35;
 
         ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock(
-            (byte) ClickHouseLZ4Stream.MAGIC,
-            compressedData.length + HEADER_SIZE_BYTES,
-            uncompressedSizeBytes,
-            compressedData,
-            compressedData.length
+                (byte) ClickHouseLZ4Stream.MAGIC,
+                compressedData.length + HEADER_SIZE_BYTES,
+                uncompressedSizeBytes,
+                compressedData,
+                compressedData.length
         );
 
         Assert.assertEquals(
-            new ClickHouseBlockChecksum(-493639813825217902L, -6253550521065361778L),
-            checksum
+                new ClickHouseBlockChecksum(-493639813825217902L, -6253550521065361778L),
+                checksum
         );
     }
 
@@ -38,16 +38,16 @@ public class ClickHouseBlockChecksumTest {
         int uncompressedSizeBytes = 8;
 
         ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock(
-            (byte) ClickHouseLZ4Stream.MAGIC,
-            compressedData.length + HEADER_SIZE_BYTES,
-            uncompressedSizeBytes,
-            compressedData,
-            compressedData.length
+                (byte) ClickHouseLZ4Stream.MAGIC,
+                compressedData.length + HEADER_SIZE_BYTES,
+                uncompressedSizeBytes,
+                compressedData,
+                compressedData.length
         );
 
         Assert.assertEquals(
-            new ClickHouseBlockChecksum(-7135037831041210418L, -8214889029657590490L),
-            checksum
+                new ClickHouseBlockChecksum(-7135037831041210418L, -8214889029657590490L),
+                checksum
         );
     }
 }

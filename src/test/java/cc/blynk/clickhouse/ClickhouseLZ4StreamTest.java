@@ -13,16 +13,16 @@ public class ClickhouseLZ4StreamTest {
     @Test
     public void testLZ4Stream() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ClickHouseLZ4OutputStream outputStream = new ClickHouseLZ4OutputStream(baos,  1024*1024);
+        ClickHouseLZ4OutputStream outputStream = new ClickHouseLZ4OutputStream(baos, 1024 * 1024);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 100000; i++) {
-            outputStream.write(("test"+i).getBytes());
+            outputStream.write(("test" + i).getBytes());
             sb.append("test").append(i);
         }
         outputStream.flush();
         byte[] result = baos.toByteArray();
         // System.out.println(result.length);
-        Assert.assertTrue(result.length < sb.length()/2);
+        Assert.assertTrue(result.length < sb.length() / 2);
         ByteArrayInputStream bais = new ByteArrayInputStream(result);
         ClickHouseLZ4Stream is = new ClickHouseLZ4Stream(bais);
         byte[] buf = new byte[20000000];
