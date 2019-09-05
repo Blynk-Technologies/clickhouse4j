@@ -2,11 +2,9 @@ package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.util.ClickHouseValueFormatter;
 
-import java.util.TimeZone;
-
 public final class ClickHousePreparedStatementParameter {
 
-    private static final ClickHousePreparedStatementParameter NULL_PARAM =
+    static final ClickHousePreparedStatementParameter NULL_PARAM =
         new ClickHousePreparedStatementParameter(null, false);
 
     static final ClickHousePreparedStatementParameter TRUE_PARAM =
@@ -17,20 +15,6 @@ public final class ClickHousePreparedStatementParameter {
 
     private final String stringValue;
     private final boolean quoteNeeded;
-
-    static ClickHousePreparedStatementParameter fromObject(Object x,
-        TimeZone dateTimeZone, TimeZone dateTimeTimeZone) {
-        if (x == null) {
-            return NULL_PARAM;
-        }
-        return new ClickHousePreparedStatementParameter(
-            ClickHouseValueFormatter.formatObject(x, dateTimeZone, dateTimeTimeZone),
-            ClickHouseValueFormatter.needsQuoting(x));
-    }
-
-    static ClickHousePreparedStatementParameter nullParameter() {
-        return NULL_PARAM;
-    }
 
     ClickHousePreparedStatementParameter(String stringValue, boolean quoteNeeded) {
         this.stringValue = stringValue == null
