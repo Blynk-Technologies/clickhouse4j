@@ -287,7 +287,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         if (x != null) {
             String bind = ClickHouseValueFormatter.formatObject(x, dateTimeZone, dateTimeTimeZone);
             boolean needQuoting = ClickHouseValueFormatter.needsQuoting(x);
-            ClickHousePreparedStatementParameter bindParam = new ClickHousePreparedStatementParameter(bind,needQuoting);
+            ClickHousePreparedStatementParameter bindParam =
+                    new ClickHousePreparedStatementParameter(bind, needQuoting);
             setBind(parameterIndex, bindParam);
         } else {
             setNull(parameterIndex);
