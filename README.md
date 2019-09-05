@@ -1,7 +1,7 @@
-[![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
-
 Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC driver
 ===============
+
+[![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
 
 The main differences between this and official driver are:
 
