@@ -157,12 +157,14 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        setBind(parameterIndex, ClickHouseValueFormatter.formatNull(), false);
+        setNull(parameterIndex);
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        setBind(parameterIndex, ClickHouseValueFormatter.formatBoolean(x), false);
+        setBind(parameterIndex,
+                x ? ClickHousePreparedStatementParameter.TRUE_PARAM
+                  : ClickHousePreparedStatementParameter.FALSE_PARAM);
     }
 
     @Override

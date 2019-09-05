@@ -9,6 +9,12 @@ public final class ClickHousePreparedStatementParameter {
     private static final ClickHousePreparedStatementParameter NULL_PARAM =
         new ClickHousePreparedStatementParameter(null, false);
 
+    static final ClickHousePreparedStatementParameter TRUE_PARAM =
+            new ClickHousePreparedStatementParameter("1", false);
+
+    static final ClickHousePreparedStatementParameter FALSE_PARAM =
+            new ClickHousePreparedStatementParameter("0", false);
+
     private final String stringValue;
     private final boolean quoteNeeded;
 
