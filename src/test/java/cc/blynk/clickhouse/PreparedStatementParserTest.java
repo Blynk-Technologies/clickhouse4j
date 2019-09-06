@@ -5,7 +5,6 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 
@@ -410,7 +409,6 @@ public class PreparedStatementParserTest {
           + "\t\tVALUES\n"
           + "(?, ?) , \r\n"
           + "\t(?,?),(?,?)\n");
-        assertTrue(s.isValuesMode());
         assertMatchParams(new String[][] {{"?", "?"}, {"?", "?"}, {"?", "?"}}, s);
         assertEquals(s.getParts().get(0),
             "INSERT INTO table1\n"

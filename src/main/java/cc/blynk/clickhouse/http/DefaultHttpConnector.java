@@ -55,9 +55,10 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException {
+    public void post(byte[] sqlBytes, int batchSize,
+                     ByteArrayOutputStream data, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
-        InputStream is = sendPostRequest(sqlBytes, data, connection);
+        InputStream is = sendPostRequest(sqlBytes, batchSize, data, connection);
         StreamUtils.close(is);
     }
 
@@ -96,7 +97,8 @@ final class DefaultHttpConnector implements HttpConnector {
 
     }
 
-    private InputStream sendPostRequest(byte[] sqlBytes, List<byte[]> batches, HttpURLConnection connection)
+    private InputStream sendPostRequest(byte[] sqlBytes, int batchSize,
+                                        ByteArrayOutputStream data, HttpURLConnection connection)
             throws ClickHouseException {
         OutputStream outputStream = null;
         try {
@@ -105,9 +107,7 @@ final class DefaultHttpConnector implements HttpConnector {
                 outputStream = new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
             }
             outputStream.write(sqlBytes);
-            for (byte[] batch : batches) {
-                outputStream.write(batch);
-            }
+            data.writeTo(outputStream);
             outputStream.flush();
             checkForErrorAndThrow(connection);
             return connection.getInputStream();

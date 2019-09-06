@@ -7,6 +7,8 @@ import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import cc.blynk.clickhouse.util.ClickHouseArrayUtil;
 import cc.blynk.clickhouse.util.ClickHouseValueFormatter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -28,7 +30,6 @@ import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -54,8 +55,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
     private final String[][] parameterList;
-    private final boolean insertBatchMode;
-    private List<byte[]> batchRows = new ArrayList<>();
+    private ByteArrayOutputStream batchRows = new ByteArrayOutputStream(8096);
+    private int batchSize;
 
     ClickHousePreparedStatementImpl(HttpConnector connector,
                                     ClickHouseConnection connection,
@@ -67,10 +68,18 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
         this.parameterList = parser.getParameters();
-        this.insertBatchMode = parser.isValuesMode();
         this.sqlParts = parser.getParts();
         int numParams = countNonConstantParams();
         this.binds = new ClickHousePreparedStatementParameter[numParams];
+        this.batchSize = 0;
+
+        //this is actually object pooling
+        //for every 'correct' batch we expect
+        //this fields to be reused
+        for (int i = 0; i < this.binds.length; i++) {
+            this.binds[i] = new ClickHousePreparedStatementParameter();
+        }
+
         dateTimeTimeZone = serverTimeZone;
         if (properties.isUseServerTimeZoneForDates()) {
             dateTimeZone = serverTimeZone;
@@ -81,7 +90,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void clearParameters() {
-        Arrays.fill(binds, null);
+        for (ClickHousePreparedStatementParameter parameter : binds) {
+            parameter.clean();
+        }
     }
 
     private String buildSql() throws SQLException {
@@ -104,9 +115,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     private void checkBinded() throws SQLException {
         int i = 0;
-        for (Object b : binds) {
+        for (ClickHousePreparedStatementParameter bind : binds) {
             ++i;
-            if (b == null) {
+            if (bind.isRemoved()) {
                 throw new SQLException("Not all parameters binded (placeholder " + i + " is undefined)");
             }
         }
@@ -124,7 +135,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void clearBatch() {
-        batchRows.clear();
+        this.batchRows.reset();
+        this.batchSize = 0;
     }
 
     @Override
@@ -144,15 +156,11 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     private void setBind(int parameterIndex, String bind, boolean quote) {
-        setBind(parameterIndex, new ClickHousePreparedStatementParameter(bind, quote));
-    }
-
-    private void setBind(int parameterIndex, ClickHousePreparedStatementParameter parameter) {
-        binds[parameterIndex - 1] = parameter;
+        binds[parameterIndex - 1].update(bind, quote);
     }
 
     private void setNull(int parameterIndex) {
-        setBind(parameterIndex, ClickHousePreparedStatementParameter.NULL_PARAM);
+        setBind(parameterIndex, null, false);
     }
 
     @Override
@@ -162,9 +170,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        setBind(parameterIndex,
-                x ? ClickHousePreparedStatementParameter.TRUE_PARAM
-                  : ClickHousePreparedStatementParameter.FALSE_PARAM);
+        setBind(parameterIndex, x ? "1" : "0", false);
     }
 
     @Override
@@ -287,44 +293,36 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         if (x != null) {
             String bind = ClickHouseValueFormatter.formatObject(x, dateTimeZone, dateTimeTimeZone);
             boolean needQuoting = ClickHouseValueFormatter.needsQuoting(x);
-            ClickHousePreparedStatementParameter bindParam =
-                    new ClickHousePreparedStatementParameter(bind, needQuoting);
-            setBind(parameterIndex, bindParam);
+            setBind(parameterIndex, bind, needQuoting);
         } else {
             setNull(parameterIndex);
         }
     }
 
+    private static final byte NEW_LINE = (byte) '\n';
+    private static final byte TAB = (byte) '\t';
+
     @Override
     public void addBatch() throws SQLException {
-        Collections.addAll(batchRows, buildBatch());
-    }
-
-    private byte[][] buildBatch() throws SQLException {
         checkBinded();
-        byte[][] newBatch = new byte[parameterList.length][];
-        StringBuilder sb;
         for (int i = 0, p = 0; i < parameterList.length; i++) {
-            sb = new StringBuilder();
             String[] batchParams = parameterList[i];
             int batchParamsLength = batchParams.length;
             for (int j = 0; j < batchParamsLength; j++) {
                 String batchVal = batchParams[j];
                 if (PARAM_MARKER.equals(batchVal)) {
                     ClickHousePreparedStatementParameter param = binds[p++];
-                    if (insertBatchMode) {
-                        batchVal = param.getBatchValue();
-                    } else {
-                        batchVal = param.getRegularValue();
-                    }
+                    batchVal = param.getBatchValue();
                 }
-                sb.append(batchVal);
-                char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';
-                sb.append(appendChar);
+                try {
+                    batchRows.write(batchVal.getBytes(UTF_8));
+                    byte appendChar = j < batchParamsLength - 1 ? TAB : NEW_LINE;
+                    batchRows.write(appendChar);
+                } catch (IOException ioe) {
+                }
             }
-            newBatch[i]  = sb.toString().getBytes(UTF_8);
+            batchSize++;
         }
-        return newBatch;
     }
 
     @Override
@@ -348,10 +346,11 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
         byte[] sqlBytes = insertSql.getBytes(UTF_8);
 
-        httpConnector.post(sqlBytes, batchRows, uri);
-        int[] result = new int[batchRows.size()];
+        this.httpConnector.post(sqlBytes, batchSize, batchRows, uri);
+        int[] result = new int[batchSize];
         Arrays.fill(result, 1);
-        batchRows = new ArrayList<>();
+        this.batchRows.reset();
+        this.batchSize = 0;
         return result;
     }
 

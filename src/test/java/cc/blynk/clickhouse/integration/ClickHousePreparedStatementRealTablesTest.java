@@ -17,7 +17,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class ClickHousePreparedStatementRealTablesTest {
 
-    private static int RECORDS = 3_000_000;
+    private static int RECORDS = 10_000_000;
     private ClickHouseDataSource dataSource;
     private Connection connection;
 
@@ -84,7 +84,7 @@ public class ClickHousePreparedStatementRealTablesTest {
                         + " (org_id UInt32, user_id UInt64, ts DateTime, command_code UInt16)"
                         + " ENGINE = TinyLog"
         );
-        dataSource.getProperties().setCompress(false);
+        dataSource.getProperties().setDecompress(false);
 
         long start;
         try (Connection connection = dataSource.getConnection()) {

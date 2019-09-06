@@ -7,20 +7,22 @@ public final class ClickHousePreparedStatementParameter {
     static final ClickHousePreparedStatementParameter NULL_PARAM =
         new ClickHousePreparedStatementParameter(null, false);
 
-    static final ClickHousePreparedStatementParameter TRUE_PARAM =
-            new ClickHousePreparedStatementParameter("1", false);
+    private String stringValue;
+    private boolean quoteNeeded;
+    private boolean isRemoved;
 
-    static final ClickHousePreparedStatementParameter FALSE_PARAM =
-            new ClickHousePreparedStatementParameter("0", false);
-
-    private final String stringValue;
-    private final boolean quoteNeeded;
+    private ClickHousePreparedStatementParameter(String stringValue, boolean quoteNeeded, boolean isRemoved) {
+        this.stringValue = replaceNullWithMarker(stringValue);
+        this.quoteNeeded = quoteNeeded;
+        this.isRemoved = isRemoved;
+    }
 
     ClickHousePreparedStatementParameter(String stringValue, boolean quoteNeeded) {
-        this.stringValue = stringValue == null
-            ? ClickHouseValueFormatter.NULL_MARKER
-            : stringValue;
-        this.quoteNeeded = quoteNeeded;
+        this(stringValue, quoteNeeded, false);
+    }
+
+    ClickHousePreparedStatementParameter() {
+        this(null, false, true);
     }
 
     String getRegularValue() {
@@ -35,6 +37,26 @@ public final class ClickHousePreparedStatementParameter {
 
     String getBatchValue() {
         return stringValue;
+    }
+
+    void update(String value, boolean quoteNeeded) {
+        this.stringValue = replaceNullWithMarker(value);
+        this.quoteNeeded = quoteNeeded;
+        this.isRemoved = false;
+    }
+
+    boolean isRemoved() {
+        return isRemoved;
+    }
+
+    void clean() {
+        this.isRemoved = true;
+    }
+
+    private static String replaceNullWithMarker(String value) {
+        return value == null
+                ? ClickHouseValueFormatter.NULL_MARKER
+                : value;
     }
 
     @Override
