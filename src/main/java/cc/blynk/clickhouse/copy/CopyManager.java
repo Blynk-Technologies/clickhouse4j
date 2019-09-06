@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public interface CopyManager {
 
     /**
-     * Insert data from stream to DB. Type of data in stream configured in SQL Query.
+     * Insert data from stream to the DB. Type of data from stream configured in the SQL Query.
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
@@ -17,7 +17,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, is);
      *
-     *     //Data will be written to stream in CSV format
+     *     //Data will be written to the stream in CSV format
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -28,7 +28,7 @@ public interface CopyManager {
     void copyIn(String sql, InputStream from) throws SQLException;
 
     /**
-     * Insert data from stream to DB. Type of data in stream configured in SQL Query.
+     * Insert data from stream to the DB. Type of data from stream configured in the SQL Query.
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
@@ -36,7 +36,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, is, 1024);
      *
-     *     //Data will be written to stream in CSV format
+     *     //Data will be written to the stream in CSV format
      * </pre>
      *
      * @param sql        - SQL INSERT Query
@@ -48,7 +48,7 @@ public interface CopyManager {
     void copyIn(String sql, InputStream from, int bufferSize) throws SQLException;
 
     /**
-     * Insert data from reader to DB. Type of data in stream configured in SQL Query.
+     * Insert data from Reader to the DB. Type of data from stream configured in the SQL Query.
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
@@ -56,7 +56,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, reader);
      *
-     *     //Data will be written to stream in CSV format
+     *     //Data will be written to the stream in CSV format
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -67,7 +67,7 @@ public interface CopyManager {
     void copyIn(String sql, Reader from) throws SQLException;
 
     /**
-     * Insert data from reader to DB. Type of data in stream configured in SQL Query.
+     * Insert data from Reader to the DB. Type of data from stream configured in the SQL Query.
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
@@ -75,7 +75,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, reader, 1024);
      *
-     *     //Data will be written to stream in CSV format
+     *     //Data will be written to the stream in CSV format
      * </pre>
      *
      * @param sql        - SQL INSERT Query
@@ -87,7 +87,7 @@ public interface CopyManager {
     void copyIn(String sql, Reader from, int bufferSize) throws SQLException;
 
     /**
-     * Load data from db by SQL Query and write it to OutputStream in format defined in SQL query
+     * Load data from the DB using SQL Query and write it to an OutputStream in format defined in the SQL query
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
@@ -107,7 +107,7 @@ public interface CopyManager {
     void copyOut(String sql, OutputStream to) throws SQLException;
 
     /**
-     * Load data from db by SQL Query and write it to Writer in format defined in SQL query
+     * Load data from the DB using SQL Query and write it to Writer in format defined in the SQL query
      * For example:
      * <pre>
      *     CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
