@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 final class DefaultHttpConnector implements HttpConnector {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
@@ -67,21 +69,21 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException {
+    public void post(String sql, List<byte[]> data, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
-        InputStream is = sendPostRequest(sqlBytes, data, connection);
-        StreamUtils.close(is);
-    }
-
-    @Override
-    public void post(byte[] bytes, URI uri) throws ClickHouseException {
-        post(new ByteArrayInputStream(bytes), uri);
+        sendPostRequest(sql, data, connection);
     }
 
     @Override
     public void post(String sql, OutputStream to, URI uri) throws ClickHouseException {
-        byte[] bytes = sql.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = getSqlBytes(sql);
         post(new ByteArrayInputStream(bytes), to, uri);
+    }
+
+    @Override
+    public void post(String sql, InputStream from, URI uri) throws ClickHouseException {
+        HttpURLConnection connection = buildConnection(uri);
+        sendPostRequest(sql, from, connection);
     }
 
     @Override
@@ -106,7 +108,7 @@ final class DefaultHttpConnector implements HttpConnector {
 
     }
 
-    private InputStream sendPostRequest(byte[] sqlBytes, List<byte[]> batches, HttpURLConnection connection)
+    private void sendPostRequest(String sql, List<byte[]> batches, HttpURLConnection connection)
             throws ClickHouseException {
         OutputStream outputStream = null;
         try {
@@ -114,19 +116,54 @@ final class DefaultHttpConnector implements HttpConnector {
             if (properties.isDecompress()) {
                 outputStream = new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
             }
+
+            byte[] sqlBytes = getSqlBytes(sql);
+
             outputStream.write(sqlBytes);
             for (byte[] batch : batches) {
                 outputStream.write(batch);
             }
+
             outputStream.flush();
             checkForErrorAndThrow(connection);
-            return connection.getInputStream();
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         } finally {
             StreamUtils.close(outputStream);
         }
+    }
+
+    private void sendPostRequest(String sql, InputStream from, HttpURLConnection connection)
+            throws ClickHouseException {
+        OutputStream requestStream = null;
+        try {
+            requestStream = new DataOutputStream(connection.getOutputStream());
+            if (properties.isDecompress()) {
+                requestStream = new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
+            }
+
+            byte[] sqlBytes = getSqlBytes(sql);
+            requestStream.write(sqlBytes);
+
+            StreamUtils.copy(from, requestStream);
+
+            requestStream.flush();
+            checkForErrorAndThrow(connection);
+        } catch (IOException e) {
+            log.error("Http POST request failed. {}", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        } finally {
+            StreamUtils.close(from);
+            StreamUtils.close(requestStream);
+        }
+    }
+
+    private byte[] getSqlBytes(String sql) {
+        if (!sql.endsWith("\n")) {
+            sql += "\n";
+        }
+        return sql.getBytes(UTF_8);
     }
 
     private void sendPostRequest(InputStream from, OutputStream to, HttpURLConnection connection)

@@ -348,10 +348,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         String insertSql = sql.substring(0, valuePosition);
 
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
-        byte[] sqlBytes = insertSql.getBytes(UTF_8);
+        insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name();
 
-        httpConnector.post(sqlBytes, batchRows, uri);
+        httpConnector.post(insertSql, batchRows, uri);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
         batchRows = new ArrayList<>();

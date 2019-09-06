@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -545,15 +544,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     private void sendStream(String sql, ClickHouseStreamCallback callback, URI uri) throws ClickHouseException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            out.write((sql + "\n").getBytes(StandardCharsets.UTF_8));
             TimeZone timeZone = getConnection().getTimeZone();
             ClickHouseRowBinaryStream stream = new ClickHouseRowBinaryStream(out, timeZone, properties);
             callback.writeTo(stream);
+
+            InputStream in = new ByteArrayInputStream(out.toByteArray());
+            httpConnector.post(sql, in, uri);
         } catch (IOException e) {
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
-
-        httpConnector.post(out.toByteArray(), uri);
     }
 
     @Override
@@ -565,23 +564,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendStream(InputStream stream, String table,
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
-        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated + "\n";
+        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated;
         sendSqlWithStream(stream, sql, additionalDBParams);
     }
 
     private void sendSqlWithStream(InputStream stream,
                                    String sql,
                                    Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            out.write(sql.getBytes(StandardCharsets.UTF_8));
-            StreamUtils.copy(stream, out);
-        } catch (IOException e) {
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        }
-
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.post(out.toByteArray(), uri);
+        httpConnector.post(sql, stream, uri);
     }
 
     @Override
@@ -589,7 +580,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                               String table,
                               Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
-        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name() + "\n";
+        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name();
         sendSqlWithStream(content, sql, additionalDBParams);
     }
 

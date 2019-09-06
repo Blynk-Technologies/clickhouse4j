@@ -17,11 +17,11 @@ public interface HttpConnector {
 
     void post(String sql, OutputStream to, URI uri) throws ClickHouseException;
 
+    void post(String sql, InputStream from, URI uri) throws ClickHouseException;
+
     void post(List<ClickHouseExternalData> externalData, OutputStream to, URI uri) throws ClickHouseException;
 
-    void post(byte[] bytes, URI uri) throws ClickHouseException;
-
-    void post(byte[] sqlBytes, List<byte[]> data, URI uri) throws ClickHouseException;
+    void post(String sql, List<byte[]> data, URI uri) throws ClickHouseException;
 
     void cleanConnections();
 
