@@ -586,20 +586,26 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
+    public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
+        sendStreamSQL(content, sql, null);
+    }
+
+    @Override
     public void sendStreamSQL(InputStream content, String sql,
                               Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.post(sql, content, uri);
     }
 
-    @Override
-    public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
-        URI uri = buildRequestUri(null, null, null, null, false);
-        httpConnector.post(sql, content, uri);
+    public void sendStreamSQL(String sql, OutputStream responseContent) throws ClickHouseException {
+        sendStreamSQL(sql, responseContent, null);
     }
 
-    public void sendStreamSQL(String sql, OutputStream responseContent) throws ClickHouseException {
-        URI uri = buildRequestUri(null, null, null, null, false);
+    @Override
+    public void sendStreamSQL(String sql, OutputStream responseContent,
+                              Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws ClickHouseException {
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.post(sql, responseContent, uri);
     }
 
