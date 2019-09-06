@@ -17,7 +17,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, is);
      *
-     *     //Data will be written to the stream in CSV format
+     *     //  The data from the InputStream will be forwarded to the DB in CSV format
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -36,7 +36,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, is, 1024);
      *
-     *     //Data will be written to the stream in CSV format
+     *     //  The data from the InputStream will be forwarded to the DB in CSV format
      * </pre>
      *
      * @param sql        - SQL INSERT Query
@@ -56,7 +56,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, reader);
      *
-     *     //Data will be written to the stream in CSV format
+     *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -75,7 +75,7 @@ public interface CopyManager {
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     copyManager.copyIn(sql, reader, 1024);
      *
-     *     //Data will be written to the stream in CSV format
+     *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
      *
      * @param sql        - SQL INSERT Query
@@ -95,8 +95,8 @@ public interface CopyManager {
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
      *     copyManager.copyOut(sql, os);
      *
-     *     // Data will be readed in CSV format
-     *     // First line will contains column names in CSV format
+     *     //  The data will be readed in CSV format
+     *     //  The first line will contain column names in CSV format
      * </pre>
      *
      * @param sql - SQL SELECT Query
@@ -115,8 +115,8 @@ public interface CopyManager {
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
      *     copyManager.copyOut(sql, writer);
      *
-     *     // Data will be readed in CSV format
-     *     // First line will contains column names in CSV format
+     *     //  The data will be readed in CSV format
+     *     //  The first line will contain column names in CSV format
      * </pre>
      *
      * @param sql - SQL SELECT Query
