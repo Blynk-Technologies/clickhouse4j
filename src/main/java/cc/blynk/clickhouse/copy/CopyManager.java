@@ -1,7 +1,5 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.except.ClickHouseException;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
