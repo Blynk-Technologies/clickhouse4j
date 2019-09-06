@@ -44,7 +44,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, inputStream);
 
@@ -67,7 +67,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, inputStream, 1024);
 
@@ -90,7 +90,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, reader);
 
@@ -113,7 +113,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, reader, 1024);
 
@@ -128,7 +128,7 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyOutStreamTest() throws Exception {
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", outputStream);
         String actual = outputStream.toString("UTF-8");
@@ -139,7 +139,7 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyOutWriterTest() throws Exception {
-        CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
+        CopyManager copyManager = CopyManagerFactory.create(connection);
         StringWriter writer = new StringWriter();
         copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", writer);
         String actual = writer.getBuffer().toString();

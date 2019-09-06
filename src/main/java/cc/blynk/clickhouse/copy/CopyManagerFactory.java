@@ -7,7 +7,7 @@ public final class CopyManagerFactory {
     private CopyManagerFactory() {
     }
 
-    public static CopyManager createCopyManager(ClickHouseConnection connection) {
+    public static CopyManager create(ClickHouseConnection connection) {
         return new CopyManagerImpl(connection);
     }
 
