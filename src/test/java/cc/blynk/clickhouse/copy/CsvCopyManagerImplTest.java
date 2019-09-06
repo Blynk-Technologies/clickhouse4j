@@ -104,7 +104,7 @@ public class CsvCopyManagerImplTest {
         connection = dataSource.getConnection();
         connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getDefault());
+        dateFormat.setTimeZone(connection.getTimeZone());
     }
 
     @AfterTest
