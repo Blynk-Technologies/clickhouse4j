@@ -7,6 +7,7 @@ import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -31,32 +32,31 @@ public class CopyManagerImpl implements CopyManager {
         this.properties = properties;
     }
 
+    @Override
     public void copyIn(String sql, InputStream from) throws ClickHouseException {
-//        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name() + "\n";
-//        sendSqlWithStream(content, sql, additionalDBParams);
-//
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        try {
-//            out.write(sql.getBytes(StandardCharsets.UTF_8));
-//            StreamUtils.copy(stream, out);
-//        } catch (IOException e) {
-//            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-//        }
-//
-//        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-//        connector.post(out.toByteArray(), uri);
+        URI uri = buildRequestUri();
+        connector.post(sql, from, uri);
     }
 
+    @Override
     public void copyIn(String sql, InputStream from, int bufferSize) throws ClickHouseException {
-        throw new UnsupportedOperationException("Not implemented");
+        URI uri = buildRequestUri();
+        BufferedInputStream bufferedStream = new BufferedInputStream(from, bufferSize);
+        connector.post(sql, bufferedStream, uri);
     }
 
+    @Override
     public void copyIn(String sql, Reader from) throws ClickHouseException {
-        throw new UnsupportedOperationException("Not implemented");
+        URI uri = buildRequestUri();
+        connector.post(sql, new ReaderInputStream(from), uri);
     }
 
+    @Override
     public void copyOut(String sql, Reader from, int bufferSize) throws ClickHouseException {
-        throw new UnsupportedOperationException("Not implemented");
+        URI uri = buildRequestUri();
+        ReaderInputStream wrappedReader = new ReaderInputStream(from);
+        BufferedInputStream bufferedStream = new BufferedInputStream(wrappedReader, bufferSize);
+        connector.post(sql, bufferedStream, uri);
     }
 
     @Override
