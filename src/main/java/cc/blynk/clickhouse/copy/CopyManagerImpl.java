@@ -7,7 +7,6 @@ import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -69,19 +68,12 @@ public class CopyManagerImpl implements CopyManager {
     @Override
     public void copyOut(String sql, Writer to) throws ClickHouseException {
         URI uri = buildRequestUri();
-        OutputStream out = new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                to.write(b);
-            }
-        };
-        connector.post(sql, out, uri);
+        connector.post(sql, new WriterOutputStream(to), uri);
     }
 
     private URI buildRequestUri() {
         try {
-            String query = getUrlQueryParams(
-            ).stream()
+            String query = getUrlQueryParams().stream()
                     .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
                     .collect(Collectors.joining("&"));
 
