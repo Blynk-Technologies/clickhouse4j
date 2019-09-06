@@ -86,18 +86,21 @@ public final class ClickHouseValueFormatter {
     }
 
     public static String formatDate(Date date, TimeZone timeZone) {
-        getDateFormat().setTimeZone(timeZone);
-        return getDateFormat().format(date);
+        SimpleDateFormat simpleDateFormat = dateFormat.get();
+        simpleDateFormat.setTimeZone(timeZone);
+        return simpleDateFormat.format(date);
     }
 
     public static String formatTime(Time time, TimeZone timeZone) {
-        getDateTimeFormat().setTimeZone(timeZone);
-        return getDateTimeFormat().format(time);
+        SimpleDateFormat simpleDateFormat = dateTimeFormat.get();
+        simpleDateFormat.setTimeZone(timeZone);
+        return simpleDateFormat.format(time);
     }
 
     public static String formatTimestamp(Timestamp time, TimeZone timeZone) {
-        getDateTimeFormat().setTimeZone(timeZone);
-        return getDateTimeFormat().format(time);
+        SimpleDateFormat simpleDateFormat = dateTimeFormat.get();
+        simpleDateFormat.setTimeZone(timeZone);
+        return simpleDateFormat.format(time);
     }
 
     private static String formatUUID(UUID x) {
@@ -166,14 +169,6 @@ public final class ClickHouseValueFormatter {
             return false;
         }
         return true;
-    }
-
-    private static SimpleDateFormat getDateFormat() {
-        return dateFormat.get();
-    }
-
-    private static SimpleDateFormat getDateTimeFormat() {
-        return dateTimeFormat.get();
     }
 
     private ClickHouseValueFormatter() { /* NOP */ }
