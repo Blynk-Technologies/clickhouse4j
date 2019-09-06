@@ -17,23 +17,35 @@ class CopyManagerImpl implements CopyManager {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String sql, InputStream from) throws SQLException {
         connection.createStatement().sendStreamSQL(from, sql);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String sql, InputStream from, int bufferSize) throws SQLException {
         BufferedInputStream bufferedStream = new BufferedInputStream(from, bufferSize);
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String sql, Reader from) throws SQLException {
         ReaderInputStream inputStream = new ReaderInputStream(from);
         connection.createStatement().sendStreamSQL(inputStream, sql);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String sql, Reader from, int bufferSize) throws SQLException {
         ReaderInputStream inputStream = new ReaderInputStream(from);
@@ -41,11 +53,17 @@ class CopyManagerImpl implements CopyManager {
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyOut(String sql, OutputStream to) throws SQLException {
         connection.createStatement().sendStreamSQL(sql, to);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyOut(String sql, Writer to) throws SQLException {
         WriterOutputStream outputStream = new WriterOutputStream(to);

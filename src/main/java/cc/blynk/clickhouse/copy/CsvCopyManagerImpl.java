@@ -17,11 +17,17 @@ class CsvCopyManagerImpl implements CsvCopyManager {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String table, InputStream content) throws SQLException {
         copyIn(table, content, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void copyIn(String table,
                        InputStream content,
@@ -31,17 +37,23 @@ class CsvCopyManagerImpl implements CsvCopyManager {
         connection.createStatement().sendStreamSQL(content, sql, additionalDBParams);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void copyOut(String table, OutputStream response) throws SQLException {
-        copyOut(table, response, null);
+    public void copyOut(String sql, OutputStream response) throws SQLException {
+        copyOut(sql, response, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void copyOut(String table,
+    public void copyOut(String sql,
                         OutputStream response,
                         Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
-        String sql = "SELECT * FROM " + table + " FORMAT " + ClickHouseFormat.CSV.name();
+        sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
         connection.createStatement().sendStreamSQL(sql, response, additionalDBParams);
     }
 }

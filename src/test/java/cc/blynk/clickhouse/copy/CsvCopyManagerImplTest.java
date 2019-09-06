@@ -58,7 +58,7 @@ public class CsvCopyManagerImplTest {
 
         CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        copyManager.copyOut("copy_manager_test.insert", outputStream);
+        copyManager.copyOut("select * from copy_manager_test.insert", outputStream);
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
