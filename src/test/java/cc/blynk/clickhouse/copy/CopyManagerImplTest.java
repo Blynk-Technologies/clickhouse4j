@@ -49,7 +49,8 @@ public class CopyManagerImplTest {
         copyManager.copyIn(sql, inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM copy_manager_test.csv_stream");
+                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
+                        "FROM copy_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -71,7 +72,8 @@ public class CopyManagerImplTest {
         copyManager.copyIn(sql, inputStream, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM copy_manager_test.csv_stream");
+                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
+                        "FROM copy_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -93,7 +95,8 @@ public class CopyManagerImplTest {
         copyManager.copyIn(sql, reader);
 
         ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM copy_manager_test.csv_stream");
+                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
+                        "FROM copy_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -115,7 +118,8 @@ public class CopyManagerImplTest {
         copyManager.copyIn(sql, reader, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM copy_manager_test.csv_stream");
+                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
+                        "FROM copy_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -164,7 +168,8 @@ public class CopyManagerImplTest {
         double float64 = 42.21;
 
         PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO copy_manager_test.insert (date, date_time, string, int32, float64) VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO copy_manager_test.insert (date, date_time, string, int32, float64) " +
+                        "VALUES (?, ?, ?, ?, ?)"
         );
 
         statement.setDate(1, date);

@@ -3,7 +3,6 @@ package cc.blynk.clickhouse.integration;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.sql.Connection;
