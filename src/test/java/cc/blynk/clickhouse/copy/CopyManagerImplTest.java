@@ -36,21 +36,21 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyInStreamTest() throws SQLException {
-        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.csv_stream");
+        connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.csv_stream");
         connection.createStatement().execute(
-                "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
+                "CREATE TABLE csv_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
         );
 
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
-        String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
+        String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
-                        "FROM copy_manager_test.csv_stream");
+                        "FROM csv_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -59,21 +59,21 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyInStreamBufferSizeTest() throws SQLException {
-        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.csv_stream");
+        connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.csv_stream");
         connection.createStatement().execute(
-                "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
+                "CREATE TABLE csv_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
         );
 
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
-        String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
+        String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, inputStream, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
-                        "FROM copy_manager_test.csv_stream");
+                        "FROM csv_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -82,21 +82,21 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyInReaderTest() throws SQLException {
-        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.csv_stream");
+        connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.csv_stream");
         connection.createStatement().execute(
-                "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
+                "CREATE TABLE csv_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
         );
 
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
-        String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
+        String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, reader);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
-                        "FROM copy_manager_test.csv_stream");
+                        "FROM csv_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -105,21 +105,21 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyInReaderBufferSizeTest() throws SQLException {
-        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.csv_stream");
+        connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.csv_stream");
         connection.createStatement().execute(
-                "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
+                "CREATE TABLE csv_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
         );
 
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
-        String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
+        String sql = "INSERT INTO csv_manager_test.csv_stream FORMAT CSV";
         copyManager.copyIn(sql, reader, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
-                        "FROM copy_manager_test.csv_stream");
+                        "FROM csv_manager_test.csv_stream");
         Assert.assertTrue(rs.next());
         Assert.assertEquals(rs.getInt("cnt"), 2);
         Assert.assertEquals(rs.getLong("sum"), 6);
@@ -130,7 +130,7 @@ public class CopyManagerImplTest {
     public void copyOutStreamTest() throws Exception {
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        copyManager.copyOut("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
+        copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", outputStream);
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
@@ -141,7 +141,7 @@ public class CopyManagerImplTest {
     public void copyOutWriterTest() throws Exception {
         CopyManager copyManager = CopyManagerFactory.createCopyManager(connection);
         StringWriter writer = new StringWriter();
-        copyManager.copyOut("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", writer);
+        copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", writer);
         String actual = writer.getBuffer().toString();
         writer.close();
 
@@ -150,9 +150,9 @@ public class CopyManagerImplTest {
 
     @BeforeMethod
     private void initData() throws SQLException, ParseException {
-        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.insert");
+        connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.insert");
         connection.createStatement().execute(
-                "CREATE TABLE copy_manager_test.insert (" +
+                "CREATE TABLE csv_manager_test.insert (" +
                         "date Date," +
                         "date_time DateTime," +
                         "string String," +
@@ -168,7 +168,7 @@ public class CopyManagerImplTest {
         double float64 = 42.21;
 
         PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO copy_manager_test.insert (date, date_time, string, int32, float64) " +
+                "INSERT INTO csv_manager_test.insert (date, date_time, string, int32, float64) " +
                         "VALUES (?, ?, ?, ?, ?)"
         );
 
@@ -186,13 +186,13 @@ public class CopyManagerImplTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
         connection = dataSource.getConnection();
-        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
+        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS csv_manager_test");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(TimeZone.getDefault());
     }
 
     @AfterTest
     public void tearDown() throws Exception {
-        connection.createStatement().execute("DROP DATABASE copy_manager_test");
+        connection.createStatement().execute("DROP DATABASE csv_manager_test");
     }
 }
