@@ -1,7 +1,5 @@
 package cc.blynk.clickhouse;
 
-import cc.blynk.clickhouse.copy.CopyManager;
-import cc.blynk.clickhouse.copy.CopyManagerImpl;
 import cc.blynk.clickhouse.domain.ClickHouseDataType;
 import cc.blynk.clickhouse.http.HttpConnector;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
@@ -101,12 +99,6 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     public ClickHouseStatement createStatement(int resultSetType) {
         return LogProxy.wrap(ClickHouseStatement.class,
                              new ClickHouseStatementImpl(httpConnector, this, properties, resultSetType));
-    }
-
-    @Override
-    public CopyManager createCopyManager() {
-        return LogProxy.wrap(CopyManagerImpl.class,
-                new CopyManagerImpl(httpConnector, properties));
     }
 
     @Override

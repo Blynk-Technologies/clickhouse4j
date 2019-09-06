@@ -565,12 +565,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated;
-        sendSqlWithStream(stream, sql, additionalDBParams);
-    }
-
-    private void sendSqlWithStream(InputStream stream,
-                                   String sql,
-                                   Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.post(sql, stream, uri);
     }
@@ -581,7 +575,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                               Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name();
-        sendSqlWithStream(content, sql, additionalDBParams);
+
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
+        httpConnector.post(sql, content, uri);
     }
 
     @Override
@@ -592,13 +588,19 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendStreamSQL(InputStream content, String sql,
                               Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
-        sql = sql + "\n";
-        sendSqlWithStream(content, sql, additionalDBParams);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
+        httpConnector.post(sql, content, uri);
     }
 
     @Override
     public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
-        sendStreamSQL(content, sql, null);
+        URI uri = buildRequestUri(null, null, null, null, false);
+        httpConnector.post(sql, content, uri);
+    }
+
+    public void sendStreamSQL(String sql, OutputStream responseContent) throws ClickHouseException {
+        URI uri = buildRequestUri(null, null, null, null, false);
+        httpConnector.post(sql, responseContent, uri);
     }
 
     public void closeOnCompletion() {
