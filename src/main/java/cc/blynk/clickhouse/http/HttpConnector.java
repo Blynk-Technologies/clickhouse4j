@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface HttpConnector {
 
-    void post(InputStream from, URI uri) throws ClickHouseException;
-
     void post(InputStream from, OutputStream to, URI uri) throws ClickHouseException;
 
     void post(String sql, OutputStream to, URI uri) throws ClickHouseException;

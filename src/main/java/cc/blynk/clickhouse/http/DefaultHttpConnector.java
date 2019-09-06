@@ -57,12 +57,6 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(InputStream from, URI uri) throws ClickHouseException {
-        HttpURLConnection connection = buildConnection(uri);
-        sendPostRequest(from, connection);
-    }
-
-    @Override
     public void post(InputStream from, OutputStream to, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
         sendPostRequest(from, to, connection);
@@ -195,28 +189,6 @@ final class DefaultHttpConnector implements HttpConnector {
             StreamUtils.close(from);
             StreamUtils.close(requestStream);
             StreamUtils.close(responseStream);
-        }
-    }
-
-    private void sendPostRequest(InputStream from, HttpURLConnection connection)
-            throws ClickHouseException {
-        OutputStream requestStream = null;
-
-        try {
-            requestStream = new DataOutputStream(connection.getOutputStream());
-            if (properties.isDecompress()) {
-                requestStream = new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
-            }
-            StreamUtils.copy(from, requestStream);
-            requestStream.flush();
-            checkForErrorAndThrow(connection);
-
-        } catch (IOException e) {
-            log.error("Http POST request failed. {}", e.getMessage());
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        } finally {
-            StreamUtils.close(from);
-            StreamUtils.close(requestStream);
         }
     }
 
