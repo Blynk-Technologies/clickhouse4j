@@ -50,10 +50,10 @@ public class ClickHouseResultSetTest {
     @Test
     public void withoutTotals() throws Exception {
         String response =
-          "SiteName\tcount()\n" +
-            "String\tUInt64\n" +
-            "hello.com\t21209048\n" +
-            "there.com\t49302091\n";
+                "SiteName\tcount()\n" +
+                        "String\tUInt64\n" +
+                        "hello.com\t21209048\n" +
+                        "there.com\t49302091\n";
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -73,12 +73,12 @@ public class ClickHouseResultSetTest {
     @Test
     public void withoutTotalsSingleColumn() throws Exception {
         String response =
-          "SiteName\n" +
-            "String\n" +
-            "hello.com\n" +
-            "there.com\n" +
-            "\n" +
-            "\n";
+                "SiteName\n" +
+                        "String\n" +
+                        "hello.com\n" +
+                        "there.com\n" +
+                        "\n" +
+                        "\n";
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -109,11 +109,11 @@ public class ClickHouseResultSetTest {
     @Test
     public void withTotals() throws Exception {
         String response = "SiteName\tcount()\n" +
-          "String\tUInt64\n" +
-          "hello.com\t21209048\n" +
-          "there.com\t49302091\n" +
-          "\n" +
-          "\t70511139\n";
+                "String\tUInt64\n" +
+                "hello.com\t21209048\n" +
+                "there.com\t49302091\n" +
+                "\n" +
+                "\t70511139\n";
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -136,13 +136,13 @@ public class ClickHouseResultSetTest {
 
     public void withTotalsAndEmptyStrings() throws Exception {
         String response = "SiteName\tCountry\n" +
-          "String\tString\n" +
-          "hello.com\tPoland\n" +
-          "there.com\tUSA\n" +
-          "\t\n" +
-          "other.com\t\n" +
-          "\n" +
-          "\t\n";
+                "String\tString\n" +
+                "hello.com\tPoland\n" +
+                "there.com\tUSA\n" +
+                "\t\n" +
+                "other.com\t\n" +
+                "\n" +
+                "\t\n";
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -175,14 +175,14 @@ public class ClickHouseResultSetTest {
     @Test
     public void withTotalsSingleColumn() throws Exception {
         String response =
-          "SiteName\n" +
-            "String\n" +
-            "hello.com\n" +
-            "there.com\n" +
-            "\n" +
-            "other.com\n" +
-            "\n" + // with totals separator row
-            "\n"; // with totals values row
+                "SiteName\n" +
+                        "String\n" +
+                        "hello.com\n" +
+                        "there.com\n" +
+                        "\n" +
+                        "other.com\n" +
+                        "\n" + // with totals separator row
+                        "\n"; // with totals values row
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -206,13 +206,13 @@ public class ClickHouseResultSetTest {
     @Test
     public void withTotalsSingleIntColumn() throws Exception {
         String response =
-          "Code\n" +
-            "UInt64\n" +
-            "1\n" +
-            "2\n" +
-            "3\n" +
-            "\n" + // with totals separator row
-            "0"; // with totals values row
+                "Code\n" +
+                        "UInt64\n" +
+                        "1\n" +
+                        "2\n" +
+                        "3\n" +
+                        "\n" + // with totals separator row
+                        "0"; // with totals values row
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -236,15 +236,15 @@ public class ClickHouseResultSetTest {
     @Test
     public void withTotalsSingleNullableColumn() throws Exception {
         String response =
-          "SiteName\n" +
-            "Nullable(String)\n" +
-            "hello.com\n" +
-            "there.com\n" +
-            "\n" +
-            "\\N\n" +
-            "other.com\n" +
-            "\n" + // with totals separator row
-            "\\N\n";// with totals values row
+                "SiteName\n" +
+                        "Nullable(String)\n" +
+                        "hello.com\n" +
+                        "there.com\n" +
+                        "\n" +
+                        "\\N\n" +
+                        "other.com\n" +
+                        "\n" + // with totals separator row
+                        "\\N\n"; // with totals values row
 
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
 
@@ -293,9 +293,9 @@ public class ClickHouseResultSetTest {
     @Test
     public void testDecimalMetadata() throws Exception {
         String response =
-            "sum(myMoney)\n" +
-            "Decimal(38, 3)\n" +
-            "12955152630.539";
+                "sum(myMoney)\n" +
+                        "Decimal(38, 3)\n" +
+                        "12955152630.539";
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
         ResultSet rs = buildResultSet(is, 1024, "db", "table", false, null, null, props);
         rs.next();
@@ -310,9 +310,9 @@ public class ClickHouseResultSetTest {
     @Test
     public void testArrayString() throws Exception {
         String response =
-            "FOO\n"
-          + "Array(String)\n"
-          + "[foo,bar]\n";
+                "FOO\n"
+                        + "Array(String)\n"
+                        + "[foo,bar]\n";
         ByteArrayInputStream is = new ByteArrayInputStream(response.getBytes("UTF-8"));
         ResultSet rs = buildResultSet(is, 1024, "db", "table", false, null, null, props);
         ResultSetMetaData meta = rs.getMetaData();
@@ -320,7 +320,7 @@ public class ClickHouseResultSetTest {
         rs.next();
         Object o = rs.getObject(1);
         assertTrue(Array.class.isAssignableFrom(o.getClass()),
-            o.getClass().getCanonicalName());
+                   o.getClass().getCanonicalName());
         String[] s = (String[]) ((Array) o).getArray();
         assertEquals("foo", s[0]);
         assertEquals("bar", s[1]);
@@ -331,7 +331,7 @@ public class ClickHouseResultSetTest {
         String testData = ClickHouseTypesTestData.buildTestString();
         ByteArrayInputStream is = new ByteArrayInputStream(testData.getBytes("UTF-8"));
         ResultSet rs = buildResultSet(is, testData.length(), "db", "table", false, null,
-            TimeZone.getTimeZone("UTC"), props);
+                                      TimeZone.getTimeZone("UTC"), props);
         rs.next();
         ResultSetMetaData meta = rs.getMetaData();
         for (int i = 1; i <= meta.getColumnCount(); i++) {
@@ -344,37 +344,37 @@ public class ClickHouseResultSetTest {
             }
             Class<?> clazz = Class.forName(className);
             assertNotNull(
-                clazz,
-                "Class not available. class name: " + className + ", type name: " + typeName);
+                    clazz,
+                    "Class not available. class name: " + className + ", type name: " + typeName);
             Object o = rs.getObject(i);
             if (o == null && meta.isNullable(i) > 0) {
                 continue;
             }
             assertNotNull(
-                o,
-                "Object null. class name: " + className + ", type name: " + typeName);
+                    o,
+                    "Object null. class name: " + className + ", type name: " + typeName);
             assertTrue(
-                clazz.isAssignableFrom(rs.getObject(i).getClass()),
-                "Class mismatch. class name: " + className + ", type name: " + typeName +
-                    " object class: " + o.getClass().getCanonicalName());
+                    clazz.isAssignableFrom(rs.getObject(i).getClass()),
+                    "Class mismatch. class name: " + className + ", type name: " + typeName +
+                            " object class: " + o.getClass().getCanonicalName());
         }
     }
 
 
     /**
      * By jdbc specification
-     *
+     * <p>
      * If the value is SQL <code>NULL</code>, the value returned is <code>0</code>
-     *
+     * <p>
      * {@link java.sql.ResultSet#getByte(int)}
      * {@link java.sql.ResultSet#getShort(int)}
      * {@link java.sql.ResultSet#getInt(int)}
      * {@link java.sql.ResultSet#getLong(int)}
      * {@link java.sql.ResultSet#getFloat(int)}
      * {@link java.sql.ResultSet#getDouble(int)}
-     *
+     * <p>
      * If the value is SQL <code>NULL</code>, the value returned is <code>null</code>
-     *
+     * <p>
      * {@link java.sql.ResultSet#getBigDecimal(int)}
      * {@link java.sql.ResultSet#getTime(int)}
      * {@link java.sql.ResultSet#getDate(int)}
@@ -400,7 +400,7 @@ public class ClickHouseResultSetTest {
         assertEquals(0, rs.getInt(1));
         assertEquals(0, rs.getLong(1));
         assertEquals((float) 0, rs.getFloat(1));
-        assertEquals((double)0, rs.getDouble(1));
+        assertEquals((double) 0, rs.getDouble(1));
 
         //null
         assertNull(rs.getBigDecimal(1));
@@ -415,11 +415,18 @@ public class ClickHouseResultSetTest {
         assertFalse(rs.next());
     }
 
-    private static ClickHouseResultSet buildResultSet(InputStream is, int bufferSize, String db, String table, boolean usesWithTotals, ClickHouseStatement statement, TimeZone timezone, ClickHouseProperties properties) throws IOException {
-    	return new ClickHouseResultSet(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
+    private static ClickHouseResultSet buildResultSet(InputStream is,
+                                                      int bufferSize,
+                                                      String db,
+                                                      String table,
+                                                      boolean usesWithTotals,
+                                                      ClickHouseStatement statement,
+                                                      TimeZone timezone,
+                                                      ClickHouseProperties properties) throws IOException {
+        return new ClickHouseResultSet(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
     }
 
-    private static enum ClickHouseTypesTestData {
+    private enum ClickHouseTypesTestData {
 
         // SELECT name FROM system.data_type_families WHERE alias_to <> '' ORDER BY name ASC
 
@@ -468,8 +475,7 @@ public class ClickHouseResultSetTest {
         private final boolean nullableCandidate;
 
         ClickHouseTypesTestData(String typeName, String serializedValue,
-            boolean lowCardinalityCandidate, boolean nullableCandidate)
-        {
+                                boolean lowCardinalityCandidate, boolean nullableCandidate) {
             this.typeName = typeName;
             this.serializedValue = serializedValue;
             this.lowCardinalityCandidate = lowCardinalityCandidate;
@@ -481,18 +487,18 @@ public class ClickHouseResultSetTest {
             // row 1: column names
             for (ClickHouseTypesTestData t : values()) {
                 sb.append(t.typeName)
-                  .append("\t");
+                        .append("\t");
                 if (t.nullableCandidate) {
                     sb.append("Nullable(")
-                      .append(t.typeName)
-                      .append(')')
-                      .append("\t");
+                            .append(t.typeName)
+                            .append(')')
+                            .append("\t");
                 }
                 if (t.lowCardinalityCandidate) {
                     sb.append("LowCardinality(")
-                      .append(t.typeName)
-                      .append(')')
-                      .append("\t");
+                            .append(t.typeName)
+                            .append(')')
+                            .append("\t");
                 }
             }
             sb.replace(sb.length(), sb.length(), "\n");
@@ -503,13 +509,13 @@ public class ClickHouseResultSetTest {
             // row 3 : example data
             for (ClickHouseTypesTestData t : values()) {
                 sb.append(t.serializedValue)
-                  .append("\t");
+                        .append("\t");
                 if (t.nullableCandidate) {
                     sb.append("\\N\t");
                 }
                 if (t.lowCardinalityCandidate) {
                     sb.append(t.serializedValue)
-                      .append("\t");
+                            .append("\t");
                 }
             }
             sb.replace(sb.length(), sb.length(), "\n");
@@ -517,23 +523,24 @@ public class ClickHouseResultSetTest {
         }
     }
 
-    private static String buildTestString(Collection<ClickHouseDataTypeTestDataProvider.ClickHouseDataTypeTestData> testDataTypes) {
+    private static String buildTestString(
+            Collection<ClickHouseDataTypeTestDataProvider.ClickHouseDataTypeTestData> testDataTypes) {
         StringBuilder sb = new StringBuilder();
         // row 1: column names
         for (ClickHouseDataTypeTestDataProvider.ClickHouseDataTypeTestData t : testDataTypes) {
             sb.append(t.getTypeName())
-              .append("\t");
+                    .append("\t");
             if (t.isNullableCandidate()) {
                 sb.append("Nullable(")
-                  .append(t.getTypeName())
-                  .append(')')
-                  .append("\t");
+                        .append(t.getTypeName())
+                        .append(')')
+                        .append("\t");
             }
             if (t.isLowCardinalityCandidate()) {
                 sb.append("LowCardinality(")
-                  .append(t.getTypeName())
-                  .append(')')
-                  .append("\t");
+                        .append(t.getTypeName())
+                        .append(')')
+                        .append("\t");
             }
         }
         sb.replace(sb.length(), sb.length(), "\n");
@@ -544,13 +551,13 @@ public class ClickHouseResultSetTest {
         // row 3 : example data
         for (ClickHouseDataTypeTestDataProvider.ClickHouseDataTypeTestData t : testDataTypes) {
             sb.append(t.getTestValue())
-              .append("\t");
+                    .append("\t");
             if (t.isNullableCandidate()) {
                 sb.append("\\N\t");
             }
             if (t.isLowCardinalityCandidate()) {
                 sb.append(t.getTestValue())
-                  .append("\t");
+                        .append("\t");
             }
         }
         sb.replace(sb.length(), sb.length(), "\n");

@@ -24,11 +24,11 @@ public class ClickHouseScrollableResultSetTest extends ClickHouseResultSetTest {
     @Override
     @DataProvider(name = "longArrays")
     public Object[][] longArrays() {
-        return new Object[][]{
-                {"[0]", new long[]{0}},
+        return new Object[][] {
+                {"[0]", new long[] {0}},
                 {"[333000111222,1024,-8521551,9223372036854775807,-9223372036854775808]",
-                	new long[]{333000111222L, 1024, -8521551,9223372036854775807L,-9223372036854775808L}},
-                {"[]", new long[]{}},
+                        new long[] {333000111222L, 1024, -8521551, 9223372036854775807L, -9223372036854775808L}},
+                {"[]", new long[] {}}
         };
     }
 
@@ -205,7 +205,16 @@ public class ClickHouseScrollableResultSetTest extends ClickHouseResultSetTest {
 
     }
 
-    private static ClickHouseResultSet buildResultSet(InputStream is, int bufferSize, String db, String table, boolean usesWithTotals, ClickHouseStatement statement, TimeZone timezone, ClickHouseProperties properties) throws IOException {
-    	return new ClickHouseScrollableResultSet(is, bufferSize, db, table, usesWithTotals, statement, timezone, properties);
+    private static ClickHouseResultSet buildResultSet(InputStream is,
+                                                      int bufferSize,
+                                                      String db,
+                                                      String table,
+                                                      boolean usesWithTotals,
+                                                      ClickHouseStatement statement,
+                                                      TimeZone timezone,
+                                                      ClickHouseProperties properties) throws IOException {
+        return new ClickHouseScrollableResultSet(is,
+                                                 bufferSize,
+                                                 db, table, usesWithTotals, statement, timezone, properties);
     }
 }

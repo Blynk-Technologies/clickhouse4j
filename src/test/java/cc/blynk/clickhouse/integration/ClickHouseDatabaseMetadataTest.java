@@ -42,12 +42,12 @@ public class ClickHouseDatabaseMetadataTest {
     @Test
     public void testMetadata() throws Exception {
         connection.createStatement().executeQuery(
-            "DROP TABLE IF EXISTS test.testMetadata");
+                "DROP TABLE IF EXISTS test.testMetadata");
         connection.createStatement().executeQuery(
-            "CREATE TABLE test.testMetadata("
-          + "foo Nullable(UInt32), bar UInt64) ENGINE = TinyLog");
+                "CREATE TABLE test.testMetadata("
+                        + "foo Nullable(UInt32), bar UInt64) ENGINE = TinyLog");
         ResultSet columns = connection.getMetaData().getColumns(
-            null, "test", "testMetaData", null);
+                null, "test", "testMetaData", null);
         while (columns.next()) {
             String colName = columns.getString("COLUMN_NAME");
             if ("foo".equals(colName)) {
@@ -56,7 +56,7 @@ public class ClickHouseDatabaseMetadataTest {
                 Assert.assertEquals(columns.getString("TYPE_NAME"), "UInt64");
             } else {
                 throw new IllegalStateException(
-                    "Unexpected column name " + colName);
+                        "Unexpected column name " + colName);
             }
         }
     }
@@ -64,12 +64,12 @@ public class ClickHouseDatabaseMetadataTest {
     @Test
     public void testMetadataColumns() throws Exception {
         connection.createStatement().executeQuery(
-            "DROP TABLE IF EXISTS test.testMetadata");
+                "DROP TABLE IF EXISTS test.testMetadata");
         connection.createStatement().executeQuery(
-            "CREATE TABLE test.testMetadata("
-          + "foo Float32) ENGINE = TinyLog");
+                "CREATE TABLE test.testMetadata("
+                        + "foo Float32) ENGINE = TinyLog");
         ResultSet columns = connection.getMetaData().getColumns(
-            null, "test", "testMetadata", null);
+                null, "test", "testMetadata", null);
         columns.next();
         Assert.assertEquals(columns.getString("TABLE_CAT"), "default");
         Assert.assertEquals(columns.getString("TABLE_SCHEM"), "test");
@@ -100,7 +100,7 @@ public class ClickHouseDatabaseMetadataTest {
     @Test
     public void testDriverVersion() throws Exception {
         DatabaseMetaData metaData = new ClickHouseDatabaseMetadata(
-            "url", Mockito.mock(ClickHouseConnection.class));
+                "url", Mockito.mock(ClickHouseConnection.class));
         Assert.assertEquals(metaData.getDriverVersion(), "0.1");
         Assert.assertEquals(metaData.getDriverMajorVersion(), 0);
         Assert.assertEquals(metaData.getDriverMinorVersion(), 1);
@@ -121,11 +121,11 @@ public class ClickHouseDatabaseMetadataTest {
     @Test(dataProvider = "tableEngines")
     public void testGetTablesEngines(String engine) throws Exception {
         connection.createStatement().executeQuery(
-            "DROP TABLE IF EXISTS test.testMetadata");
+                "DROP TABLE IF EXISTS test.testMetadata");
         connection.createStatement().executeQuery(
-            "CREATE TABLE test.testMetadata("
-          + "foo Date) ENGINE = "
-          + engine);
+                "CREATE TABLE test.testMetadata("
+                        + "foo Date) ENGINE = "
+                        + engine);
         ResultSet tableMeta = connection.getMetaData().getTables(null, "test", "testMetadata", null);
         tableMeta.next();
         Assert.assertEquals("TABLE", tableMeta.getString("TABLE_TYPE"));
@@ -134,11 +134,11 @@ public class ClickHouseDatabaseMetadataTest {
     @Test
     public void testGetTablesViews() throws Exception {
         connection.createStatement().executeQuery(
-            "DROP TABLE IF EXISTS test.testMetadataView");
+                "DROP TABLE IF EXISTS test.testMetadataView");
         connection.createStatement().executeQuery(
-            "CREATE VIEW test.testMetadataView AS SELECT 1 FROM system.tables");
+                "CREATE VIEW test.testMetadataView AS SELECT 1 FROM system.tables");
         ResultSet tableMeta = connection.getMetaData().getTables(
-            null, "test", "testMetadataView", null);
+                null, "test", "testMetadataView", null);
         tableMeta.next();
         Assert.assertEquals("VIEW", tableMeta.getString("TABLE_TYPE"));
     }
@@ -146,13 +146,13 @@ public class ClickHouseDatabaseMetadataTest {
     @Test
     public void testToDateTimeTZ() throws Exception {
         connection.createStatement().executeQuery(
-            "DROP TABLE IF EXISTS test.testDateTimeTZ");
+                "DROP TABLE IF EXISTS test.testDateTimeTZ");
         connection.createStatement().executeQuery(
-            "CREATE TABLE test.testDateTimeTZ (foo DateTime) Engine = Memory");
+                "CREATE TABLE test.testDateTimeTZ (foo DateTime) Engine = Memory");
         connection.createStatement().execute(
-            "INSERT INTO test.testDateTimeTZ (foo) VALUES('2019-04-12 13:37:00')");
+                "INSERT INTO test.testDateTimeTZ (foo) VALUES('2019-04-12 13:37:00')");
         ResultSet rs = connection.createStatement().executeQuery(
-            "SELECT toDateTime(foo) FROM test.testDateTimeTZ");
+                "SELECT toDateTime(foo) FROM test.testDateTimeTZ");
         ResultSetMetaData meta = rs.getMetaData();
         Assert.assertEquals(meta.getColumnClassName(1), Timestamp.class.getCanonicalName());
         TimeZone timezone = ((ClickHouseConnection) connection).getTimeZone();
@@ -162,11 +162,11 @@ public class ClickHouseDatabaseMetadataTest {
 
     @DataProvider(name = "tableEngines")
     private Object[][] getTableEngines() {
-        return new Object[][] {
-            new String[] {"TinyLog"},
-            new String[] {"Log"},
-            new String[] {"Memory"},
-            new String[] {"MergeTree(foo, (foo), 8192)"}
+        return new Object[][]{
+                new String[]{"TinyLog"},
+                new String[]{"Log"},
+                new String[]{"Memory"},
+                new String[]{"MergeTree(foo, (foo), 8192)"}
         };
         // unfortunately this is hard to test
         // new String[] {"Dictionary(myDict)"},

@@ -17,7 +17,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class ClickHousePreparedStatementRealTablesTest {
 
-    private static int RECORDS = 3_000_000;
+    private static int RECORDS = 10_000_000;
     private ClickHouseDataSource dataSource;
     private Connection connection;
 
@@ -50,8 +50,8 @@ public class ClickHousePreparedStatementRealTablesTest {
         long start;
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO test.reporting_user_actions"
-                                                                              + " (org_id, user_id, ts, command_code)"
-                                                                              + " VALUES (?, ?, ?, ?)");
+                                                                       + " (org_id, user_id, ts, command_code)"
+                                                                       + " VALUES (?, ?, ?, ?)");
 
             start = System.currentTimeMillis();
             for (int i = 0; i < RECORDS; i++) {
@@ -64,7 +64,7 @@ public class ClickHousePreparedStatementRealTablesTest {
             }
 
             System.out.println("Time to prepare batch of " + RECORDS + " records "
-                    + (System.currentTimeMillis() - start) + " ms.");
+                                       + (System.currentTimeMillis() - start) + " ms.");
 
             ps.executeBatch();
             connection.commit();

@@ -1,9 +1,9 @@
-[![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
-
 Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC driver
 ===============
 
-The main differences between this and official driver are:
+[![clickhouse4j](https://travis-ci.org/blynkkk/clickhouse4j.svg?branch=master)](https://github.com/blynkkk/clickhouse4j)
+
+The main differences between this and the official driver are:
 
 - Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
@@ -18,7 +18,7 @@ The main differences between this and official driver are:
 </dependency>
 ```
 
-### Migration from the offical driver
+### Migration from the official driver
 
 All you need to do is replace:
 
@@ -34,7 +34,7 @@ additionally, if you have a few instances, you can use `BalancedClickhouseDataSo
 
 ### Build requirements
 
-In order to build the jdbc client one need to have jdk 1.8 or higher.
+In order to build the jdbc client one needs to have jdk 1.8 or higher.
 
 ### Compiling with maven
 

@@ -22,22 +22,28 @@ public class ClickHouseStatementTest {
     @Test
     public void testClickhousify() {
         String sql = "SELECT ololo FROM ololoed;";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql));
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+                     ClickHouseStatementImpl.clickhousifySql(sql));
 
         String sql2 = "SELECT ololo FROM ololoed";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql2));
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+                     ClickHouseStatementImpl.clickhousifySql(sql2));
 
         String sql3 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes", ClickHouseStatementImpl.clickhousifySql(sql3));
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
+                     ClickHouseStatementImpl.clickhousifySql(sql3));
 
         String sql4 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql4));
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+                     ClickHouseStatementImpl.clickhousifySql(sql4));
 
         String sql5 = "SHOW ololo FROM ololoed;";
-        assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql5));
+        assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+                     ClickHouseStatementImpl.clickhousifySql(sql5));
 
         String sql6 = " show ololo FROM ololoed;";
-        assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;", ClickHouseStatementImpl.clickhousifySql(sql6));
+        assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+                     ClickHouseStatementImpl.clickhousifySql(sql6));
 
         String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;";
         assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;", ClickHouseStatementImpl.clickhousifySql(sql7));
@@ -55,7 +61,7 @@ public class ClickHouseStatementTest {
 
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
                 HttpConnectorFactory.getConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
-                );
+        );
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();
@@ -67,24 +73,28 @@ public class ClickHouseStatementTest {
     public void testMaxExecutionTime() {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setMaxExecutionTime(20);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties), null,
-                properties, ResultSet.TYPE_FORWARD_ONLY);
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
+                                                                        null,
+                                                                        properties,
+                                                                        ResultSet.TYPE_FORWARD_ONLY);
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();
         assertTrue(query.contains("max_execution_time=20"), "max_execution_time param is missing in URL");
-        
+
         statement.setQueryTimeout(10);
         uri = statement.buildRequestUri(null, null, null, null, false);
         query = uri.getQuery();
         assertTrue(query.contains("max_execution_time=10"), "max_execution_time param is missing in URL");
     }
-    
+
     @Test
     public void testMaxMemoryUsage() {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setMaxMemoryUsage(41L);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties), null,
-                properties, ResultSet.TYPE_FORWARD_ONLY);
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
+                                                                        null,
+                                                                        properties,
+                                                                        ResultSet.TYPE_FORWARD_ONLY);
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();

@@ -31,7 +31,8 @@ public class ClickhouseLZ4StreamTest {
                 "CREATE TABLE IF NOT EXISTS test.big_batch_insert (i Int32, s String) ENGINE = TinyLog"
         );
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO test.big_batch_insert (s, i) VALUES (?, ?)");
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO test.big_batch_insert (s, i) VALUES (?, ?)");
 
         int cnt = 1000000;
         for (int i = 0; i < cnt; i++) {

@@ -20,14 +20,16 @@ public class BalancedClickhouseDataSourceTest {
     @Test
     public void testUrlSplit() throws Exception {
         assertEquals(Arrays.asList("jdbc:clickhouse://localhost:1234/ppc"),
-                BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234/ppc"));
+                     BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234/ppc"));
 
         assertEquals(Arrays.asList("jdbc:clickhouse://localhost:1234/ppc",
-                "jdbc:clickhouse://another.host.com:4321/ppc"),
-                BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234,another.host.com:4321/ppc"));
+                                   "jdbc:clickhouse://another.host.com:4321/ppc"),
+                     BalancedClickhouseDataSource.splitUrl(
+                             "jdbc:clickhouse://localhost:1234,another.host.com:4321/ppc"));
 
         assertEquals(Arrays.asList("jdbc:clickhouse://localhost:1234", "jdbc:clickhouse://another.host.com:4321"),
-                BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234,another.host.com:4321"));
+                     BalancedClickhouseDataSource.splitUrl(
+                             "jdbc:clickhouse://localhost:1234,another.host.com:4321"));
 
     }
 
@@ -35,7 +37,7 @@ public class BalancedClickhouseDataSourceTest {
     @Test
     public void testUrlSplitValidHostName() throws Exception {
         assertEquals(Arrays.asList("jdbc:clickhouse://localhost:1234", "jdbc:clickhouse://_0another-host.com:4321"),
-                BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234,_0another-host.com:4321"));
+                     BalancedClickhouseDataSource.splitUrl("jdbc:clickhouse://localhost:1234,_0another-host.com:4321"));
 
     }
 
@@ -51,7 +53,8 @@ public class BalancedClickhouseDataSourceTest {
     public void setUp() throws Exception {
         ClickHouseProperties properties = new ClickHouseProperties();
         dataSource = new BalancedClickhouseDataSource("jdbc:clickhouse://localhost:8123", properties);
-        doubleDataSource = new BalancedClickhouseDataSource("jdbc:clickhouse://localhost:8123,localhost:8123", properties);
+        doubleDataSource = new BalancedClickhouseDataSource("jdbc:clickhouse://localhost:8123,localhost:8123",
+                                                            properties);
     }
 
 
@@ -126,7 +129,9 @@ public class BalancedClickhouseDataSourceTest {
 
     @Test
     public void testDisableConnection() throws Exception {
-        BalancedClickhouseDataSource badDatasource = new BalancedClickhouseDataSource("jdbc:clickhouse://not.existed.url:8123", new ClickHouseProperties());
+        BalancedClickhouseDataSource badDatasource = new BalancedClickhouseDataSource(
+                "jdbc:clickhouse://not.existed.url:8123",
+                new ClickHouseProperties());
         badDatasource.actualize();
         try {
             Connection connection = badDatasource.getConnection();
@@ -139,7 +144,9 @@ public class BalancedClickhouseDataSourceTest {
 
     @Test
     public void testWorkWithEnabledUrl() throws Exception {
-        BalancedClickhouseDataSource halfDatasource = new BalancedClickhouseDataSource("jdbc:clickhouse://not.existed.url:8123,localhost:8123", new ClickHouseProperties());
+        BalancedClickhouseDataSource halfDatasource = new BalancedClickhouseDataSource(
+                "jdbc:clickhouse://not.existed.url:8123,localhost:8123",
+                new ClickHouseProperties());
 
         halfDatasource.actualize();
         Connection connection = halfDatasource.getConnection();

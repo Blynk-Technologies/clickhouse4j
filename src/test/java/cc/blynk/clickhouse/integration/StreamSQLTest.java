@@ -63,7 +63,9 @@ public class StreamSQLTest {
             private final int count = rowsCount;
 
             private boolean genNextString() {
-                if (i >= count) return false;
+                if (i >= count) {
+                    return false;
+                }
                 si = 0;
                 s = String.format("%d\txxxx%d\n", 1, i);
                 i++;
@@ -72,11 +74,11 @@ public class StreamSQLTest {
 
             public int read() throws IOException {
                 if (si >= s.length()) {
-                    if ( ! genNextString() ) {
+                    if (!genNextString()) {
                         return -1;
                     }
                 }
-                return s.charAt( si++ );
+                return s.charAt(si++);
             }
         };
 

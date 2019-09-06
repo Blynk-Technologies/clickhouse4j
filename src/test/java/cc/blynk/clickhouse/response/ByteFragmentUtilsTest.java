@@ -53,8 +53,10 @@ public class ByteFragmentUtilsTest {
     @DataProvider(name = "decimalArray")
     public Object[][] decimalArray() {
         return new Object[][]{
-                {new BigDecimal[]{BigDecimal.ONE, BigDecimal.valueOf(23L), BigDecimal.valueOf(-123L)}},
-                {new BigDecimal[]{BigDecimal.valueOf(-12345678987654321L), BigDecimal.valueOf(23325235235L), BigDecimal.valueOf(-12321342L)}},
+                {new BigDecimal[]{BigDecimal.ONE, BigDecimal.valueOf(23L),
+                        BigDecimal.valueOf(-123L)}},
+                {new BigDecimal[]{BigDecimal.valueOf(-12345678987654321L),
+                        BigDecimal.valueOf(23325235235L), BigDecimal.valueOf(-12321342L)}},
                 {new BigDecimal[]{}}
         };
     }
@@ -89,16 +91,16 @@ public class ByteFragmentUtilsTest {
     @DataProvider(name = "doubleArrayWithNan")
     public Object[][] doubleArrayWithNan() {
         return new Object[][]{
-                { new String[]{ "nan", "23.45" }, new double[]{Double.NaN, 23.45}},
-                { new String[]{}, new double[]{}}
+                {new String[]{"nan", "23.45"}, new double[]{Double.NaN, 23.45}},
+                {new String[]{}, new double[]{}}
         };
     }
 
     @DataProvider(name = "floatArrayWithNan")
     public Object[][] floatArrayWithNan() {
         return new Object[][]{
-                { new String[]{ "nan", "23.45" }, new float[]{Float.NaN, 23.45F}},
-                { new String[]{}, new float[]{}}
+                {new String[]{"nan", "23.45"}, new float[]{Float.NaN, 23.45F}},
+                {new String[]{}, new float[]{}}
         };
     }
 
@@ -110,7 +112,7 @@ public class ByteFragmentUtilsTest {
 
         byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
-        double[] arr= (double[]) ByteFragmentUtils.parseArray(fragment, Double.class);
+        double[] arr = (double[]) ByteFragmentUtils.parseArray(fragment, Double.class);
         assertEquals(arr, expected);
     }
 
@@ -122,7 +124,7 @@ public class ByteFragmentUtilsTest {
 
         byte[] bytes = sourceString.getBytes(StandardCharsets.UTF_8);
         ByteFragment fragment = new ByteFragment(bytes, 0, bytes.length);
-        float[] arr= (float[]) ByteFragmentUtils.parseArray(fragment, Float.class);
+        float[] arr = (float[]) ByteFragmentUtils.parseArray(fragment, Float.class);
         assertEquals(arr, expected);
     }
 

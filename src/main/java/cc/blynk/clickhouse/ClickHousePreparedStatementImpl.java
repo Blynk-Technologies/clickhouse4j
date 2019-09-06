@@ -152,17 +152,19 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     private void setNull(int parameterIndex) {
-        setBind(parameterIndex, ClickHousePreparedStatementParameter.nullParameter());
+        setBind(parameterIndex, ClickHousePreparedStatementParameter.NULL_PARAM);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        setBind(parameterIndex, ClickHouseValueFormatter.formatNull(), false);
+        setNull(parameterIndex);
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        setBind(parameterIndex, ClickHouseValueFormatter.formatBoolean(x), false);
+        setBind(parameterIndex,
+                x ? ClickHousePreparedStatementParameter.TRUE_PARAM
+                  : ClickHousePreparedStatementParameter.FALSE_PARAM);
     }
 
     @Override
@@ -213,10 +215,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
         if (x != null) {
-            setBind(
-                    parameterIndex,
-                    ClickHouseValueFormatter.formatDate(x, dateTimeZone),
-                    true);
+            String bind = ClickHouseValueFormatter.formatDate(x, dateTimeZone);
+            setBind(parameterIndex, bind, true);
         } else {
             setNull(parameterIndex);
         }
@@ -225,10 +225,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
         if (x != null) {
-            setBind(
-                    parameterIndex,
-                    ClickHouseValueFormatter.formatTime(x, dateTimeTimeZone),
-                    true);
+            String bind = ClickHouseValueFormatter.formatTime(x, dateTimeTimeZone);
+            setBind(parameterIndex, bind, true);
         } else {
             setNull(parameterIndex);
         }
@@ -237,10 +235,8 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         if (x != null) {
-            setBind(
-                    parameterIndex,
-                    ClickHouseValueFormatter.formatTimestamp(x, dateTimeTimeZone),
-                    true);
+            String bind = ClickHouseValueFormatter.formatTimestamp(x, dateTimeTimeZone);
+            setBind(parameterIndex, bind, true);
         } else {
             setNull(parameterIndex);
         }
@@ -289,10 +285,11 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
         if (x != null) {
-            setBind(
-                    parameterIndex,
-                    ClickHousePreparedStatementParameter.fromObject(
-                            x, dateTimeZone, dateTimeTimeZone));
+            String bind = ClickHouseValueFormatter.formatObject(x, dateTimeZone, dateTimeTimeZone);
+            boolean needQuoting = ClickHouseValueFormatter.needsQuoting(x);
+            ClickHousePreparedStatementParameter bindParam =
+                    new ClickHousePreparedStatementParameter(bind, needQuoting);
+            setBind(parameterIndex, bindParam);
         } else {
             setNull(parameterIndex);
         }

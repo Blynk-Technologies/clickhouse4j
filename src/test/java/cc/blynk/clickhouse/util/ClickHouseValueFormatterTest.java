@@ -21,15 +21,15 @@ public class ClickHouseValueFormatterTest {
     public void testFormatBytesUUID() {
         UUID uuid = UUID.randomUUID();
         byte[] bytes = ByteBuffer.allocate(16)
-            .putLong(uuid.getMostSignificantBits())
-            .putLong(uuid.getLeastSignificantBits())
-            .array();
+                .putLong(uuid.getMostSignificantBits())
+                .putLong(uuid.getLeastSignificantBits())
+                .array();
         String formattedBytes = ClickHouseValueFormatter.formatBytes(bytes);
         byte[] reparsedBytes = new byte[16];
         for (int i = 0; i < 16; i++) {
-            reparsedBytes[i] =  (byte)
-                ((Character.digit(formattedBytes.charAt(i * 4 + 2), 16) << 4)
-                + Character.digit(formattedBytes.charAt(i * 4 + 3), 16));
+            reparsedBytes[i] = (byte)
+                    ((Character.digit(formattedBytes.charAt(i * 4 + 2), 16) << 4)
+                            + Character.digit(formattedBytes.charAt(i * 4 + 3), 16));
         }
         assertEquals(reparsedBytes, bytes);
     }
@@ -40,13 +40,13 @@ public class ClickHouseValueFormatterTest {
         String formattedBytes = ClickHouseValueFormatter.formatBytes(bytes);
         byte[] reparsedBytes = new byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
-            reparsedBytes[i] =  (byte)
-                ((Character.digit(formattedBytes.charAt(i * 4 + 2), 16) << 4)
-                + Character.digit(formattedBytes.charAt(i * 4 + 3), 16));
+            reparsedBytes[i] = (byte)
+                    ((Character.digit(formattedBytes.charAt(i * 4 + 2), 16) << 4)
+                            + Character.digit(formattedBytes.charAt(i * 4 + 3), 16));
         }
         assertEquals(
-            new String(reparsedBytes, Charset.forName("UTF-8")),
-            "HELLO WORLD");
+                new String(reparsedBytes, Charset.forName("UTF-8")),
+                "HELLO WORLD");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ClickHouseValueFormatterTest {
         assertEquals(ClickHouseValueFormatter.formatObject(Double.valueOf(23.42), tzUTC, tzUTC), "23.42");
         byte[] bytes = "HELLO WORLD".getBytes("UTF-8");
         assertEquals(ClickHouseValueFormatter.formatObject(bytes, tzUTC, tzUTC),
-            "\\x48\\x45\\x4C\\x4C\\x4F\\x20\\x57\\x4F\\x52\\x4C\\x44");
+                     "\\x48\\x45\\x4C\\x4C\\x4F\\x20\\x57\\x4F\\x52\\x4C\\x44");
         Date d = new Date(1557136800000L);
         assertEquals(ClickHouseValueFormatter.formatObject(d, tzUTC, tzUTC), "2019-05-06");
         Time t = new Time(1557136800000L);
@@ -84,10 +84,10 @@ public class ClickHouseValueFormatterTest {
         assertEquals(ClickHouseValueFormatter.formatObject(Boolean.TRUE, tzUTC, tzUTC), "1");
         UUID u = UUID.randomUUID();
         assertEquals(ClickHouseValueFormatter.formatObject(u, tzUTC, tzUTC), u.toString());
-        int[] ints = new int[] { 23, 42 };
+        int[] ints = new int[]{23, 42};
         assertEquals(ClickHouseValueFormatter.formatObject(ints, tzUTC, tzUTC), "[23,42]");
-        assertEquals(ClickHouseValueFormatter.formatObject(new Timestamp[] {ts, ts}, tzUTC, tzUTC),
-            "['2019-05-06 10:00:00','2019-05-06 10:00:00']");
+        assertEquals(ClickHouseValueFormatter.formatObject(new Timestamp[]{ts, ts}, tzUTC, tzUTC),
+                     "['2019-05-06 10:00:00','2019-05-06 10:00:00']");
 
     }
 

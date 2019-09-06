@@ -10,12 +10,12 @@ public class ClickHousePreparedStatementParameterTest {
     @Test
     public void testNullParam() {
         ClickHousePreparedStatementParameter p0 =
-            ClickHousePreparedStatementParameter.nullParameter();
+                ClickHousePreparedStatementParameter.NULL_PARAM;
         assertEquals(p0.getRegularValue(), "null");
         assertEquals(p0.getBatchValue(), "\\N");
 
         ClickHousePreparedStatementParameter p1 =
-            ClickHousePreparedStatementParameter.nullParameter();
+                ClickHousePreparedStatementParameter.NULL_PARAM;
         assertEquals(p1, p0);
         assertSame(p1, p0);
     }

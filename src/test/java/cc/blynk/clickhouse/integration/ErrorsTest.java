@@ -16,7 +16,9 @@ import java.sql.Statement;
 public class ErrorsTest {
 
     private static final String DB_URL = "jdbc:clickhouse://localhost:8123";
-    private static final String CLICK_HOUSE_EXCEPTION_MESSAGE = "ClickHouse exception, code: 60, host: localhost, port: 8123; Code: 60, e.displayText() = DB::Exception: Table test.table_not_exists doesn't exist.";
+    private static final String CLICK_HOUSE_EXCEPTION_MESSAGE =
+            "ClickHouse exception, code: 60, host: localhost, port: 8123; Code: 60, "
+                    + "e.displayText() = DB::Exception: Table test.table_not_exists doesn't exist.";
 
     @Test
     public void testWrongUser() {
@@ -50,7 +52,8 @@ public class ErrorsTest {
 
         connection.createStatement().execute("DROP TABLE IF EXISTS test.table_not_exists");
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO test.table_not_exists (d, s) VALUES (?, ?)");
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO test.table_not_exists (d, s) VALUES (?, ?)");
 
         statement.setDate(1, new Date(System.currentTimeMillis()));
         statement.setInt(2, 1);
