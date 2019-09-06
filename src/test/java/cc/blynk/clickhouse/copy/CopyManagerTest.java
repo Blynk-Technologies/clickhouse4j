@@ -1,8 +1,12 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.integration.AbstractIntegrationTest;
+import cc.blynk.clickhouse.ClickHouseConnection;
+import cc.blynk.clickhouse.ClickHouseDataSource;
+import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -11,9 +15,15 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
-public class CopyManagerTest extends AbstractIntegrationTest {
+public class CopyManagerTest {
+    private ClickHouseConnection connection;
+    private DateFormat dateFormat;
+
     private final static String CSV_WITHOUT_NAMES_EXPECTED =
             "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n"
                     + "\"1989-01-30\",\"2016-08-12 13:21:32\",\"testString\",2147483647,42.21\n";
@@ -70,5 +80,20 @@ public class CopyManagerTest extends AbstractIntegrationTest {
         statement.setDouble(5, float64);
 
         statement.execute();
+    }
+
+    @BeforeTest
+    public void setUp() throws Exception {
+        ClickHouseProperties properties = new ClickHouseProperties();
+        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
+        connection = dataSource.getConnection();
+        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setTimeZone(TimeZone.getDefault());
+    }
+
+    @AfterTest
+    public void tearDown() throws Exception {
+        connection.createStatement().execute("DROP DATABASE copy_manager_test");
     }
 }

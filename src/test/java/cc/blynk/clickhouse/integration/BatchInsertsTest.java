@@ -1,9 +1,14 @@
 package cc.blynk.clickhouse.integration;
 
+import cc.blynk.clickhouse.ClickHouseConnection;
+import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.ClickHousePreparedStatement;
 import cc.blynk.clickhouse.ClickHousePreparedStatementImpl;
+import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.sql.Date;
@@ -12,9 +17,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.TimeZone;
 
-public class BatchInsertsTest extends AbstractIntegrationTest {
+public class BatchInsertsTest {
+
+
+    private ClickHouseConnection connection;
+    private DateFormat dateFormat;
 
     @Test
     public void batchInsert() throws Exception {
@@ -262,4 +274,18 @@ public class BatchInsertsTest extends AbstractIntegrationTest {
         st.addBatch();
     }
 
+    @BeforeTest
+    public void setUp() throws Exception {
+        ClickHouseProperties properties = new ClickHouseProperties();
+        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
+        connection = dataSource.getConnection();
+        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS test");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setTimeZone(TimeZone.getDefault());
+    }
+
+    @AfterTest
+    public void tearDown() throws Exception {
+        connection.createStatement().execute("DROP DATABASE test");
+    }
 }
