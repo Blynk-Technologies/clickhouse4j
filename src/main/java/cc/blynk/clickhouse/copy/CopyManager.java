@@ -15,7 +15,7 @@ public interface CopyManager {
 
     void copyIn(String sql, Reader from) throws ClickHouseException;
 
-    void copyOut(String sql, Reader from, int bufferSize) throws ClickHouseException;
+    void copyIn(String sql, Reader from, int bufferSize) throws ClickHouseException;
 
     void copyOut(String sql, OutputStream to) throws ClickHouseException;
 

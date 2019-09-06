@@ -52,7 +52,7 @@ public class CopyManagerImpl implements CopyManager {
     }
 
     @Override
-    public void copyOut(String sql, Reader from, int bufferSize) throws ClickHouseException {
+    public void copyIn(String sql, Reader from, int bufferSize) throws ClickHouseException {
         URI uri = buildRequestUri();
         ReaderInputStream wrappedReader = new ReaderInputStream(from);
         BufferedInputStream bufferedStream = new BufferedInputStream(wrappedReader, bufferSize);
