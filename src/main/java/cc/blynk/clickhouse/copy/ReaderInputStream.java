@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-public class ReaderInputStream extends InputStream {
+class ReaderInputStream extends InputStream {
 
     private final Reader reader;
 
-    public ReaderInputStream(Reader reader) {
+    ReaderInputStream(Reader reader) {
         this.reader = reader;
     }
 

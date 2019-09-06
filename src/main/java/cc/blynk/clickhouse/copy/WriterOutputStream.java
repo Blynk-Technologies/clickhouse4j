@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-public class WriterOutputStream extends OutputStream {
+class WriterOutputStream extends OutputStream {
 
     private final Writer writer;
 
-    public WriterOutputStream(Writer writer) {
+    WriterOutputStream(Writer writer) {
         this.writer = writer;
     }
 
