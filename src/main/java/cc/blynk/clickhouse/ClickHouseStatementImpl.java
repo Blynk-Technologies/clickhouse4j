@@ -570,22 +570,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     }
 
     @Override
-    public void sendCSVStream(InputStream content,
-                              String table,
-                              Map<ClickHouseQueryParam, String> additionalDBParams)
-            throws ClickHouseException {
-        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name();
-
-        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.post(sql, content, uri);
-    }
-
-    @Override
-    public void sendCSVStream(InputStream content, String table) throws ClickHouseException {
-        sendCSVStream(content, table, null);
-    }
-
-    @Override
     public void sendStreamSQL(InputStream content, String sql) throws ClickHouseException {
         sendStreamSQL(content, sql, null);
     }

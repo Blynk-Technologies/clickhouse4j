@@ -2,6 +2,9 @@ package cc.blynk.clickhouse.integration;
 
 import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
+import cc.blynk.clickhouse.copy.CopyManager;
+import cc.blynk.clickhouse.copy.CopyManagerFactory;
+import cc.blynk.clickhouse.copy.CsvCopyManager;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -35,7 +38,8 @@ public class CSVStreamTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8")));
 
-        connection.createStatement().sendCSVStream(inputStream, "test.csv_stream");
+        CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
+        copyManager.sendCSVStream("test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM test.csv_stream");
