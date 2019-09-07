@@ -3,9 +3,9 @@ package cc.blynk.clickhouse.copy;
 import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
+import cc.blynk.clickhouse.util.ClickHouseValueFormatter;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -29,9 +29,7 @@ public class CopyManagerImplTest {
     private ClickHouseConnection connection;
     private DateFormat dateFormat;
 
-    private final static String CSV_WITHOUT_NAMES_EXPECTED =
-            "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n"
-                    + "\"1989-01-30\",\"2016-08-12 13:21:32\",\"testString\",2147483647,42.21\n";
+    private final static String CSV_HEADER = "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n";
 
     @Test
     public void copyInStreamTest() throws SQLException {
@@ -127,28 +125,29 @@ public class CopyManagerImplTest {
 
     @Test
     public void copyOutStreamTest() throws Exception {
+        String expectedCsv = initData();
         CopyManager copyManager = CopyManagerFactory.create(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", outputStream);
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
-        Assert.assertEquals(actual, CSV_WITHOUT_NAMES_EXPECTED);
+        Assert.assertEquals(actual, expectedCsv);
     }
 
     @Test
     public void copyOutWriterTest() throws Exception {
+        String expectedCsv = initData();
         CopyManager copyManager = CopyManagerFactory.create(connection);
         StringWriter writer = new StringWriter();
         copyManager.copyOut("SELECT * from csv_manager_test.insert FORMAT CSVWithNames", writer);
         String actual = writer.getBuffer().toString();
         writer.close();
 
-        Assert.assertEquals(actual, CSV_WITHOUT_NAMES_EXPECTED);
+        Assert.assertEquals(actual, expectedCsv);
     }
 
-    @BeforeMethod
-    private void initData() throws SQLException, ParseException {
+    private String initData() throws SQLException, ParseException {
         connection.createStatement().execute("DROP TABLE IF EXISTS csv_manager_test.insert");
         connection.createStatement().execute(
                 "CREATE TABLE csv_manager_test.insert (" +
@@ -166,6 +165,9 @@ public class CopyManagerImplTest {
         int int32 = Integer.MAX_VALUE;
         double float64 = 42.21;
 
+        String dateString = ClickHouseValueFormatter.formatDate(date, connection.getTimeZone());
+        String dateTimeString = ClickHouseValueFormatter.formatTimestamp(dateTime, connection.getTimeZone());
+
         PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO csv_manager_test.insert (date, date_time, string, int32, float64) " +
                         "VALUES (?, ?, ?, ?, ?)"
@@ -178,6 +180,11 @@ public class CopyManagerImplTest {
         statement.setDouble(5, float64);
 
         statement.execute();
+
+        return CSV_HEADER
+                + "\"" + dateString
+                + "\",\"" + dateTimeString
+                + "\",\"testString\",2147483647,42.21\n";
     }
 
     @BeforeTest
