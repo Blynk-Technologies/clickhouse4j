@@ -24,7 +24,6 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 public class CopyManagerImplTest {
     private ClickHouseConnection connection;
@@ -166,7 +165,7 @@ public class CopyManagerImplTest {
         int int32 = Integer.MAX_VALUE;
         double float64 = 42.21;
 
-        String dateString = ClickHouseValueFormatter.formatDate(date, connection.getTimeZone());
+        String dateString = dateFormat.format(date);
         String dateTimeString = ClickHouseValueFormatter.formatTimestamp(dateTime, connection.getTimeZone());
 
         PreparedStatement statement = connection.prepareStatement(
@@ -195,7 +194,7 @@ public class CopyManagerImplTest {
         connection = dataSource.getConnection();
         connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS csv_manager_test");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getDefault());
+        dateFormat.setTimeZone(connection.getTimeZone());
     }
 
     @AfterTest
