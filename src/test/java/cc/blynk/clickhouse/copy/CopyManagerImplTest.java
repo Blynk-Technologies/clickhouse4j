@@ -3,6 +3,7 @@ package cc.blynk.clickhouse.copy;
 import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
+import cc.blynk.clickhouse.util.ClickHouseValueFormatter;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
@@ -29,9 +30,9 @@ public class CopyManagerImplTest {
     private ClickHouseConnection connection;
     private DateFormat dateFormat;
 
-    private final static String CSV_WITHOUT_NAMES_EXPECTED =
-            "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n"
-                    + "\"1989-01-30\",\"2016-08-12 13:21:32\",\"testString\",2147483647,42.21\n";
+    private final static String CSV_HEADER = "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n";
+
+    private String expectedCsv = CSV_HEADER;
 
     @Test
     public void copyInStreamTest() throws SQLException {
@@ -133,7 +134,7 @@ public class CopyManagerImplTest {
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
-        Assert.assertEquals(actual, CSV_WITHOUT_NAMES_EXPECTED);
+        Assert.assertEquals(actual, expectedCsv);
     }
 
     @Test
@@ -144,7 +145,7 @@ public class CopyManagerImplTest {
         String actual = writer.getBuffer().toString();
         writer.close();
 
-        Assert.assertEquals(actual, CSV_WITHOUT_NAMES_EXPECTED);
+        Assert.assertEquals(actual, expectedCsv);
     }
 
     @BeforeMethod
@@ -165,6 +166,13 @@ public class CopyManagerImplTest {
         String string = "testString";
         int int32 = Integer.MAX_VALUE;
         double float64 = 42.21;
+
+        String dateString = ClickHouseValueFormatter.formatDate(date, connection.getTimeZone());
+        String dateTimeString = ClickHouseValueFormatter.formatTimestamp(dateTime, connection.getTimeZone());
+        expectedCsv = CSV_HEADER
+                + "\"" + dateString
+                + "\",\"" + dateTimeString
+                + "\",\"testString\",2147483647,42.21\n";
 
         PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO csv_manager_test.insert (date, date_time, string, int32, float64) " +
