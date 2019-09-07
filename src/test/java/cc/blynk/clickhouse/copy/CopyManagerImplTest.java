@@ -160,13 +160,13 @@ public class CopyManagerImplTest {
                         ") ENGINE = MergeTree(date, (date), 8192)"
         );
 
-        Date date = new Date(dateFormat.parse("1989-01-30").getTime());
+        Date date = new Date(1471008092000L);
         Timestamp dateTime = new Timestamp(1471008092000L); //2016-08-12 16:21:32
         String string = "testString";
         int int32 = Integer.MAX_VALUE;
         double float64 = 42.21;
 
-        String dateString = dateFormat.format(date);
+        String dateString = ClickHouseValueFormatter.formatDate(date, connection.getTimeZone());
         String dateTimeString = ClickHouseValueFormatter.formatTimestamp(dateTime, connection.getTimeZone());
 
         PreparedStatement statement = connection.prepareStatement(
