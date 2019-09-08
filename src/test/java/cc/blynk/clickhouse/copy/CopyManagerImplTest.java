@@ -31,6 +31,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 public class CopyManagerImplTest {
 
+    private ClickHouseDataSource dataSource;
     private ClickHouseConnection connection;
 
     private final static String CSV_HEADER = "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n";
@@ -38,7 +39,7 @@ public class CopyManagerImplTest {
     @BeforeTest
     public void setUp() throws Exception {
         ClickHouseProperties properties = new ClickHouseProperties();
-        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
+        dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
         connection = dataSource.getConnection();
         connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
     }
@@ -59,7 +60,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
         copyManager.copyToDb(sql, inputStream);
 
@@ -82,7 +83,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
         copyManager.copyToDb(sql, inputStream, 1024);
 
@@ -105,7 +106,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
         copyManager.copyToDb(sql, reader);
 
@@ -128,7 +129,7 @@ public class CopyManagerImplTest {
         String string = "5,6\n1,6";
         Reader reader = new StringReader(string);
 
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
         copyManager.copyToDb(sql, reader, 1024);
 
@@ -144,7 +145,7 @@ public class CopyManagerImplTest {
     @Test
     public void copyOutStreamTest() throws Exception {
         String expectedCsv = initData();
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
         String actual = outputStream.toString("UTF-8");
@@ -156,7 +157,7 @@ public class CopyManagerImplTest {
     @Test
     public void copyOutWriterTest() throws Exception {
         String expectedCsv = initData();
-        CopyManager copyManager = CopyManagerFactory.create(connection);
+        CopyManager copyManager = CopyManagerFactory.create(dataSource);
         StringWriter writer = new StringWriter();
         copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", writer);
         String actual = writer.getBuffer().toString();
@@ -174,7 +175,7 @@ public class CopyManagerImplTest {
 
         try (InputStream inputStream = CopyManagerImplTest.class
                 .getResourceAsStream("/copymanager_csv_data_test.csv")) {
-            CopyManager copyManager = CopyManagerFactory.create(connection);
+            CopyManager copyManager = CopyManagerFactory.create(dataSource);
             String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
             copyManager.copyToDb(sql, inputStream);
         }
@@ -198,7 +199,7 @@ public class CopyManagerImplTest {
 
         //reading single row + headers
         try (OutputStream outputStream = Files.newOutputStream(tempFile, TRUNCATE_EXISTING)) {
-            CopyManager copyManager = CopyManagerFactory.create(connection);
+            CopyManager copyManager = CopyManagerFactory.create(dataSource);
             copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
         }
 
@@ -214,7 +215,7 @@ public class CopyManagerImplTest {
 
         //reading single row without headers
         try (OutputStream outputStream = Files.newOutputStream(tempFile, TRUNCATE_EXISTING)) {
-            CopyManager copyManager = CopyManagerFactory.create(connection);
+            CopyManager copyManager = CopyManagerFactory.create(dataSource);
             copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSV", outputStream);
         }
 

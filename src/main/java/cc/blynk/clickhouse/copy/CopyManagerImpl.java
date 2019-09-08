@@ -1,6 +1,7 @@
 package cc.blynk.clickhouse.copy;
 
 import cc.blynk.clickhouse.ClickHouseConnection;
+import cc.blynk.clickhouse.ClickHouseDataSource;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -9,12 +10,12 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.SQLException;
 
-final class CopyManagerImpl implements CopyManager {
+final class CopyManagerImpl implements CopyManager, AutoCloseable {
 
     private final ClickHouseConnection connection;
 
-    CopyManagerImpl(ClickHouseConnection connection) {
-        this.connection = connection;
+    CopyManagerImpl(ClickHouseDataSource dataSource) throws SQLException {
+        this.connection = dataSource.getConnection();
     }
 
     /**
@@ -82,6 +83,13 @@ final class CopyManagerImpl implements CopyManager {
         }
         if (stream == null) {
             throw new SQLException("Stream is null.");
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (connection != null) {
+            connection.close();
         }
     }
 }
