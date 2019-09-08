@@ -54,7 +54,6 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
     private final String[][] parameterList;
-    private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
     ClickHousePreparedStatementImpl(HttpConnector connector,
@@ -67,7 +66,6 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
         this.parameterList = parser.getParameters();
-        this.insertBatchMode = parser.isValuesMode();
         this.sqlParts = parser.getParts();
         int numParams = countNonConstantParams();
         this.binds = new ClickHousePreparedStatementParameter[numParams];
@@ -307,11 +305,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
                 String batchVal = batchParams[j];
                 if (PARAM_MARKER.equals(batchVal)) {
                     ClickHousePreparedStatementParameter param = binds[p++];
-                    if (insertBatchMode) {
-                        batchVal = param.getBatchValue();
-                    } else {
-                        batchVal = param.getRegularValue();
-                    }
+                    batchVal = param.getBatchValue();
                 }
                 sb.append(batchVal);
                 char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';

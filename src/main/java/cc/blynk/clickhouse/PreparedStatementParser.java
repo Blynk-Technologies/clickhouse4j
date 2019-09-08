@@ -20,12 +20,10 @@ final class PreparedStatementParser {
 
     private final List<List<String>> parameters;
     private final List<String> parts;
-    private boolean valuesMode;
 
     private PreparedStatementParser() {
         parameters = new ArrayList<>();
         parts = new ArrayList<>();
-        valuesMode = false;
     }
 
     static PreparedStatementParser parse(String sql) {
@@ -50,14 +48,9 @@ final class PreparedStatementParser {
         return Collections.unmodifiableList(parts);
     }
 
-    boolean isValuesMode() {
-        return valuesMode;
-    }
-
     private void reset() {
         parameters.clear();
         parts.clear();
-        valuesMode = false;
     }
 
     private void parseSQL(String sql) {
@@ -70,9 +63,7 @@ final class PreparedStatementParser {
         boolean inMultiLineComment = false;
         boolean whiteSpace = false;
         Matcher matcher = VALUES.matcher(sql);
-        if (matcher.find()) {
-            valuesMode = true;
-        }
+        boolean valuesMode = matcher.find();
         int currentParensLevel = 0;
         int quotedStart = 0;
         int partStart = 0;
