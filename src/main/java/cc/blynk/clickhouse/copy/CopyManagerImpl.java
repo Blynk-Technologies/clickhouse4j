@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.SQLException;
 
-class CopyManagerImpl implements CopyManager {
+final class CopyManagerImpl implements CopyManager {
 
     private final ClickHouseConnection connection;
 
@@ -22,6 +22,7 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyToDb(String sql, InputStream from) throws SQLException {
+        validate(sql, from);
         connection.createStatement().sendStreamSQL(from, sql);
     }
 
@@ -30,7 +31,8 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyToDb(String sql, InputStream from, int bufferSize) throws SQLException {
-        BufferedInputStream bufferedStream = new BufferedInputStream(from, bufferSize);
+        validate(sql, from);
+        BufferedInputStream bufferedStream = new BufferedInputStream(from, Math.max(32, bufferSize));
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
     }
 
@@ -39,6 +41,7 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyToDb(String sql, Reader from) throws SQLException {
+        validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
         connection.createStatement().sendStreamSQL(inputStream, sql);
     }
@@ -48,8 +51,9 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyToDb(String sql, Reader from, int bufferSize) throws SQLException {
+        validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
-        BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, bufferSize);
+        BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, Math.max(32, bufferSize));
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
     }
 
@@ -58,6 +62,7 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyFromDb(String sql, OutputStream to) throws SQLException {
+        validate(sql, to);
         connection.createStatement().sendStreamSQL(sql, to);
     }
 
@@ -66,7 +71,17 @@ class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void copyFromDb(String sql, Writer to) throws SQLException {
+        validate(sql, to);
         WriterOutputStream outputStream = new WriterOutputStream(to);
         connection.createStatement().sendStreamSQL(sql, outputStream);
+    }
+
+    private static void validate(String sql, Object stream) throws SQLException {
+        if (sql == null) {
+            throw new SQLException("SQL query is null.");
+        }
+        if (stream == null) {
+            throw new SQLException("Stream is null.");
+        }
     }
 }

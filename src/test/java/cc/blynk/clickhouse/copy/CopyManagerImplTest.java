@@ -4,7 +4,6 @@ import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.util.ClickHouseValueFormatter;
-import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -12,21 +11,43 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
+
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
 public class CopyManagerImplTest {
+
     private ClickHouseConnection connection;
 
     private final static String CSV_HEADER = "\"date\",\"date_time\",\"string\",\"int32\",\"float64\"\n";
+
+    @BeforeTest
+    public void setUp() throws Exception {
+        ClickHouseProperties properties = new ClickHouseProperties();
+        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
+        connection = dataSource.getConnection();
+        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
+    }
+
+    @AfterTest
+    public void tearDown() throws Exception {
+        connection.createStatement().execute("DROP DATABASE copy_manager_test");
+        connection.close();
+    }
 
     @Test
     public void copyInStreamTest() throws SQLException {
@@ -45,10 +66,10 @@ public class CopyManagerImplTest {
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
                         "FROM copy_manager_test.csv_stream");
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(rs.getInt("cnt"), 2);
-        Assert.assertEquals(rs.getLong("sum"), 6);
-        Assert.assertEquals(rs.getLong("uniq"), 1);
+        assertTrue(rs.next());
+        assertEquals(rs.getInt("cnt"), 2);
+        assertEquals(rs.getLong("sum"), 6);
+        assertEquals(rs.getLong("uniq"), 1);
     }
 
     @Test
@@ -68,10 +89,10 @@ public class CopyManagerImplTest {
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
                         "FROM copy_manager_test.csv_stream");
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(rs.getInt("cnt"), 2);
-        Assert.assertEquals(rs.getLong("sum"), 6);
-        Assert.assertEquals(rs.getLong("uniq"), 1);
+        assertTrue(rs.next());
+        assertEquals(rs.getInt("cnt"), 2);
+        assertEquals(rs.getLong("sum"), 6);
+        assertEquals(rs.getLong("uniq"), 1);
     }
 
     @Test
@@ -91,10 +112,10 @@ public class CopyManagerImplTest {
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
                         "FROM copy_manager_test.csv_stream");
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(rs.getInt("cnt"), 2);
-        Assert.assertEquals(rs.getLong("sum"), 6);
-        Assert.assertEquals(rs.getLong("uniq"), 1);
+        assertTrue(rs.next());
+        assertEquals(rs.getInt("cnt"), 2);
+        assertEquals(rs.getLong("sum"), 6);
+        assertEquals(rs.getLong("uniq"), 1);
     }
 
     @Test
@@ -114,10 +135,10 @@ public class CopyManagerImplTest {
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
                         "FROM copy_manager_test.csv_stream");
-        Assert.assertTrue(rs.next());
-        Assert.assertEquals(rs.getInt("cnt"), 2);
-        Assert.assertEquals(rs.getLong("sum"), 6);
-        Assert.assertEquals(rs.getLong("uniq"), 1);
+        assertTrue(rs.next());
+        assertEquals(rs.getInt("cnt"), 2);
+        assertEquals(rs.getLong("sum"), 6);
+        assertEquals(rs.getLong("uniq"), 1);
     }
 
     @Test
@@ -129,7 +150,7 @@ public class CopyManagerImplTest {
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
-        Assert.assertEquals(actual, expectedCsv);
+        assertEquals(actual, expectedCsv);
     }
 
     @Test
@@ -141,10 +162,70 @@ public class CopyManagerImplTest {
         String actual = writer.getBuffer().toString();
         writer.close();
 
-        Assert.assertEquals(actual, expectedCsv);
+        assertEquals(actual, expectedCsv);
     }
 
-    private String initData() throws SQLException, ParseException {
+    @Test
+    public void copyTheDataFromTheFileToTheDB() throws Exception {
+        connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.csv_stream");
+        connection.createStatement().execute(
+                "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
+        );
+
+        try (InputStream inputStream = getClass().getResourceAsStream("/copymanager_csv_data_test.csv")) {
+            CopyManager copyManager = CopyManagerFactory.create(connection);
+            String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
+            copyManager.copyToDb(sql, inputStream);
+        }
+
+        ResultSet rs = connection.createStatement().executeQuery(
+                "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
+                        "FROM copy_manager_test.csv_stream");
+        assertTrue(rs.next());
+        assertEquals(rs.getInt("cnt"), 2);
+        assertEquals(rs.getLong("sum"), 6);
+        assertEquals(rs.getLong("uniq"), 1);
+    }
+
+    @Test
+    public void copyTheDataFromTheDBToTheFile() throws Exception {
+        String expectedCsv = initData();
+
+        //creating empty temp file
+        Path tempFile = Files.createTempFile("csv_test", "");
+        assertEquals(0, Files.size(tempFile));
+
+        //reading single row + headers
+        try (OutputStream outputStream = Files.newOutputStream(tempFile, TRUNCATE_EXISTING)) {
+            CopyManager copyManager = CopyManagerFactory.create(connection);
+            copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
+        }
+
+        long csvFileSize = Files.size(tempFile);
+        assertNotEquals(0, csvFileSize);
+        assertTrue(csvFileSize > 0);
+
+        //expected
+        //"date","date_time","string","int32","float64"
+        //"2016-08-12","2016-08-12 16:21:32","testString",2147483647,42.21
+        String csvFileString = new String(Files.readAllBytes(tempFile));
+        assertEquals(csvFileString, expectedCsv);
+
+        //reading single row without headers
+        try (OutputStream outputStream = Files.newOutputStream(tempFile, TRUNCATE_EXISTING)) {
+            CopyManager copyManager = CopyManagerFactory.create(connection);
+            copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSV", outputStream);
+        }
+
+        csvFileSize = Files.size(tempFile);
+        assertNotEquals(0, csvFileSize);
+        assertTrue(csvFileSize > 0);
+
+        csvFileString = new String(Files.readAllBytes(tempFile));
+        assertEquals(csvFileString, expectedCsv.split("\n", 2)[1]);
+    }
+
+    private String initData() throws SQLException {
         connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.insert");
         connection.createStatement().execute(
                 "CREATE TABLE copy_manager_test.insert (" +
@@ -184,16 +265,4 @@ public class CopyManagerImplTest {
                 + "\",\"testString\",2147483647,42.21\n";
     }
 
-    @BeforeTest
-    public void setUp() throws Exception {
-        ClickHouseProperties properties = new ClickHouseProperties();
-        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
-        connection = dataSource.getConnection();
-        connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS copy_manager_test");
-    }
-
-    @AfterTest
-    public void tearDown() throws Exception {
-        connection.createStatement().execute("DROP DATABASE copy_manager_test");
-    }
 }

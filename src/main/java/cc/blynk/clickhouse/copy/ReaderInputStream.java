@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-class ReaderInputStream extends InputStream {
+final class ReaderInputStream extends InputStream {
 
     private final Reader reader;
 

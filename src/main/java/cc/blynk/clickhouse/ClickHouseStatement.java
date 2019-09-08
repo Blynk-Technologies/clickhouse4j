@@ -56,7 +56,7 @@ public interface ClickHouseStatement extends Statement {
 
     void sendNativeStream(String sql, ClickHouseStreamCallback callback) throws SQLException;
 
-    void sendStreamSQL(InputStream request, String sql) throws SQLException;
+    void sendStreamSQL(InputStream content, String sql) throws SQLException;
 
     void sendStreamSQL(InputStream content, String sql,
                        Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;

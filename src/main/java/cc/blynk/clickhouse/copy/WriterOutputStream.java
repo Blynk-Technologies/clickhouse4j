@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-class WriterOutputStream extends OutputStream {
+final class WriterOutputStream extends OutputStream {
 
     private final Writer writer;
 

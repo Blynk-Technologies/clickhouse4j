@@ -7,6 +7,7 @@ The main differences between this and the official driver are:
 
 - Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
+- ```CopyManger``` added;
 - Compiled against Java 8 and many [other things](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG)
 
 ### Usage
@@ -16,6 +17,38 @@ The main differences between this and the official driver are:
     <artifactId>clickhouse4j</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
+
+### CopyManger usage
+```CopyManager``` is utility class that helps to read the queries from / to the file.
+
+#### Writing the sql result from the DB directly to the file
+
+```
+private static final String query = "SELECT * from copy_manager_test.csv_data FORMAT CSVWithNames";
+Path outputFile = ...;
+
+try (Connection connection = dataSource.getConnection();
+    OutputStream outputStream = Files.newOutputStream(outputFile, TRUNCATE_EXISTING)) {
+    CopyManager copyManager = CopyManagerFactory.create(connection); //lightweight
+    copyManager.copyFromDb(query, outputStream);
+}
+//outputFile now has all the data and headers from the copy_manager_test DB and csv_data table
+```
+
+#### Reading from the file and forwarding it to the DB
+
+```
+private static final String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
+Path inputFile = ...;
+
+try (Connection connection = dataSource.getConnection();
+    InputStream inputStream = Files.newInputStream(inputFile)) {
+    CopyManager copyManager = CopyManagerFactory.create(connection); //lightweight
+    copyManager.copyToDb(query, inputStream);
+}
+
+//DB copy_manager_test and csv_data table now has all csv data from the file inputFile
 ```
 
 ### Migration from the official driver

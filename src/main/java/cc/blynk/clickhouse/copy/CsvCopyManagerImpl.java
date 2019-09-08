@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Map;
 
-class CsvCopyManagerImpl implements CsvCopyManager {
+final class CsvCopyManagerImpl implements CsvCopyManager {
 
     private final ClickHouseConnection connection;
 
