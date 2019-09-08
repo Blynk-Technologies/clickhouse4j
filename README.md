@@ -7,7 +7,7 @@ The main differences between this and the official driver are:
 
 - Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
-- ```CopyManger``` added;
+- ```CopyManager``` added;
 - Compiled against Java 8 and many [other things](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG)
 
 ### Usage
@@ -19,7 +19,7 @@ The main differences between this and the official driver are:
 </dependency>
 ```
 
-### CopyManger usage
+### CopyManager usage
 ```CopyManager``` is utility class that helps to read the queries from / to the file.
 
 #### Writing the sql result from the DB directly to the file

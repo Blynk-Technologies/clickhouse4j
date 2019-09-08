@@ -172,7 +172,8 @@ public class CopyManagerImplTest {
                 "CREATE TABLE copy_manager_test.csv_stream (value Int32, string_value String) ENGINE = Log()"
         );
 
-        try (InputStream inputStream = getClass().getResourceAsStream("/copymanager_csv_data_test.csv")) {
+        try (InputStream inputStream = CopyManagerImplTest.class
+                .getResourceAsStream("/src/test/resources/copymanager_csv_data_test.csv")) {
             CopyManager copyManager = CopyManagerFactory.create(connection);
             String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
             copyManager.copyToDb(sql, inputStream);
