@@ -1,9 +1,10 @@
 package cc.blynk.clickhouse.util;
 
+import java.nio.charset.StandardCharsets;
 
-public final class NumberUtil {
+public final class FormatParamUtil {
 
-    private NumberUtil() {
+    private FormatParamUtil() {
     }
 
     private static final byte[] DigitTens = {
@@ -31,6 +32,13 @@ public final class NumberUtil {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     };
+
+    private static final byte[] TRUE_BYTES = "1".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] FALSE_BYTES = "0".getBytes(StandardCharsets.US_ASCII);
+
+    public byte[] booleanAsStringToBytes(boolean b) {
+        return b ? TRUE_BYTES : FALSE_BYTES;
+    }
 
     public byte[] byteAsStringToBytes(int i) {
         return intAsStringToBytes((byte) i);
