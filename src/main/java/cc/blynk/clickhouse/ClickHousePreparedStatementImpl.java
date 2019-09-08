@@ -297,12 +297,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void addBatch() throws SQLException {
-        Collections.addAll(batchRows, buildBatch());
-    }
-
-    private byte[][] buildBatch() throws SQLException {
         checkBinded();
-        byte[][] newBatch = new byte[parameterList.length][];
         StringBuilder sb;
         for (int i = 0, p = 0; i < parameterList.length; i++) {
             sb = new StringBuilder();
@@ -322,9 +317,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
                 char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';
                 sb.append(appendChar);
             }
-            newBatch[i]  = sb.toString().getBytes(UTF_8);
+            byte[] batchBytes = sb.toString().getBytes(UTF_8);
+            batchRows.add(batchBytes);
         }
-        return newBatch;
     }
 
     @Override
