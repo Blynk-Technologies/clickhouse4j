@@ -19,7 +19,7 @@ public interface CopyManager {
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream);
+     *     copyManager.copyToTable(sql, sourceInputStream);
      * </pre>
      *
      * @param sql - SQL INSERT Query
@@ -37,7 +37,7 @@ public interface CopyManager {
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream);
+     *     copyManager.copyToTable(sql, sourceInputStream);
      * </pre>
      *
      * @param sql                - SQL INSERT Query
@@ -59,7 +59,7 @@ public interface CopyManager {
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream, 1024);
+     *     copyManager.copyToTable(sql, sourceInputStream, 1024);
      * </pre>
      *
      * @param sql - SQL INSERT Query
@@ -78,7 +78,7 @@ public interface CopyManager {
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream, 1024);
+     *     copyManager.copyToTable(sql, sourceInputStream, 1024);
      * </pre>
      *
      * @param sql                - SQL INSERT Query
@@ -102,7 +102,7 @@ public interface CopyManager {
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
+     *     copyManager.copyToTable(sql, sourceReader);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
@@ -122,7 +122,7 @@ public interface CopyManager {
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
+     *     copyManager.copyToTable(sql, sourceReader);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
@@ -146,7 +146,7 @@ public interface CopyManager {
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
+     *     copyManager.copyToTable(sql, sourceReader);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
@@ -167,7 +167,7 @@ public interface CopyManager {
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
+     *     copyManager.copyToTable(sql, sourceReader);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>

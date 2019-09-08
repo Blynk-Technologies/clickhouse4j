@@ -35,7 +35,7 @@ public class CsvManagerImplTest {
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
         CsvManager copyManager = CopyManagerFactory.createCsvManager(dataSource);
-        copyManager.copyToDb("csv_manager_test.csv_stream", inputStream);
+        copyManager.copyToTable("csv_manager_test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +

@@ -16,7 +16,7 @@ public interface CsvManager {
      * @param content - Stream with CSV data
      * @throws SQLException - insertion error
      */
-    void copyToDb(String table, InputStream content) throws SQLException;
+    void copyToTable(String table, InputStream content) throws SQLException;
 
     /**
      * Insert CSV data from content stream to table
@@ -27,9 +27,9 @@ public interface CsvManager {
      * @throws SQLException - insertion error
      * @see ClickHouseQueryParam for more info adout additionalDBParams
      */
-    void copyToDb(String table,
-                  InputStream content,
-                  Map<ClickHouseQueryParam, String> additionalDBParams)
+    void copyToTable(String table,
+                     InputStream content,
+                     Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException;
 
     /**

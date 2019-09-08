@@ -38,7 +38,7 @@ public class CSVStreamTest {
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8")));
 
         CsvManager copyManager = CopyManagerFactory.createCsvManager(dataSource);
-        copyManager.copyToDb("test.csv_stream", inputStream);
+        copyManager.copyToTable("test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq FROM test.csv_stream");
