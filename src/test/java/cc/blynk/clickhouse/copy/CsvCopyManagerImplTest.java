@@ -34,7 +34,7 @@ public class CsvCopyManagerImplTest {
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
         CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
-        copyManager.copyIn("csv_manager_test.csv_stream", inputStream);
+        copyManager.copyToDb("csv_manager_test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
@@ -51,7 +51,7 @@ public class CsvCopyManagerImplTest {
 
         CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        copyManager.copyOut("select * from csv_manager_test.insert", outputStream);
+        copyManager.copyFromDb("select * from csv_manager_test.insert", outputStream);
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 

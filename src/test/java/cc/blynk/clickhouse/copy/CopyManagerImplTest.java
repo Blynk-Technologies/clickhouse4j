@@ -40,7 +40,7 @@ public class CopyManagerImplTest {
 
         CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
-        copyManager.copyIn(sql, inputStream);
+        copyManager.copyToDb(sql, inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
@@ -63,7 +63,7 @@ public class CopyManagerImplTest {
 
         CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
-        copyManager.copyIn(sql, inputStream, 1024);
+        copyManager.copyToDb(sql, inputStream, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
@@ -86,7 +86,7 @@ public class CopyManagerImplTest {
 
         CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
-        copyManager.copyIn(sql, reader);
+        copyManager.copyToDb(sql, reader);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
@@ -109,7 +109,7 @@ public class CopyManagerImplTest {
 
         CopyManager copyManager = CopyManagerFactory.create(connection);
         String sql = "INSERT INTO copy_manager_test.csv_stream FORMAT CSV";
-        copyManager.copyIn(sql, reader, 1024);
+        copyManager.copyToDb(sql, reader, 1024);
 
         ResultSet rs = connection.createStatement().executeQuery(
                 "SELECT count() AS cnt, sum(value) AS sum, uniqExact(string_value) uniq " +
@@ -125,7 +125,7 @@ public class CopyManagerImplTest {
         String expectedCsv = initData();
         CopyManager copyManager = CopyManagerFactory.create(connection);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        copyManager.copyOut("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
+        copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", outputStream);
         String actual = outputStream.toString("UTF-8");
         outputStream.close();
 
@@ -137,7 +137,7 @@ public class CopyManagerImplTest {
         String expectedCsv = initData();
         CopyManager copyManager = CopyManagerFactory.create(connection);
         StringWriter writer = new StringWriter();
-        copyManager.copyOut("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", writer);
+        copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", writer);
         String actual = writer.getBuffer().toString();
         writer.close();
 

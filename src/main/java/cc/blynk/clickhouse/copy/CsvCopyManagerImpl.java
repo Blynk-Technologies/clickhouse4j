@@ -21,17 +21,17 @@ class CsvCopyManagerImpl implements CsvCopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String table, InputStream content) throws SQLException {
-        copyIn(table, content, null);
+    public void copyToDb(String table, InputStream content) throws SQLException {
+        copyToDb(table, content, null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String table,
-                       InputStream content,
-                       Map<ClickHouseQueryParam, String> additionalDBParams)
+    public void copyToDb(String table,
+                         InputStream content,
+                         Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name();
         connection.createStatement().sendStreamSQL(content, sql, additionalDBParams);
@@ -41,17 +41,17 @@ class CsvCopyManagerImpl implements CsvCopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyOut(String sql, OutputStream response) throws SQLException {
-        copyOut(sql, response, null);
+    public void copyFromDb(String sql, OutputStream response) throws SQLException {
+        copyFromDb(sql, response, null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyOut(String sql,
-                        OutputStream response,
-                        Map<ClickHouseQueryParam, String> additionalDBParams)
+    public void copyFromDb(String sql,
+                           OutputStream response,
+                           Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
         sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
         connection.createStatement().sendStreamSQL(sql, response, additionalDBParams);

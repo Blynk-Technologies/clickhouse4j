@@ -21,7 +21,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String sql, InputStream from) throws SQLException {
+    public void copyToDb(String sql, InputStream from) throws SQLException {
         connection.createStatement().sendStreamSQL(from, sql);
     }
 
@@ -29,7 +29,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String sql, InputStream from, int bufferSize) throws SQLException {
+    public void copyToDb(String sql, InputStream from, int bufferSize) throws SQLException {
         BufferedInputStream bufferedStream = new BufferedInputStream(from, bufferSize);
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
     }
@@ -38,7 +38,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String sql, Reader from) throws SQLException {
+    public void copyToDb(String sql, Reader from) throws SQLException {
         ReaderInputStream inputStream = new ReaderInputStream(from);
         connection.createStatement().sendStreamSQL(inputStream, sql);
     }
@@ -47,7 +47,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyIn(String sql, Reader from, int bufferSize) throws SQLException {
+    public void copyToDb(String sql, Reader from, int bufferSize) throws SQLException {
         ReaderInputStream inputStream = new ReaderInputStream(from);
         BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, bufferSize);
         connection.createStatement().sendStreamSQL(bufferedStream, sql);
@@ -57,7 +57,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyOut(String sql, OutputStream to) throws SQLException {
+    public void copyFromDb(String sql, OutputStream to) throws SQLException {
         connection.createStatement().sendStreamSQL(sql, to);
     }
 
@@ -65,7 +65,7 @@ class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyOut(String sql, Writer to) throws SQLException {
+    public void copyFromDb(String sql, Writer to) throws SQLException {
         WriterOutputStream outputStream = new WriterOutputStream(to);
         connection.createStatement().sendStreamSQL(sql, outputStream);
     }

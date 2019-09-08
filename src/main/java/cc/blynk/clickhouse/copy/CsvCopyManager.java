@@ -16,7 +16,7 @@ public interface CsvCopyManager {
      * @param content - Stream with CSV data
      * @throws SQLException - insertion error
      */
-    void copyIn(String table, InputStream content) throws SQLException;
+    void copyToDb(String table, InputStream content) throws SQLException;
 
     /**
      * Insert CSV data from content stream to table
@@ -27,9 +27,9 @@ public interface CsvCopyManager {
      * @throws SQLException - insertion error
      * @see ClickHouseQueryParam for more info adout additionalDBParams
      */
-    void copyIn(String table,
-                InputStream content,
-                Map<ClickHouseQueryParam, String> additionalDBParams)
+    void copyToDb(String table,
+                  InputStream content,
+                  Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException;
 
     /**
@@ -39,7 +39,7 @@ public interface CsvCopyManager {
      * @param response - stream for response data
      * @throws SQLException - loading error
      */
-    void copyOut(String sql, OutputStream response) throws SQLException;
+    void copyFromDb(String sql, OutputStream response) throws SQLException;
 
     /**
      * Load data from db and write it ro response stream in CSV format
@@ -50,8 +50,8 @@ public interface CsvCopyManager {
      * @throws SQLException - loading error
      * @see ClickHouseQueryParam for more info adout additionalDBParams
      */
-    void copyOut(String sql,
-                 OutputStream response,
-                 Map<ClickHouseQueryParam, String> additionalDBParams)
+    void copyFromDb(String sql,
+                    OutputStream response,
+                    Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException;
 }

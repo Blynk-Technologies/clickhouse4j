@@ -15,7 +15,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     InputStream is = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     copyManager.copyIn(sql, is);
+     *     copyManager.copyToDb(sql, is);
      *
      *     //  The data from the InputStream will be forwarded to the DB in CSV format
      * </pre>
@@ -25,7 +25,7 @@ public interface CopyManager {
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyIn(String sql, InputStream from) throws SQLException;
+    void copyToDb(String sql, InputStream from) throws SQLException;
 
     /**
      * Insert data from stream to the DB. Type of data from stream configured in the SQL Query.
@@ -34,7 +34,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     InputStream is = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     copyManager.copyIn(sql, is, 1024);
+     *     copyManager.copyToDb(sql, is, 1024);
      *
      *     //  The data from the InputStream will be forwarded to the DB in CSV format
      * </pre>
@@ -45,7 +45,7 @@ public interface CopyManager {
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyIn(String sql, InputStream from, int bufferSize) throws SQLException;
+    void copyToDb(String sql, InputStream from, int bufferSize) throws SQLException;
 
     /**
      * Insert data from Reader to the DB. Type of data from stream configured in the SQL Query.
@@ -54,7 +54,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     Reader reader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     copyManager.copyIn(sql, reader);
+     *     copyManager.copyToDb(sql, reader);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
@@ -64,7 +64,7 @@ public interface CopyManager {
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyIn(String sql, Reader from) throws SQLException;
+    void copyToDb(String sql, Reader from) throws SQLException;
 
     /**
      * Insert data from Reader to the DB. Type of data from stream configured in the SQL Query.
@@ -73,7 +73,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     Reader is = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     copyManager.copyIn(sql, reader, 1024);
+     *     copyManager.copyToDb(sql, reader, 1024);
      *
      *     //  The data from the Reader will be forwarded to the DB in CSV format
      * </pre>
@@ -84,7 +84,7 @@ public interface CopyManager {
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyIn(String sql, Reader from, int bufferSize) throws SQLException;
+    void copyToDb(String sql, Reader from, int bufferSize) throws SQLException;
 
     /**
      * Load data from the DB using SQL Query and write it to an OutputStream in format defined in the SQL query
@@ -93,7 +93,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     OutputStream os = ...
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
-     *     copyManager.copyOut(sql, os);
+     *     copyManager.copyFromDb(sql, os);
      *
      *     //  The data will be readed in CSV format
      *     //  The first line will contain column names in CSV format
@@ -104,7 +104,7 @@ public interface CopyManager {
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyOut(String sql, OutputStream to) throws SQLException;
+    void copyFromDb(String sql, OutputStream to) throws SQLException;
 
     /**
      * Load data from the DB using SQL Query and write it to Writer in format defined in the SQL query
@@ -113,7 +113,7 @@ public interface CopyManager {
      *     CopyManager copyManager = CopyManagerFactory.create(connection);
      *     Writer writer = ...
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
-     *     copyManager.copyOut(sql, writer);
+     *     copyManager.copyFromDb(sql, writer);
      *
      *     //  The data will be readed in CSV format
      *     //  The first line will contain column names in CSV format
@@ -124,5 +124,5 @@ public interface CopyManager {
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat
      */
-    void copyOut(String sql, Writer to) throws SQLException;
+    void copyFromDb(String sql, Writer to) throws SQLException;
 }
