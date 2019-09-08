@@ -1,6 +1,5 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 
 import java.sql.SQLException;
@@ -14,7 +13,8 @@ public final class CopyManagerFactory {
         return new CopyManagerImpl(dataSource);
     }
 
-    public static CsvCopyManager createCsvCopyManager(ClickHouseConnection connection) {
-        return new CsvCopyManagerImpl(connection);
+    public static CsvManager createCsvManager(ClickHouseDataSource dataSource) throws SQLException {
+        CopyManager copyManager = new CopyManagerImpl(dataSource);
+        return new CsvManagerImpl(copyManager);
     }
 }

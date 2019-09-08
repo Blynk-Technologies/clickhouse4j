@@ -3,7 +3,7 @@ package cc.blynk.clickhouse.integration;
 import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.ClickHouseDataSource;
 import cc.blynk.clickhouse.copy.CopyManagerFactory;
-import cc.blynk.clickhouse.copy.CsvCopyManager;
+import cc.blynk.clickhouse.copy.CsvManager;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -37,7 +37,7 @@ public class CSVStreamTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8")));
 
-        CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
+        CsvManager copyManager = CopyManagerFactory.createCsvManager(dataSource);
         copyManager.copyToDb("test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(

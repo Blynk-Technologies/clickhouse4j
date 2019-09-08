@@ -20,8 +20,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 
-public class CsvCopyManagerImplTest {
+public class CsvManagerImplTest {
     private ClickHouseConnection connection;
+    private ClickHouseDataSource dataSource;
 
     @Test
     public void copyInStreamTest() throws SQLException {
@@ -33,7 +34,7 @@ public class CsvCopyManagerImplTest {
         String string = "5,6\n1,6";
         InputStream inputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
+        CsvManager copyManager = CopyManagerFactory.createCsvManager(dataSource);
         copyManager.copyToDb("csv_manager_test.csv_stream", inputStream);
 
         ResultSet rs = connection.createStatement().executeQuery(
@@ -49,7 +50,7 @@ public class CsvCopyManagerImplTest {
     public void copyOutStreamTest() throws Exception {
         String expexted = initData();
 
-        CsvCopyManager copyManager = CopyManagerFactory.createCsvCopyManager(connection);
+        CsvManager copyManager = CopyManagerFactory.createCsvManager(dataSource);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         copyManager.copyFromDb("select * from csv_manager_test.insert", outputStream);
         String actual = outputStream.toString("UTF-8");
@@ -100,7 +101,7 @@ public class CsvCopyManagerImplTest {
     @BeforeTest
     public void setUp() throws Exception {
         ClickHouseProperties properties = new ClickHouseProperties();
-        ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
+        dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
         connection = dataSource.getConnection();
         connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS csv_manager_test");
     }

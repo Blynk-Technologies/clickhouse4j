@@ -1,6 +1,5 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.domain.ClickHouseFormat;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 
@@ -9,12 +8,12 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Map;
 
-final class CsvCopyManagerImpl implements CsvCopyManager {
+final class CsvManagerImpl implements CsvManager {
 
-    private final ClickHouseConnection connection;
+    private final CopyManager copyManager;
 
-    CsvCopyManagerImpl(ClickHouseConnection connection) {
-        this.connection = connection;
+    CsvManagerImpl(CopyManager copyManager) {
+        this.copyManager = copyManager;
     }
 
     /**
@@ -34,7 +33,7 @@ final class CsvCopyManagerImpl implements CsvCopyManager {
                          Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSV.name();
-        connection.createStatement().sendStreamSQL(content, sql, additionalDBParams);
+        copyManager.copyToDb(sql, content, additionalDBParams);
     }
 
     /**
@@ -54,6 +53,6 @@ final class CsvCopyManagerImpl implements CsvCopyManager {
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
         sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
-        connection.createStatement().sendStreamSQL(sql, response, additionalDBParams);
+        copyManager.copyFromDb(sql, response, additionalDBParams);
     }
 }
