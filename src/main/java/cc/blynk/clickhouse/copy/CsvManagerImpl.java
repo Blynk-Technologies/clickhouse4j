@@ -24,6 +24,11 @@ final class CsvManagerImpl implements CsvManager {
         copyToDb(sql, content, null);
     }
 
+    @Override
+    public void copyToDbWithNames(String sql, InputStream content) throws SQLException {
+        copyToDbWithNames(sql, content, null);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -36,12 +41,26 @@ final class CsvManagerImpl implements CsvManager {
         copyManager.copyToDb(sql, content, additionalDBParams);
     }
 
+    @Override
+    public void copyToDbWithNames(String sql,
+                                  InputStream content,
+                                  Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException {
+        sql = sql + " FORMAT " + ClickHouseFormat.CSVWithNames.name();
+        copyManager.copyToDb(sql, content, additionalDBParams);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void copyToTable(String table, InputStream content) throws SQLException {
         copyToTable(table, content, null);
+    }
+
+    @Override
+    public void copyToTableWithNames(String table, InputStream content) throws SQLException {
+        copyToTableWithNames(table, content, null);
     }
 
     /**
@@ -56,12 +75,26 @@ final class CsvManagerImpl implements CsvManager {
         copyManager.copyToDb(sql, content, additionalDBParams);
     }
 
+    @Override
+    public void copyToTableWithNames(String table,
+                                     InputStream content,
+                                     Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException {
+        String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.CSVWithNames.name();
+        copyManager.copyToDb(sql, content, additionalDBParams);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void copyFromDb(String sql, OutputStream response) throws SQLException {
         copyFromDb(sql, response, null);
+    }
+
+    @Override
+    public void copyFromDbWithNames(String sql, OutputStream response) throws SQLException {
+        copyFromDbWithNames(sql, response, null);
     }
 
     /**
@@ -73,6 +106,15 @@ final class CsvManagerImpl implements CsvManager {
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws SQLException {
         sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
+        copyManager.copyFromDb(sql, response, additionalDBParams);
+    }
+
+    @Override
+    public void copyFromDbWithNames(String sql,
+                                    OutputStream response,
+                                    Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException {
+        sql = sql + " FORMAT " + ClickHouseFormat.CSVWithNames.name();
         copyManager.copyFromDb(sql, response, additionalDBParams);
     }
 }
