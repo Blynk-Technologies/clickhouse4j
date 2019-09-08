@@ -90,13 +90,10 @@ public class RowBinaryStreamTest {
 
         connection.createStatement().sendRowBinaryStream(
                 "INSERT INTO test.big_data (value)",
-                new ClickHouseStreamCallback() {
-                    @Override
-                    public void writeTo(ClickHouseRowBinaryStream stream) throws IOException {
-                        for (int i = 0; i < count; i++) {
-                            stream.writeInt32(i);
-                            sum.addAndGet(i);
-                        }
+                stream -> {
+                    for (int i = 0; i < count; i++) {
+                        stream.writeInt32(i);
+                        sum.addAndGet(i);
                     }
                 }
         );
