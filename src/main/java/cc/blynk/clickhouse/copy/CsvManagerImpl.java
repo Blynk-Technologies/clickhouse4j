@@ -20,6 +20,26 @@ final class CsvManagerImpl implements CsvManager {
      * {@inheritDoc}
      */
     @Override
+    public void copyToDb(String sql, InputStream content) throws SQLException {
+        copyToDb(sql, content, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(String sql,
+                         InputStream content,
+                         Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException {
+        sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
+        copyManager.copyToDb(sql, content, additionalDBParams);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void copyToTable(String table, InputStream content) throws SQLException {
         copyToTable(table, content, null);
     }

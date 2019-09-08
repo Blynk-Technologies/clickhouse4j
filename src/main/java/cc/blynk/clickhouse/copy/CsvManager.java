@@ -10,6 +10,28 @@ import java.util.Map;
 public interface CsvManager {
 
     /**
+     * Insert CSV data from content stream to DB
+     *
+     * @param sql     - SQL INSERT Query without FORMAT
+     * @param content - Stream with CSV data
+     * @throws SQLException - insertion error
+     */
+    void copyToDb(String sql, InputStream content) throws SQLException;
+
+    /**
+     * Insert CSV data from content stream to DB
+     *
+     * @param sql                - SQL INSERT Query without FORMAT
+     * @param content            - Stream with CSV data
+     * @param additionalDBParams - specific DB params for request
+     * @throws SQLException - insertion error
+     */
+    void copyToDb(String sql,
+                  InputStream content,
+                  Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException;
+
+    /**
      * Insert CSV data from content stream to table
      *
      * @param table   - DB table for insertion
