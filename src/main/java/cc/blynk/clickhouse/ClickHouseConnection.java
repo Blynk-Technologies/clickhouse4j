@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.TimeZone;
 
-
 public interface ClickHouseConnection extends Connection {
 
     TimeZone getTimeZone();
