@@ -9,7 +9,7 @@ import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Map;
 
-public interface CopyManager {
+public interface CopyManager extends AutoCloseable {
 
     /**
      * Inserts the data from the stream to the DB.

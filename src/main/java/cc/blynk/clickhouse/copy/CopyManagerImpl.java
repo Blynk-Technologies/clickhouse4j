@@ -12,7 +12,7 @@ import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Map;
 
-final class CopyManagerImpl implements CopyManager, AutoCloseable {
+final class CopyManagerImpl implements CopyManager {
 
     private final ClickHouseConnection connection;
 
