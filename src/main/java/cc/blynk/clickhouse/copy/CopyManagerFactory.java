@@ -18,11 +18,4 @@ public final class CopyManagerFactory {
         return create(dataSource.getConnection());
     }
 
-    public static CsvCopyManager createCsvCopyManager(ClickHouseConnection connection) {
-        return new CsvCopyManagerImpl(connection);
-    }
-
-    public static CsvCopyManager createCsvCopyManager(ClickHouseDataSource dataSource) throws SQLException {
-        return createCsvCopyManager(dataSource.getConnection());
-    }
 }
