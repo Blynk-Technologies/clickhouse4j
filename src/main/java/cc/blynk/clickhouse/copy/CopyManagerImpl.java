@@ -76,6 +76,11 @@ final class CopyManagerImpl implements CopyManager {
         connection.createStatement().sendStreamSQL(sql, outputStream);
     }
 
+    @Override
+    public void close() throws Exception {
+        connection.close();
+    }
+
     private static void validate(String sql, Object stream) throws SQLException {
         if (sql == null) {
             throw new SQLException("SQL query is null.");

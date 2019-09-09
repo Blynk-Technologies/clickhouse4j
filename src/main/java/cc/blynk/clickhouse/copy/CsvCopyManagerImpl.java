@@ -56,4 +56,10 @@ final class CsvCopyManagerImpl implements CsvCopyManager {
         sql = sql + " FORMAT " + ClickHouseFormat.CSV.name();
         connection.createStatement().sendStreamSQL(sql, response, additionalDBParams);
     }
+
+    @Override
+    public void close() throws Exception {
+        connection.close();
+    }
+
 }

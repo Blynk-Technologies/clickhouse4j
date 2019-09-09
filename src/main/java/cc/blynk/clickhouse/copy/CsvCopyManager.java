@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Map;
 
-public interface CsvCopyManager {
+public interface CsvCopyManager extends AutoCloseable {
 
     /**
      * Insert CSV data from content stream to table

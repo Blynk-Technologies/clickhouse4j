@@ -25,12 +25,11 @@ The main differences between this and the official driver are:
 #### Writing the sql result from the DB directly to the file
 
 ```
-private static final String query = "SELECT * from copy_manager_test.csv_data FORMAT CSVWithNames";
+String query = "SELECT * from copy_manager_test.csv_data FORMAT CSVWithNames";
 Path outputFile = ...;
 
-try (Connection connection = dataSource.getConnection();
+try (CopyManager copyManager = CopyManagerFactory.create(dataSource);
     OutputStream outputStream = Files.newOutputStream(outputFile, TRUNCATE_EXISTING)) {
-    CopyManager copyManager = CopyManagerFactory.create(connection); //lightweight
     copyManager.copyFromDb(query, outputStream);
 }
 //outputFile now has all the data and headers from the copy_manager_test DB and csv_data table
@@ -39,12 +38,11 @@ try (Connection connection = dataSource.getConnection();
 #### Reading from the file and forwarding it to the DB
 
 ```
-private static final String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
+String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
 Path inputFile = ...;
 
-try (Connection connection = dataSource.getConnection();
+try (CopyManager copyManager = CopyManagerFactory.create(dataSource);
     InputStream inputStream = Files.newInputStream(inputFile)) {
-    CopyManager copyManager = CopyManagerFactory.create(connection); //lightweight
     copyManager.copyToDb(query, inputStream);
 }
 

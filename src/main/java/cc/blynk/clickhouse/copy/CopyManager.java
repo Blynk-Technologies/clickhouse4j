@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.SQLException;
 
-public interface CopyManager {
+public interface CopyManager extends AutoCloseable {
 
     /**
      * Inserts the data from the stream to the DB.
@@ -15,8 +15,9 @@ public interface CopyManager {
      * <pre>
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(sql, sourceInputStream);
+     *     }
      * </pre>
      *
      * @param sql - SQL INSERT Query
@@ -33,8 +34,9 @@ public interface CopyManager {
      * <pre>
      *     InputStream sourceInputStream = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceInputStream, 1024);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(sql, sourceInputStream, 1024);
+     *     }
      * </pre>
      *
      * @param sql - SQL INSERT Query
@@ -52,10 +54,9 @@ public interface CopyManager {
      * <pre>
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
-     *
-     *     //  The data from the Reader will be forwarded to the DB in CSV format
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(sql, sourceReader);
+     *     }
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -72,10 +73,9 @@ public interface CopyManager {
      * <pre>
      *     Reader sourceReader = ...
      *     String sql = "INSERT INTO default.my_table FORMAT CSV";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyToDb(sql, sourceReader);
-     *
-     *     //  The data from the Reader will be forwarded to the DB in CSV format
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(sql, sourceReader);
+     *     }
      * </pre>
      *
      * @param sql  - SQL INSERT Query
@@ -95,8 +95,9 @@ public interface CopyManager {
      * <pre>
      *     FileOutputStream fos = ...
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyFromDb(sql, fos);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyFromDb(sql, fos);
+     *     }
      * </pre>
      *
      * @param sql - SQL SELECT Query
@@ -115,8 +116,9 @@ public interface CopyManager {
      * <pre>
      *     FileOutputStream fos = ...
      *     String sql = "SELECT * from default.my_table FORMAT CSVWithNames";
-     *     CopyManager copyManager = CopyManagerFactory.create(connection);
-     *     copyManager.copyFromDb(sql, fos);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyFromDb(sql, fos);
+     *     }
      * </pre>
      *
      * @param sql - SQL SELECT Query
