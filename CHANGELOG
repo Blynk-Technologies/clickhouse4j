@@ -1,3 +1,8 @@
+1.1.1
+  * CopyManager now implements Closeable
+  * Added methods to work with files directly
+  * Add null checks within CopyManager
+
 1.1.0
   * CopyManager added. Allows you to send/retrieve the data from/to the files
   * Less allocations for batch processing

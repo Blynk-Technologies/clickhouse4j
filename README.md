@@ -15,7 +15,7 @@ The main differences between this and the official driver are:
 <dependency>
     <groupId>cc.blynk.clickhouse</groupId>
     <artifactId>clickhouse4j</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
