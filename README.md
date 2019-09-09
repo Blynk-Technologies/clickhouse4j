@@ -41,10 +41,10 @@ String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
 Path inputFile = ...;
 
 try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
-    copyManager.copyToDb(query, inputStream);
+    copyManager.copyToDb(query, inputFile);
 }
 
-//DB copy_manager_test and csv_data table now has all csv data from the file inputFile
+//DB copy_manager_test and csv_data table now has all csv data from the inputFile
 ```
 
 ### Migration from the official driver
