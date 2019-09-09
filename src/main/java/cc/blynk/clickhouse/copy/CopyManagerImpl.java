@@ -1,6 +1,7 @@
 package cc.blynk.clickhouse.copy;
 
 import cc.blynk.clickhouse.ClickHouseConnection;
+import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -12,15 +13,22 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 final class CopyManagerImpl implements CopyManager {
 
     private final ClickHouseConnection connection;
+    private final Map<ClickHouseQueryParam, String> additionalDBParams;
 
     CopyManagerImpl(ClickHouseConnection connection) {
+        this(connection, null);
+    }
+
+    CopyManagerImpl(ClickHouseConnection connection, Map<ClickHouseQueryParam, String> additionalDBParams) {
         this.connection = connection;
+        this.additionalDBParams = additionalDBParams;
     }
 
     /**
@@ -29,7 +37,7 @@ final class CopyManagerImpl implements CopyManager {
     @Override
     public void copyToDb(String sql, InputStream from) throws SQLException {
         validate(sql, from);
-        connection.createStatement().sendStreamSQL(from, sql);
+        connection.createStatement().sendStreamSQL(from, sql, additionalDBParams);
     }
 
     /**
@@ -59,7 +67,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyToDb(String sql, InputStream from, int bufferSize) throws SQLException {
         validate(sql, from);
         BufferedInputStream bufferedStream = new BufferedInputStream(from, Math.max(32, bufferSize));
-        connection.createStatement().sendStreamSQL(bufferedStream, sql);
+        connection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
     }
 
     /**
@@ -69,7 +77,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyToDb(String sql, Reader from) throws SQLException {
         validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
-        connection.createStatement().sendStreamSQL(inputStream, sql);
+        connection.createStatement().sendStreamSQL(inputStream, sql, additionalDBParams);
     }
 
     /**
@@ -80,7 +88,7 @@ final class CopyManagerImpl implements CopyManager {
         validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
         BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, Math.max(32, bufferSize));
-        connection.createStatement().sendStreamSQL(bufferedStream, sql);
+        connection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
     }
 
     /**
@@ -89,7 +97,7 @@ final class CopyManagerImpl implements CopyManager {
     @Override
     public void copyFromDb(String sql, OutputStream to) throws SQLException {
         validate(sql, to);
-        connection.createStatement().sendStreamSQL(sql, to);
+        connection.createStatement().sendStreamSQL(sql, to, additionalDBParams);
     }
 
     /**
@@ -99,7 +107,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyFromDb(String sql, Writer to) throws SQLException {
         validate(sql, to);
         WriterOutputStream outputStream = new WriterOutputStream(to);
-        connection.createStatement().sendStreamSQL(sql, outputStream);
+        connection.createStatement().sendStreamSQL(sql, outputStream, additionalDBParams);
     }
 
     /**
