@@ -230,6 +230,42 @@ public class CopyManagerImplTest {
         assertEquals(csvFileString, expectedCsv.split("\n", 2)[1]);
     }
 
+    @Test
+    public void copyTheDataFromTheDBToThePath() throws Exception {
+        String expectedCsv = initData();
+
+        //creating empty temp file
+        Path tempFile = Files.createTempFile("csv_test", "");
+        assertEquals(0, Files.size(tempFile));
+
+        //reading single row + headers
+        try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
+            copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSVWithNames", tempFile);
+        }
+
+        long csvFileSize = Files.size(tempFile);
+        assertNotEquals(0, csvFileSize);
+        assertTrue(csvFileSize > 0);
+
+        //expected
+        //"date","date_time","string","int32","float64"
+        //"2016-08-12","2016-08-12 16:21:32","testString",2147483647,42.21
+        String csvFileString = new String(Files.readAllBytes(tempFile));
+        assertEquals(csvFileString, expectedCsv);
+
+        //reading single row without headers
+        try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
+            copyManager.copyFromDb("SELECT * from copy_manager_test.insert FORMAT CSV", tempFile);
+        }
+
+        csvFileSize = Files.size(tempFile);
+        assertNotEquals(0, csvFileSize);
+        assertTrue(csvFileSize > 0);
+
+        csvFileString = new String(Files.readAllBytes(tempFile));
+        assertEquals(csvFileString, expectedCsv.split("\n", 2)[1]);
+    }
+
     private String initData() throws SQLException {
         ClickHouseConnection connection = dataSource.getConnection();
         connection.createStatement().execute("DROP TABLE IF EXISTS copy_manager_test.insert");

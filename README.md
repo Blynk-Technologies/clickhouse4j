@@ -28,9 +28,8 @@ The main differences between this and the official driver are:
 String query = "SELECT * from copy_manager_test.csv_data FORMAT CSVWithNames";
 Path outputFile = ...;
 
-try (CopyManager copyManager = CopyManagerFactory.create(dataSource);
-    OutputStream outputStream = Files.newOutputStream(outputFile, TRUNCATE_EXISTING)) {
-    copyManager.copyFromDb(query, outputStream);
+try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
+    copyManager.copyFromDb(query, outputFile);
 }
 //outputFile now has all the data and headers from the copy_manager_test DB and csv_data table
 ```
@@ -41,8 +40,7 @@ try (CopyManager copyManager = CopyManagerFactory.create(dataSource);
 String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
 Path inputFile = ...;
 
-try (CopyManager copyManager = CopyManagerFactory.create(dataSource);
-    InputStream inputStream = Files.newInputStream(inputFile)) {
+try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
     copyManager.copyToDb(query, inputStream);
 }
 
