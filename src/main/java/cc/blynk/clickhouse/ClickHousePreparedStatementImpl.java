@@ -54,7 +54,6 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
     private final String[][] parameterList;
-    private final boolean insertBatchMode;
     private List<byte[]> batchRows = new ArrayList<>();
 
     ClickHousePreparedStatementImpl(HttpConnector connector,
@@ -67,7 +66,6 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         this.sql = sql;
         PreparedStatementParser parser = PreparedStatementParser.parse(sql);
         this.parameterList = parser.getParameters();
-        this.insertBatchMode = parser.isValuesMode();
         this.sqlParts = parser.getParts();
         int numParams = countNonConstantParams();
         this.binds = new ClickHousePreparedStatementParameter[numParams];
@@ -297,12 +295,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void addBatch() throws SQLException {
-        Collections.addAll(batchRows, buildBatch());
-    }
-
-    private byte[][] buildBatch() throws SQLException {
         checkBinded();
-        byte[][] newBatch = new byte[parameterList.length][];
         StringBuilder sb;
         for (int i = 0, p = 0; i < parameterList.length; i++) {
             sb = new StringBuilder();
@@ -312,19 +305,15 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
                 String batchVal = batchParams[j];
                 if (PARAM_MARKER.equals(batchVal)) {
                     ClickHousePreparedStatementParameter param = binds[p++];
-                    if (insertBatchMode) {
-                        batchVal = param.getBatchValue();
-                    } else {
-                        batchVal = param.getRegularValue();
-                    }
+                    batchVal = param.getBatchValue();
                 }
                 sb.append(batchVal);
                 char appendChar = j < batchParamsLength - 1 ? '\t' : '\n';
                 sb.append(appendChar);
             }
-            newBatch[i]  = sb.toString().getBytes(UTF_8);
+            byte[] batchBytes = sb.toString().getBytes(UTF_8);
+            batchRows.add(batchBytes);
         }
-        return newBatch;
     }
 
     @Override
@@ -345,10 +334,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         String insertSql = sql.substring(0, valuePosition);
 
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name() + "\n";
-        byte[] sqlBytes = insertSql.getBytes(UTF_8);
+        insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated.name();
 
-        httpConnector.post(sqlBytes, batchRows, uri);
+        httpConnector.post(insertSql, batchRows, uri);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
         batchRows = new ArrayList<>();

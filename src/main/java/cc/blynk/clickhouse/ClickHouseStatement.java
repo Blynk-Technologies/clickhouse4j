@@ -5,6 +5,7 @@ import cc.blynk.clickhouse.util.ClickHouseRowBinaryInputStream;
 import cc.blynk.clickhouse.util.ClickHouseStreamCallback;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,16 +56,13 @@ public interface ClickHouseStatement extends Statement {
 
     void sendNativeStream(String sql, ClickHouseStreamCallback callback) throws SQLException;
 
-    void sendCSVStream(InputStream content,
-                       String table,
-                       Map<ClickHouseQueryParam,
-                       String> additionalDBParams) throws SQLException;
-
-    void sendCSVStream(InputStream content, String table) throws SQLException;
+    void sendStreamSQL(InputStream content, String sql) throws SQLException;
 
     void sendStreamSQL(InputStream content, String sql,
                        Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
-    void sendStreamSQL(InputStream content, String sql) throws SQLException;
+    void sendStreamSQL(String sql, OutputStream response) throws SQLException;
 
+    void sendStreamSQL(String sql, OutputStream response,
+                       Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 }

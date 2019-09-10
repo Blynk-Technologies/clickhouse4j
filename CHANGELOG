@@ -1,3 +1,13 @@
+1.1.1
+  * CopyManager now implements Closeable
+  * Added methods to work with files directly
+  * Add null checks within CopyManager
+
+1.1.0
+  * CopyManager added. Allows you to send/retrieve the data from/to the files
+  * Less allocations for batch processing
+  * Checkstyle applied for tests
+
 1.0.0
   * Allow to set unknown number of values for IN clause
   * Smaller size. 850kb vs 5.6mb of the original driver (**7x jar size improvement**)

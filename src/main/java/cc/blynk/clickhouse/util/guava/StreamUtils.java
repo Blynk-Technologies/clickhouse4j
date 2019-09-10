@@ -41,6 +41,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 public final class StreamUtils {
@@ -65,6 +67,14 @@ public final class StreamUtils {
     public static void copy(InputStream from, OutputStream to) throws IOException {
         byte[] buffer = new byte[BUF_SIZE];
         for (int len = from.read(buffer); len != -1; len = from.read(buffer)) {
+            to.write(buffer, 0, len);
+        }
+    }
+
+    public static void copy(Reader from, Writer to) throws IOException {
+        char[] buffer = new char[BUF_SIZE];
+        int len;
+        while ((len = from.read(buffer)) >= 0) {
             to.write(buffer, 0, len);
         }
     }
