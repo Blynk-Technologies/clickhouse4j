@@ -5,9 +5,10 @@ Clickhouse4j - lighter and faster alternative for the official ClickHouse JDBC d
 
 The main differences between this and the official driver are:
 
-- Smaller size. 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
+- Removed Guava, Jackson and Apache Http Client dependencies;
+- Smaller size - 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
-- ```CopyManager``` added;
+- [CopyManager](https://github.com/blynkkk/clickhouse4j/blob/master/src/main/java/cc/blynk/clickhouse/copy/CopyManager.java) added;
 - Compiled against Java 8 and many [other things](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG)
 
 ### Usage
