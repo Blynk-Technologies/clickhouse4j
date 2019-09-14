@@ -54,7 +54,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final List<String> sqlParts;
     private final ClickHousePreparedStatementParameter[] binds;
     private final String[][] parameterList;
-    private List<byte[]> batchRows = new ArrayList<>();
+    private final List<byte[]> batchRows = new ArrayList<>();
 
     ClickHousePreparedStatementImpl(HttpConnector connector,
                                     ClickHouseConnection connection,
@@ -122,7 +122,14 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
 
     @Override
     public void clearBatch() {
-        batchRows.clear();
+        this.batchRows.clear();
+        clearParameters();
+    }
+
+    @Override
+    public void close() throws SQLException {
+        super.close();
+        clearBatch();
     }
 
     @Override
@@ -339,10 +346,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         httpConnector.post(insertSql, batchRows, uri);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
-        batchRows = new ArrayList<>();
+        batchRows.clear();
         return result;
     }
-
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
