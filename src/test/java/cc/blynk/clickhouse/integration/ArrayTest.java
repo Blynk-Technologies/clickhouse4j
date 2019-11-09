@@ -129,4 +129,36 @@ public class ArrayTest {
             Assert.assertEquals(((double[]) float64.getArray())[1], 4.56, 0.0000001);
         }
     }
+
+    @Test
+    public void testInsertStringArray() throws SQLException {
+        connection.createStatement().execute("DROP TABLE IF EXISTS test.string_array");
+        connection.createStatement().execute(
+                "CREATE TABLE IF NOT EXISTS test.string_array"
+                        + " (sa Array(String)) ENGINE = TinyLog"
+        );
+
+        String insertSql = "INSERT INTO test.string_array (sa) VALUES (?)";
+
+        PreparedStatement statement = connection.prepareStatement(insertSql);
+
+        statement.setArray(1, new ClickHouseArray(ClickHouseDataType.String, new String[] {"a1", "b1"}));
+        statement.execute();
+
+        statement = connection.prepareStatement(insertSql);
+
+        statement.setObject(1, new String[] {"a2", "b2"});
+        statement.execute();
+
+        Statement select = connection.createStatement();
+        ResultSet rs = select.executeQuery("select sa from test.string_array");
+        for (int i = 1; i <= 2; ++i) {
+            rs.next();
+            Array stringArray = rs.getArray(1);
+            Assert.assertEquals(stringArray.getBaseType(), Types.VARCHAR);
+            Assert.assertEquals(stringArray.getArray().getClass(), String[].class);
+            Assert.assertEquals(((String[]) stringArray.getArray())[0], "a" + i);
+            Assert.assertEquals(((String[]) stringArray.getArray())[1], "b" + i);
+        }
+    }
 }
