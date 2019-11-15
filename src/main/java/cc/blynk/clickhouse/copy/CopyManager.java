@@ -1,7 +1,5 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.ClickHousePreparedStatement;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +7,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public interface CopyManager extends AutoCloseable {
@@ -227,12 +226,12 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param from              - InputStream with data
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from) throws SQLException;
+    void copyToDb(PreparedStatement preparedStatement, InputStream from) throws SQLException;
 
     /**
      * Inserts the data from the path to the DB.
@@ -248,12 +247,12 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param path              - Path to the file with data
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, Path path) throws IOException, SQLException;
+    void copyToDb(PreparedStatement preparedStatement, Path path) throws IOException, SQLException;
 
     /**
      * Inserts the data from the file to the DB.
@@ -269,12 +268,12 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param file              - Path to the file with data
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, File file) throws IOException, SQLException;
+    void copyToDb(PreparedStatement preparedStatement, File file) throws IOException, SQLException;
 
     /**
      * Inserts the data from the stream to the DB.
@@ -290,13 +289,13 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param from              - InputStream with data
      * @param bufferSize        - buffer size for the data transfer
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException;
+    void copyToDb(PreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException;
 
     /**
      * Inserts the data from the reader to the DB.
@@ -312,12 +311,12 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param from              - Reader with data
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from) throws SQLException;
+    void copyToDb(PreparedStatement preparedStatement, Reader from) throws SQLException;
 
     /**
      * Inserts the data from the reader to the DB.
@@ -333,16 +332,16 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param preparedStatement - PreparedStatement with SQL INSERT Query
      * @param from              - Reader with data
      * @param bufferSize        - buffer size for the data transfer
      * @throws SQLException - insertion error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize) throws SQLException;
+    void copyToDb(PreparedStatement preparedStatement, Reader from, int bufferSize) throws SQLException;
 
     /**
-     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the OutputStream
+     * Loads the data from the DB using the PreparedStatement and writes it to the OutputStream
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write
      * it to the file in the csv format with the headers line and without creating intermediate
@@ -357,15 +356,15 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL and params
+     * @param preparedStatement - PreparedStatement with SQL and params
      * @param to                - OutputStream to write data
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyFromDb(ClickHousePreparedStatement preparedStatement, OutputStream to) throws SQLException;
+    void copyFromDb(PreparedStatement preparedStatement, OutputStream to) throws SQLException;
 
     /**
-     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the writer
+     * Loads the data from the DB using the PreparedStatement and writes it to the writer
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write
      * it to the file in the csv format with the headers line and without creating intermediate
@@ -380,15 +379,15 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL and params
+     * @param preparedStatement - PreparedStatement with SQL and params
      * @param to                - Writer to write the data to
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyFromDb(ClickHousePreparedStatement preparedStatement, Writer to) throws SQLException;
+    void copyFromDb(PreparedStatement preparedStatement, Writer to) throws SQLException;
 
     /**
-     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the file
+     * Loads the data from the DB using the PreparedStatement and writes it to the file
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write
      * it to the file in the csv format with the headers line and without creating intermediate
@@ -403,15 +402,15 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL and params
+     * @param preparedStatement - PreparedStatement with SQL and params
      * @param to                - Path to write data
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyFromDb(ClickHousePreparedStatement preparedStatement, Path to) throws IOException, SQLException;
+    void copyFromDb(PreparedStatement preparedStatement, Path to) throws IOException, SQLException;
 
     /**
-     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the file
+     * Loads the data from the DB using the PreparedStatement and writes it to the file
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write
      * it to the file in the csv format with the headers line and without creating intermediate
@@ -426,10 +425,10 @@ public interface CopyManager extends AutoCloseable {
      *     }
      * </pre>
      *
-     * @param preparedStatement - ClickHousePreparedStatement with SQL and params
+     * @param preparedStatement - PreparedStatement with SQL and params
      * @param to                - File to write data
      * @throws SQLException - loading error
      * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
      */
-    void copyFromDb(ClickHousePreparedStatement preparedStatement, File to) throws IOException, SQLException;
+    void copyFromDb(PreparedStatement preparedStatement, File to) throws IOException, SQLException;
 }

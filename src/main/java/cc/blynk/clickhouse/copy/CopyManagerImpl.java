@@ -14,6 +14,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -136,92 +137,87 @@ final class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from) throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, from);
+    public void copyToDb(PreparedStatement preparedStatement, InputStream from) throws SQLException {
+        copyToDb(getSql(preparedStatement), from);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, Path path) throws IOException, SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, path);
+    public void copyToDb(PreparedStatement preparedStatement, Path path) throws IOException, SQLException {
+        copyToDb(getSql(preparedStatement), path);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, File file) throws IOException, SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, file);
+    public void copyToDb(PreparedStatement preparedStatement, File file) throws IOException, SQLException {
+        copyToDb(getSql(preparedStatement), file);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize)
+    public void copyToDb(PreparedStatement preparedStatement, InputStream from, int bufferSize)
             throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, from, bufferSize);
+        copyToDb(getSql(preparedStatement), from, bufferSize);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from) throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, from);
+    public void copyToDb(PreparedStatement preparedStatement, Reader from) throws SQLException {
+        copyToDb(getSql(preparedStatement), from);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize)
+    public void copyToDb(PreparedStatement preparedStatement, Reader from, int bufferSize)
             throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyToDb(sql, from, bufferSize);
+        copyToDb(getSql(preparedStatement), from, bufferSize);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyFromDb(ClickHousePreparedStatement preparedStatement, OutputStream to) throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyFromDb(sql, to);
+    public void copyFromDb(PreparedStatement preparedStatement, OutputStream to) throws SQLException {
+        copyFromDb(getSql(preparedStatement), to);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyFromDb(ClickHousePreparedStatement preparedStatement, Writer to) throws SQLException {
-        String sql = preparedStatement.asSql();
-        copyFromDb(sql, to);
+    public void copyFromDb(PreparedStatement preparedStatement, Writer to) throws SQLException {
+        copyFromDb(getSql(preparedStatement), to);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyFromDb(ClickHousePreparedStatement preparedStatement, Path to) throws IOException, SQLException {
-        String sql = preparedStatement.asSql();
-        copyFromDb(sql, to);
+    public void copyFromDb(PreparedStatement preparedStatement, Path to) throws IOException, SQLException {
+        copyFromDb(getSql(preparedStatement), to);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void copyFromDb(ClickHousePreparedStatement preparedStatement, File to) throws IOException, SQLException {
-        String sql = preparedStatement.asSql();
-        copyFromDb(sql, to);
+    public void copyFromDb(PreparedStatement preparedStatement, File to) throws IOException, SQLException {
+        copyFromDb(getSql(preparedStatement), to);
+    }
+
+    private String getSql(PreparedStatement ps) throws SQLException {
+        ClickHousePreparedStatement clickHouseStatement = ps.unwrap(ClickHousePreparedStatement.class);
+        return clickHouseStatement.asSql();
     }
 
     /**
