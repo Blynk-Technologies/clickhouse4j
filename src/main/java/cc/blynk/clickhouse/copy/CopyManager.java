@@ -214,6 +214,134 @@ public interface CopyManager extends AutoCloseable {
     void copyFromDb(String sql, File to) throws IOException, SQLException;
 
     /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     InputStream sourceInputStream = ...
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, sourceInputStream);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param from              - InputStream with data
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from) throws SQLException;
+
+    /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     Path path = ...;
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, path);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param path              - Path to the file with data
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, Path path) throws IOException, SQLException;
+
+    /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     File file = ...;
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, file);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param file              - Path to the file with data
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, File file) throws IOException, SQLException;
+
+    /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     InputStream sourceInputStream = ...
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, sourceInputStream, 1024);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param from              - InputStream with data
+     * @param bufferSize        - buffer size for the data transfer
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException;
+
+    /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     Reader sourceReader = ...
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, sourceReader);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param from              - Reader with data
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from) throws SQLException;
+
+    /**
+     * Inserts the data from the stream to the DB.
+     * The type and structure of the data from the stream specified in the SQL Query.
+     * For example, in case you want to send the data in the CSV format to the DB you need to:
+     * <pre>
+     *     Reader sourceReader = ...
+     *     String sql = "INSERT INTO default.my_table where group_id = ? FORMAT CSV";
+     *     PreparedStatement ps = connection.prepareStatement(sql);
+     *     ps.setLong(1, 10);
+     *     try (CopyManager copyManager = CopyManagerFactory.create(connection)) {
+     *         copyManager.copyToDb(ps, sourceReader, 1024);
+     *     }
+     * </pre>
+     *
+     * @param preparedStatement - ClickHousePreparedStatement with SQL INSERT Query
+     * @param from              - Reader with data
+     * @param bufferSize        - buffer size for the data transfer
+     * @throws SQLException - insertion error
+     * @see cc.blynk.clickhouse.domain.ClickHouseFormat for possible formats of the data
+     */
+    void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize) throws SQLException;
+
+    /**
      * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the OutputStream
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write

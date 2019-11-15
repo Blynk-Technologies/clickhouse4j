@@ -136,6 +136,60 @@ final class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, from);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, Path path) throws IOException, SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, path);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, File file) throws IOException, SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, file);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, from, bufferSize);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, from);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyToDb(sql, from, bufferSize);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void copyFromDb(ClickHousePreparedStatement preparedStatement, OutputStream to) throws SQLException {
         String sql = preparedStatement.asSql();
         copyFromDb(sql, to);
