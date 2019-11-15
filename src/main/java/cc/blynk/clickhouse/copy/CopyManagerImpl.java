@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -22,12 +23,12 @@ final class CopyManagerImpl implements CopyManager {
     private final ClickHouseConnection connection;
     private final Map<ClickHouseQueryParam, String> additionalDBParams;
 
-    CopyManagerImpl(ClickHouseConnection connection) {
+    CopyManagerImpl(Connection connection) throws SQLException {
         this(connection, null);
     }
 
-    CopyManagerImpl(ClickHouseConnection connection, Map<ClickHouseQueryParam, String> additionalDBParams) {
-        this.connection = connection;
+    CopyManagerImpl(Connection connection, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
+        this.connection = connection.unwrap(ClickHouseConnection.class);
         this.additionalDBParams = additionalDBParams;
     }
 
