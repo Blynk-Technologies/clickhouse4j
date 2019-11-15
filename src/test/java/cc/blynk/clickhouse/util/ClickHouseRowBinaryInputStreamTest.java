@@ -73,6 +73,16 @@ public class ClickHouseRowBinaryInputStreamTest {
         assertEquals(input.readUInt64(), new BigInteger("18446744073709551615"));
     }
 
+    @Test
+    public void testFixedString() throws Exception {
+        ClickHouseRowBinaryInputStream input = prepareStream(new byte[]{48, 49, 48, 49, 55, 49, 50, 50, 48, 48});
+
+        assertEquals(input.readFixedString(10), "0101712200");
+
+        ClickHouseRowBinaryInputStream inputZeroPaddedString = prepareStream(new byte[]{104, 101, 108, 108, 111, 0, 0, 0, 0, 0});
+
+        assertEquals(inputZeroPaddedString.readFixedString(10), "hello\0\0\0\0\0");
+    }
 
     @Test
     public void testOne() throws Exception {
