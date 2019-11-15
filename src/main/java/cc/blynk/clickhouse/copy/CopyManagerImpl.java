@@ -1,6 +1,7 @@
 package cc.blynk.clickhouse.copy;
 
 import cc.blynk.clickhouse.ClickHouseConnection;
+import cc.blynk.clickhouse.ClickHousePreparedStatement;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 
 import java.io.BufferedInputStream;
@@ -131,6 +132,45 @@ final class CopyManagerImpl implements CopyManager {
         copyFromDb(sql, to.toPath());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyFromDb(ClickHousePreparedStatement preparedStatement, OutputStream to) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyFromDb(sql, to);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyFromDb(ClickHousePreparedStatement preparedStatement, Writer to) throws SQLException {
+        String sql = preparedStatement.asSql();
+        copyFromDb(sql, to);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyFromDb(ClickHousePreparedStatement preparedStatement, Path to) throws IOException, SQLException {
+        String sql = preparedStatement.asSql();
+        copyFromDb(sql, to);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void copyFromDb(ClickHousePreparedStatement preparedStatement, File to) throws IOException, SQLException {
+        String sql = preparedStatement.asSql();
+        copyFromDb(sql, to);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws Exception {
         connection.close();
