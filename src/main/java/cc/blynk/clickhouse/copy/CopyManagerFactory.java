@@ -1,6 +1,5 @@
 package cc.blynk.clickhouse.copy;
 
-import cc.blynk.clickhouse.ClickHouseConnection;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 
 import javax.sql.DataSource;
@@ -13,8 +12,8 @@ public final class CopyManagerFactory {
     private CopyManagerFactory() {
     }
 
-    public static CopyManager create(Connection connection) {
-        return new CopyManagerImpl((ClickHouseConnection) connection);
+    public static CopyManager create(Connection connection) throws SQLException {
+        return new CopyManagerImpl(connection);
     }
 
     public static CopyManager create(DataSource dataSource) throws SQLException {
@@ -22,8 +21,9 @@ public final class CopyManagerFactory {
     }
 
     public static CopyManager create(Connection connection,
-                                     Map<ClickHouseQueryParam, String> additionalDBParams) {
-        return new CopyManagerImpl((ClickHouseConnection) connection, additionalDBParams);
+                                     Map<ClickHouseQueryParam, String> additionalDBParams)
+            throws SQLException {
+        return new CopyManagerImpl(connection, additionalDBParams);
     }
 
     public static CopyManager create(DataSource dataSource,
