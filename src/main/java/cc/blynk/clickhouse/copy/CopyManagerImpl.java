@@ -163,7 +163,8 @@ final class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException {
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize)
+            throws SQLException {
         String sql = preparedStatement.asSql();
         copyToDb(sql, from, bufferSize);
     }
@@ -181,7 +182,8 @@ final class CopyManagerImpl implements CopyManager {
      * {@inheritDoc}
      */
     @Override
-    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize) throws SQLException {
+    public void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from, int bufferSize)
+            throws SQLException {
         String sql = preparedStatement.asSql();
         copyToDb(sql, from, bufferSize);
     }

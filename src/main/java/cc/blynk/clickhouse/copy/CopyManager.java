@@ -235,8 +235,8 @@ public interface CopyManager extends AutoCloseable {
     void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from) throws SQLException;
 
     /**
-     * Inserts the data from the stream to the DB.
-     * The type and structure of the data from the stream specified in the SQL Query.
+     * Inserts the data from the path to the DB.
+     * The type and structure of the data from the path specified in the SQL Query.
      * For example, in case you want to send the data in the CSV format to the DB you need to:
      * <pre>
      *     Path path = ...;
@@ -256,8 +256,8 @@ public interface CopyManager extends AutoCloseable {
     void copyToDb(ClickHousePreparedStatement preparedStatement, Path path) throws IOException, SQLException;
 
     /**
-     * Inserts the data from the stream to the DB.
-     * The type and structure of the data from the stream specified in the SQL Query.
+     * Inserts the data from the file to the DB.
+     * The type and structure of the data from the file specified in the SQL Query.
      * For example, in case you want to send the data in the CSV format to the DB you need to:
      * <pre>
      *     File file = ...;
@@ -299,8 +299,8 @@ public interface CopyManager extends AutoCloseable {
     void copyToDb(ClickHousePreparedStatement preparedStatement, InputStream from, int bufferSize) throws SQLException;
 
     /**
-     * Inserts the data from the stream to the DB.
-     * The type and structure of the data from the stream specified in the SQL Query.
+     * Inserts the data from the reader to the DB.
+     * The type and structure of the data from the reader specified in the SQL Query.
      * For example, in case you want to send the data in the CSV format to the DB you need to:
      * <pre>
      *     Reader sourceReader = ...
@@ -320,8 +320,8 @@ public interface CopyManager extends AutoCloseable {
     void copyToDb(ClickHousePreparedStatement preparedStatement, Reader from) throws SQLException;
 
     /**
-     * Inserts the data from the stream to the DB.
-     * The type and structure of the data from the stream specified in the SQL Query.
+     * Inserts the data from the reader to the DB.
+     * The type and structure of the data from the reader specified in the SQL Query.
      * For example, in case you want to send the data in the CSV format to the DB you need to:
      * <pre>
      *     Reader sourceReader = ...
@@ -365,7 +365,7 @@ public interface CopyManager extends AutoCloseable {
     void copyFromDb(ClickHousePreparedStatement preparedStatement, OutputStream to) throws SQLException;
 
     /**
-     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the OutputStream
+     * Loads the data from the DB using the ClickHousePreparedStatement and writes it to the writer
      * in the format defined in the SQL query.
      * For example, in case you want to select the data from the DB and directly write
      * it to the file in the csv format with the headers line and without creating intermediate
