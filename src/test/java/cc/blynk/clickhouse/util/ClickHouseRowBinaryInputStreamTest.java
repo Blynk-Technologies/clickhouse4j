@@ -79,7 +79,8 @@ public class ClickHouseRowBinaryInputStreamTest {
 
         assertEquals(input.readFixedString(10), "0101712200");
 
-        ClickHouseRowBinaryInputStream inputZeroPaddedString = prepareStream(new byte[]{104, 101, 108, 108, 111, 0, 0, 0, 0, 0});
+        ClickHouseRowBinaryInputStream inputZeroPaddedString =
+                prepareStream(new byte[]{104, 101, 108, 108, 111, 0, 0, 0, 0, 0});
 
         assertEquals(inputZeroPaddedString.readFixedString(10), "hello\0\0\0\0\0");
     }
