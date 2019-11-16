@@ -104,7 +104,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         int idx = cleanSQL.endsWith(";")
                 ? cleanSQL.length() - 1
                 : cleanSQL.length();
-        sb.append(cleanSQL.substring(0, idx))
+        sb.append(cleanSQL, 0, idx)
                 .append(" FORMAT ")
                 .append(format.name())
                 .append(';');
@@ -524,7 +524,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        sql = sql + " FORMAT " + ClickHouseFormat.RowBinary.name();
+        sql = sql + " FORMAT " + ClickHouseFormat.RowBinary;
         sendStream(sql, callback, uri);
     }
 
@@ -537,7 +537,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        sql = sql + " FORMAT " + ClickHouseFormat.Native.name();
+        sql = sql + " FORMAT " + ClickHouseFormat.Native;
         sendStream(sql, callback, uri);
     }
 

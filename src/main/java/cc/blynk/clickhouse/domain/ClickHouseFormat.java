@@ -38,15 +38,16 @@ public enum ClickHouseFormat {
     XML,
     CapnProto;
 
+    public static final ClickHouseFormat[] values = values();
+
     public static boolean containsFormat(String statement) {
-        if (statement == null || statement.isEmpty()) {
-            return false;
-        }
-        // TODO Proper parsing of comments etc.
-        String s = statement.replaceAll("[;\\s]", "");
-        for (ClickHouseFormat f : values()) {
-            if (s.endsWith(f.name())) {
-                return true;
+        if (statement != null && !statement.isEmpty()) {
+            // TODO Proper parsing of comments etc.
+            String s = statement.replaceAll("[;\\s]", "");
+            for (ClickHouseFormat f : values) {
+                if (s.endsWith(f.name())) {
+                    return true;
+                }
             }
         }
         return false;
