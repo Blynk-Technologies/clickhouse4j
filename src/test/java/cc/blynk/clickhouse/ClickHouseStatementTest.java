@@ -1,6 +1,7 @@
 package cc.blynk.clickhouse;
 
 
+import cc.blynk.clickhouse.domain.ClickHouseFormat;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.annotations.Test;
@@ -23,30 +24,31 @@ public class ClickHouseStatementTest {
     public void testClickhousify() {
         String sql = "SELECT ololo FROM ololoed;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql2 = "SELECT ololo FROM ololoed";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql2));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql2, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql3 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
-                     ClickHouseStatementImpl.clickhousifySql(sql3));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql3, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql4 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql4));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql4, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql5 = "SHOW ololo FROM ololoed;";
         assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql5));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql6 = " show ololo FROM ololoed;";
         assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql6));
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;";
-        assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;", ClickHouseStatementImpl.clickhousifySql(sql7));
+        assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;",
+                     ClickHouseStatementImpl.addFormatIfAbsent(sql7, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
     }
 
     @Test

@@ -92,7 +92,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    private static String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
+    static String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
         String cleanSQL = sql.trim();
         if (!isSelect(cleanSQL)) {
             return cleanSQL;
@@ -430,10 +430,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return iface.isAssignableFrom(getClass());
     }
 
-    static String clickhousifySql(String sql) {
-        return addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
-    }
-
     @Override
     public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
             String sql,
@@ -652,7 +648,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
-        sql = clickhousifySql(sql);
+        sql = addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
         log.debug("Executing SQL: {}", sql);
 
         additionalClickHouseDBParams = addQueryIdTo(
