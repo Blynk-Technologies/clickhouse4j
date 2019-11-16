@@ -38,7 +38,7 @@ public enum ClickHouseFormat {
     XML,
     CapnProto;
 
-    public static final ClickHouseFormat[] values = values();
+    private static final ClickHouseFormat[] values = values();
 
     public static boolean containsFormat(String statement) {
         if (statement != null && !statement.isEmpty()) {
