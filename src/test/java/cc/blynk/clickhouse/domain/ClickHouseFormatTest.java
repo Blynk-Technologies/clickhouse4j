@@ -19,23 +19,23 @@ public class ClickHouseFormatTest {
 
     @Test
     public void testTrailingWhitespace() {
-        assertFalse(ClickHouseFormat.containsFormat("Phantasy  "));
-        assertTrue(ClickHouseFormat.containsFormat("TabSeparatedWithNamesAndTypes "));
-        assertTrue(ClickHouseFormat.containsFormat("TabSeparatedWithNamesAndTypes \t \n"));
+        assertFalse(ClickHouseFormat.containsFormat("FORMAT Phantasy  "));
+        assertTrue(ClickHouseFormat.containsFormat("FORMAT TabSeparatedWithNamesAndTypes "));
+        assertTrue(ClickHouseFormat.containsFormat("FORMAT TabSeparatedWithNamesAndTypes \t \n"));
     }
 
     @Test
     public void testTrailingSemicolon() {
-        assertFalse(ClickHouseFormat.containsFormat("Phantasy  ;"));
-        assertTrue(ClickHouseFormat.containsFormat("TabSeparatedWithNamesAndTypes ; "));
-        assertTrue(ClickHouseFormat.containsFormat("TabSeparatedWithNamesAndTypes ;"));
-        assertTrue(ClickHouseFormat.containsFormat("TabSeparatedWithNamesAndTypes \t ; \n"));
+        assertFalse(ClickHouseFormat.containsFormat("FORMAT Phantasy  ;"));
+        assertTrue(ClickHouseFormat.containsFormat("FORMAT TabSeparatedWithNamesAndTypes ; "));
+        assertTrue(ClickHouseFormat.containsFormat("FORMAT TabSeparatedWithNamesAndTypes ;"));
+        assertTrue(ClickHouseFormat.containsFormat("FORMAT TabSeparatedWithNamesAndTypes \t ; \n"));
     }
 
     @Test
     public void testAllFormats() {
         for (ClickHouseFormat format : ClickHouseFormat.values()) {
-            assertTrue(ClickHouseFormat.containsFormat(format.name()));
+            assertTrue(ClickHouseFormat.containsFormat("FORMAT " + format));
         }
     }
 

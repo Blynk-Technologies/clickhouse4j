@@ -41,16 +41,21 @@ public enum ClickHouseFormat {
     private static final ClickHouseFormat[] values = values();
 
     public static boolean containsFormat(String statement) {
+        ClickHouseFormat format = detectFormat(statement);
+        return format != null;
+    }
+
+    public static ClickHouseFormat detectFormat(String statement) {
         if (statement != null && !statement.isEmpty()) {
             // TODO Proper parsing of comments etc.
             String s = statement.replaceAll("[;\\s]", "");
-            for (ClickHouseFormat f : values) {
-                if (s.endsWith(f.name())) {
-                    return true;
+            for (ClickHouseFormat format : values) {
+                if (s.endsWith(format.name())) {
+                    return format;
                 }
             }
         }
-        return false;
+        return null;
     }
 
 }

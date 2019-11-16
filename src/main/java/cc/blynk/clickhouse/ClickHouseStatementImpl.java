@@ -63,6 +63,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private volatile String queryId;
 
+    private Boolean isSelect;
+
     /**
      * Current database name may be changed by {@link java.sql.Connection#setCatalog(String)}
      * between creation of this object and query execution, but javadoc does not allow
@@ -92,7 +94,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    static String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
+    String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
         String cleanSQL = sql.trim();
         if (!isSelect(cleanSQL)) {
             return cleanSQL;
@@ -111,7 +113,14 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return sb.toString();
     }
 
-    static boolean isSelect(String sql) {
+    boolean isSelect(String sql) {
+        if (this.isSelect == null) {
+            this.isSelect = detectQueryType(sql);
+        }
+        return this.isSelect;
+    }
+
+    private static boolean detectQueryType(String sql) {
         for (int i = 0; i < sql.length(); i++) {
             String nextTwo = sql.substring(i, Math.min(i + 2, sql.length()));
             if ("--".equals(nextTwo)) {
