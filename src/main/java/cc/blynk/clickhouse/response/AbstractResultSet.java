@@ -967,6 +967,8 @@ public abstract class AbstractResultSet implements ResultSet {
         throw new UnsupportedOperationException();
     }
 
+    public abstract void setMaxRows(int maxRows);
+
     public long[] getLongArray(String column) throws SQLException {
         Array array = getArray(column);
         return (long[]) array.getArray(); // optimistic

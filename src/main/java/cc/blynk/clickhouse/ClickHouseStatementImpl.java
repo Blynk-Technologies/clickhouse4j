@@ -4,6 +4,8 @@ import cc.blynk.clickhouse.domain.ClickHouseFormat;
 import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.except.ClickHouseExceptionSpecifier;
 import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.response.AbstractResultSet;
+import cc.blynk.clickhouse.response.ClickHouseJsonResultSet;
 import cc.blynk.clickhouse.response.ClickHouseResultSet;
 import cc.blynk.clickhouse.response.ClickHouseScrollableResultSet;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
@@ -45,7 +47,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private final ClickHouseConnection connection;
 
-    private ClickHouseResultSet currentResult;
+    private AbstractResultSet currentResult;
 
     private ClickHouseRowBinaryInputStream currentRowBinaryResult;
 
@@ -608,7 +610,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return closeOnCompletion;
     }
 
-    private ClickHouseResultSet createResultSet(InputStream is,
+    private AbstractResultSet createResultSet(InputStream is,
                                                 int bufferSize,
                                                 String db,
                                                 String table,
@@ -625,15 +627,25 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                                      statement,
                                                      timezone,
                                                      properties);
-        } else {
-            return new ClickHouseResultSet(is,
-                    bufferSize,
-                    db, table,
-                    usesWithTotals,
-                    statement,
-                    timezone,
-                    properties);
         }
+
+        if (this.selectFormat == ClickHouseFormat.JSON) {
+            return new ClickHouseJsonResultSet(
+                    is,
+                    bufferSize,
+                    statement,
+                    properties
+            );
+        }
+
+        return new ClickHouseResultSet(is,
+                                       bufferSize,
+                                       db,
+                                       table,
+                                       usesWithTotals,
+                                       statement,
+                                       timezone,
+                                       properties);
     }
 
     private Map<ClickHouseQueryParam, String> addQueryIdTo(Map<ClickHouseQueryParam, String> parameters) {
