@@ -63,6 +63,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private volatile String queryId;
 
+    private Boolean isSelect;
+
+    private ClickHouseFormat selectFormat;
+
     /**
      * Current database name may be changed by {@link java.sql.Connection#setCatalog(String)}
      * between creation of this object and query execution, but javadoc does not allow
@@ -92,26 +96,26 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    private static String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
-        String cleanSQL = sql.trim();
-        if (!isSelect(cleanSQL)) {
-            return cleanSQL;
-        }
-        if (ClickHouseFormat.containsFormat(cleanSQL)) {
-            return cleanSQL;
-        }
+    String addFormat(String cleanSQL, ClickHouseFormat format) {
         StringBuilder sb = new StringBuilder();
         int idx = cleanSQL.endsWith(";")
                 ? cleanSQL.length() - 1
                 : cleanSQL.length();
-        sb.append(cleanSQL.substring(0, idx))
+        sb.append(cleanSQL, 0, idx)
                 .append(" FORMAT ")
                 .append(format.name())
                 .append(';');
         return sb.toString();
     }
 
-    static boolean isSelect(String sql) {
+    boolean isSelect(String sql) {
+        if (this.isSelect == null) {
+            this.isSelect = detectQueryType(sql);
+        }
+        return this.isSelect;
+    }
+
+    private static boolean detectQueryType(String sql) {
         for (int i = 0; i < sql.length(); i++) {
             String nextTwo = sql.substring(i, Math.min(i + 2, sql.length()));
             if ("--".equals(nextTwo)) {
@@ -169,7 +173,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         InputStream is = new ByteArrayInputStream(out.toByteArray());
 
         try {
-            if (isSelect(sql)) {
+            if (this.isSelect) {
                 currentUpdateCount = -1;
                 currentResult = createResultSet(is,
                         properties.getBufferSize(),
@@ -430,18 +434,21 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return iface.isAssignableFrom(getClass());
     }
 
-    static String clickhousifySql(String sql) {
-        return addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
-    }
-
     @Override
     public ClickHouseRowBinaryInputStream executeQueryClickhouseRowBinaryStream(
             String sql,
             Map<ClickHouseQueryParam, String> additionalDBParams,
             Map<String, String> additionalRequestParams) throws SQLException {
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        sendRequest(addFormatIfAbsent(sql, ClickHouseFormat.RowBinary),
+        String cleanSql = sql.trim();
+
+        this.isSelect = detectQueryType(cleanSql);
+        this.selectFormat = ClickHouseFormat.detectFormat(cleanSql);
+        if (this.isSelect && this.selectFormat == null) {
+            cleanSql = addFormat(cleanSql, ClickHouseFormat.RowBinary);
+        }
+
+        sendRequest(cleanSql,
                 out,
                 additionalDBParams,
                 null,
@@ -450,7 +457,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         ByteArrayInputStream is = new ByteArrayInputStream(out.toByteArray());
 
         try {
-            if (isSelect(sql)) {
+            if (this.isSelect) {
                 currentUpdateCount = -1;
                 currentRowBinaryResult = new ClickHouseRowBinaryInputStream(is,
                         getConnection().getTimeZone(),
@@ -524,7 +531,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        sql = sql + " FORMAT " + ClickHouseFormat.RowBinary.name();
+        sql = sql + " FORMAT " + ClickHouseFormat.RowBinary;
         sendStream(sql, callback, uri);
     }
 
@@ -537,7 +544,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        sql = sql + " FORMAT " + ClickHouseFormat.Native.name();
+        sql = sql + " FORMAT " + ClickHouseFormat.Native;
         sendStream(sql, callback, uri);
     }
 
@@ -652,15 +659,21 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
-        sql = clickhousifySql(sql);
-        log.debug("Executing SQL: {}", sql);
+        String cleanSql = sql.trim();
+
+        this.isSelect = detectQueryType(cleanSql);
+        this.selectFormat = ClickHouseFormat.detectFormat(cleanSql);
+        if (this.isSelect && this.selectFormat == null) {
+            cleanSql = addFormat(cleanSql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
+        }
+        log.debug("Executing SQL: {}", cleanSql);
 
         additionalClickHouseDBParams = addQueryIdTo(
                 additionalClickHouseDBParams == null
                         ? new EnumMap<>(ClickHouseQueryParam.class)
                         : additionalClickHouseDBParams);
 
-        boolean ignoreDatabase = sql.trim().regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
+        boolean ignoreDatabase = cleanSql.regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
         URI uri;
         if (externalData == null || externalData.isEmpty()) {
             uri = buildRequestUri(
@@ -671,13 +684,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Request url: {}", uri);
-            httpConnector.post(sql, to, uri);
+            httpConnector.post(cleanSql, to, uri);
         } else {
             // write sql in query params when there is external data
             // as it is impossible to pass both external data and sql in body
             // TODO move sql to request body when it is supported in clickhouse
             uri = buildRequestUri(
-                    sql,
+                    cleanSql,
                     externalData,
                     additionalClickHouseDBParams,
                     additionalRequestParams,

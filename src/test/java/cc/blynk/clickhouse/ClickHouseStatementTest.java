@@ -1,6 +1,7 @@
 package cc.blynk.clickhouse;
 
 
+import cc.blynk.clickhouse.domain.ClickHouseFormat;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.annotations.Test;
@@ -21,32 +22,44 @@ public class ClickHouseStatementTest {
 
     @Test
     public void testClickhousify() {
+        ClickHouseStatementImpl clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql = "SELECT ololo FROM ololoed;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql));
+                     clickHouseStatement.addFormat(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql2 = "SELECT ololo FROM ololoed";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql2));
+                     clickHouseStatement.addFormat(sql2, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
+        /*
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql3 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
-                     ClickHouseStatementImpl.clickhousifySql(sql3));
+                     clickHouseStatement.addFormat(sql3, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql4 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql4));
+                     clickHouseStatement.addFormat(sql4, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+         */
 
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql5 = "SHOW ololo FROM ololoed;";
         assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql5));
+                     clickHouseStatement.addFormat(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
-        String sql6 = " show ololo FROM ololoed;";
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
+        String sql6 = " show ololo FROM ololoed;".trim(); //trim is done within the statement
         assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     ClickHouseStatementImpl.clickhousifySql(sql6));
+                     clickHouseStatement.addFormat(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
-        String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;";
-        assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;", ClickHouseStatementImpl.clickhousifySql(sql7));
+        /*
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
+        String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;".trim(); //trim is done within the statement
+        assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;",
+                     clickHouseStatement.addFormat(sql7, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     */
     }
 
     @Test
@@ -127,26 +140,46 @@ public class ClickHouseStatementTest {
 
     @Test
     public void testIsSelect() {
-        assertTrue(ClickHouseStatementImpl.isSelect("SELECT 42"));
-        assertTrue(ClickHouseStatementImpl.isSelect("select 42"));
-        assertFalse(ClickHouseStatementImpl.isSelect("selectfoo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("  SELECT foo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("WITH foo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("DESC foo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("EXISTS foo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("SHOW foo"));
-        assertTrue(ClickHouseStatementImpl.isSelect("-- foo\n SELECT 42"));
-        assertTrue(ClickHouseStatementImpl.isSelect("--foo\n SELECT 42"));
-        assertFalse(ClickHouseStatementImpl.isSelect("- foo\n SELECT 42"));
-        assertTrue(ClickHouseStatementImpl.isSelect("/* foo */ SELECT 42"));
-        assertTrue(ClickHouseStatementImpl.isSelect("/*\n * foo\n*/\n SELECT 42"));
-        assertFalse(ClickHouseStatementImpl.isSelect("/ foo */ SELECT 42"));
-        assertFalse(ClickHouseStatementImpl.isSelect("-- SELECT baz\n UPDATE foo"));
-        assertFalse(ClickHouseStatementImpl.isSelect("/* SELECT baz */\n UPDATE foo"));
-        assertFalse(ClickHouseStatementImpl.isSelect("/*\n UPDATE foo"));
-        assertFalse(ClickHouseStatementImpl.isSelect("/*"));
-        assertFalse(ClickHouseStatementImpl.isSelect("/**/"));
-        assertFalse(ClickHouseStatementImpl.isSelect(" --"));
+        ClickHouseStatementImpl clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("select 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("selectfoo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("  SELECT foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("WITH foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("DESC foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("EXISTS foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("SHOW foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("-- foo\n SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("--foo\n SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("- foo\n SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("/* foo */ SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertTrue(clickHouseStatement.isSelect("/*\n * foo\n*/\n SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("/ foo */ SELECT 42"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("-- SELECT baz\n UPDATE foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("/* SELECT baz */\n UPDATE foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("/*\n UPDATE foo"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("/*"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect("/**/"));
+        clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 0);
+        assertFalse(clickHouseStatement.isSelect(" --"));
     }
 
 }
