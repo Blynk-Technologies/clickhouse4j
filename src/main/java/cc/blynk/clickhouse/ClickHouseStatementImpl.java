@@ -446,7 +446,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             Map<String, String> additionalRequestParams) throws SQLException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        sendRequest(addFormatIfAbsent(sql, ClickHouseFormat.RowBinary),
+        String cleanSql = addFormatIfAbsent(sql, ClickHouseFormat.RowBinary);
+        sendRequest(cleanSql,
                 out,
                 additionalDBParams,
                 null,
@@ -657,15 +658,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
-        sql = addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
-        log.debug("Executing SQL: {}", sql);
+        String cleanSql = addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
+        log.debug("Executing SQL: {}", cleanSql);
 
         additionalClickHouseDBParams = addQueryIdTo(
                 additionalClickHouseDBParams == null
                         ? new EnumMap<>(ClickHouseQueryParam.class)
                         : additionalClickHouseDBParams);
 
-        boolean ignoreDatabase = sql.trim().regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
+        boolean ignoreDatabase = cleanSql.trim().regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
         URI uri;
         if (externalData == null || externalData.isEmpty()) {
             uri = buildRequestUri(
@@ -676,13 +677,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Request url: {}", uri);
-            httpConnector.post(sql, to, uri);
+            httpConnector.post(cleanSql, to, uri);
         } else {
             // write sql in query params when there is external data
             // as it is impossible to pass both external data and sql in body
             // TODO move sql to request body when it is supported in clickhouse
             uri = buildRequestUri(
-                    sql,
+                    cleanSql,
                     externalData,
                     additionalClickHouseDBParams,
                     additionalRequestParams,
