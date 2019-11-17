@@ -21,10 +21,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -49,7 +47,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
     private final String db;
     private final String table;
 
-    private List<ClickHouseColumnInfo> columns;
+    private final ClickHouseColumnInfo[] columns;
 
     private int maxRows;
 
@@ -114,9 +112,9 @@ public class ClickHouseResultSet extends AbstractResultSet {
             throw new IllegalArgumentException("ClickHouse response without column types");
         }
         String[] types = toStringArray(typesFragment);
-        columns = new ArrayList<>(cols.length);
+        this.columns = new ClickHouseColumnInfo[cols.length];
         for (int i = 0; i < cols.length; i++) {
-            columns.add(ClickHouseColumnInfo.parse(types[i], cols[i]));
+            columns[i] = ClickHouseColumnInfo.parse(types[i], cols[i]);
         }
     }
 
@@ -172,9 +170,10 @@ public class ClickHouseResultSet extends AbstractResultSet {
         return false;
     }
 
-    private void checkValues(List<ClickHouseColumnInfo> columns, ByteFragment[] values,
-        ByteFragment fragment) throws SQLException {
-        if (columns.size() != values.length) {
+    private void checkValues(ClickHouseColumnInfo[] columns,
+                             ByteFragment[] values,
+                             ByteFragment fragment) throws SQLException {
+        if (columns.length != values.length) {
             throw ClickHouseExceptionSpecifier.specify(fragment.asString());
         }
     }
@@ -208,7 +207,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
     }
 
     List<ClickHouseColumnInfo> getColumns() {
-        return Collections.unmodifiableList(columns);
+        return Arrays.asList(columns);
     }
 
     @Override
@@ -292,7 +291,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
 
     @Override
     public Array getArray(int columnIndex) throws SQLException {
-        ClickHouseColumnInfo colInfo = columns.get(columnIndex - 1);
+        ClickHouseColumnInfo colInfo = columns[columnIndex - 1];
         if (colInfo.getClickHouseDataType() != ClickHouseDataType.Array) {
             throw new SQLException("Column not an array");
         }
@@ -387,7 +386,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
     }
 
     public Long getTimestampAsLong(int colNum) {
-        ClickHouseColumnInfo info = columns.get(colNum - 1);
+        ClickHouseColumnInfo info = columns[colNum - 1];
         TimeZone timeZone = info.getTimeZone() != null
             ? info.getTimeZone()
             : dateTimeTimeZone;
@@ -517,7 +516,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
             if (getValue(columnIndex).isNull()) {
                 return null;
             }
-            ClickHouseDataType chType = columns.get(columnIndex - 1).getClickHouseDataType();
+            ClickHouseDataType chType = columns[columnIndex - 1].getClickHouseDataType();
             int type = chType.getSqlType();
             switch (type) {
                 case Types.BIGINT:
@@ -621,8 +620,8 @@ public class ClickHouseResultSet extends AbstractResultSet {
 
     // 1-based index in column list
     private int asColNum(String column) {
-        for (int i = 0; i < columns.size(); i++) {
-            if (column.equals(columns.get(i).getColumnName())) {
+        for (int i = 0; i < columns.length; i++) {
+            if (column.equals(columns[i].getColumnName())) {
                 return i + 1;
             }
         }
