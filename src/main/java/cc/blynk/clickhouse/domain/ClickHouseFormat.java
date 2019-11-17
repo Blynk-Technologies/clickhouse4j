@@ -40,11 +40,6 @@ public enum ClickHouseFormat {
 
     private static final ClickHouseFormat[] values = values();
 
-    public static boolean containsFormat(String statement) {
-        ClickHouseFormat format = detectFormat(statement);
-        return format != null;
-    }
-
     public static ClickHouseFormat detectFormat(String statement) {
         if (statement != null && !statement.isEmpty()) {
             // TODO Proper parsing of comments etc.

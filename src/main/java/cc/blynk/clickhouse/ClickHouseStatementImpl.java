@@ -65,6 +65,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private Boolean isSelect;
 
+    private ClickHouseFormat selectFormat;
+
     /**
      * Current database name may be changed by {@link java.sql.Connection#setCatalog(String)}
      * between creation of this object and query execution, but javadoc does not allow
@@ -94,13 +96,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    String addFormatIfAbsent(final String cleanSQL, ClickHouseFormat format) {
-        if (!isSelect(cleanSQL)) {
-            return cleanSQL;
-        }
-        if (ClickHouseFormat.containsFormat(cleanSQL)) {
-            return cleanSQL;
-        }
+    String addFormat(String cleanSQL, ClickHouseFormat format) {
         StringBuilder sb = new StringBuilder();
         int idx = cleanSQL.endsWith(";")
                 ? cleanSQL.length() - 1
@@ -177,7 +173,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         InputStream is = new ByteArrayInputStream(out.toByteArray());
 
         try {
-            if (isSelect(sql)) {
+            if (this.isSelect) {
                 currentUpdateCount = -1;
                 currentResult = createResultSet(is,
                         properties.getBufferSize(),
@@ -443,10 +439,15 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             String sql,
             Map<ClickHouseQueryParam, String> additionalDBParams,
             Map<String, String> additionalRequestParams) throws SQLException {
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         String cleanSql = sql.trim();
-        cleanSql = addFormatIfAbsent(cleanSql, ClickHouseFormat.RowBinary);
+
+        this.isSelect = detectQueryType(cleanSql);
+        this.selectFormat = ClickHouseFormat.detectFormat(cleanSql);
+        if (this.isSelect && this.selectFormat == null) {
+            cleanSql = addFormat(cleanSql, ClickHouseFormat.RowBinary);
+        }
+
         sendRequest(cleanSql,
                 out,
                 additionalDBParams,
@@ -456,7 +457,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         ByteArrayInputStream is = new ByteArrayInputStream(out.toByteArray());
 
         try {
-            if (isSelect(sql)) {
+            if (this.isSelect) {
                 currentUpdateCount = -1;
                 currentRowBinaryResult = new ClickHouseRowBinaryInputStream(is,
                         getConnection().getTimeZone(),
@@ -659,7 +660,12 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
         String cleanSql = sql.trim();
-        cleanSql = addFormatIfAbsent(cleanSql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
+
+        this.isSelect = detectQueryType(cleanSql);
+        this.selectFormat = ClickHouseFormat.detectFormat(cleanSql);
+        if (this.isSelect && this.selectFormat == null) {
+            cleanSql = addFormat(cleanSql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
+        }
         log.debug("Executing SQL: {}", cleanSql);
 
         additionalClickHouseDBParams = addQueryIdTo(

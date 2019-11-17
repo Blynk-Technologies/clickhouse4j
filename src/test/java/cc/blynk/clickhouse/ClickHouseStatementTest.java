@@ -25,37 +25,41 @@ public class ClickHouseStatementTest {
         ClickHouseStatementImpl clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql = "SELECT ololo FROM ololoed;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     clickHouseStatement.addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql2 = "SELECT ololo FROM ololoed";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     clickHouseStatement.addFormatIfAbsent(sql2, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql2, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
+        /*
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql3 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
-                     clickHouseStatement.addFormatIfAbsent(sql3, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql3, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql4 = "SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;";
         assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     clickHouseStatement.addFormatIfAbsent(sql4, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql4, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+         */
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql5 = "SHOW ololo FROM ololoed;";
         assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     clickHouseStatement.addFormatIfAbsent(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql6 = " show ololo FROM ololoed;".trim(); //trim is done within the statement
         assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
-                     clickHouseStatement.addFormatIfAbsent(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
+        /*
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;".trim(); //trim is done within the statement
         assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;",
-                     clickHouseStatement.addFormatIfAbsent(sql7, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     clickHouseStatement.addFormat(sql7, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
+                     */
     }
 
     @Test
