@@ -1,7 +1,6 @@
 package cc.blynk.clickhouse;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,18 +20,17 @@ final class PreparedStatementParser {
     private final List<List<String>> parameters;
     private final List<String> parts;
 
-    private PreparedStatementParser() {
+    private PreparedStatementParser(String sql) {
         parameters = new ArrayList<>();
         parts = new ArrayList<>();
+        parseSQL(sql);
     }
 
     static PreparedStatementParser parse(String sql) {
         if (sql == null || sql.isEmpty()) {
             throw new IllegalArgumentException("SQL may not be blank");
         }
-        PreparedStatementParser parser = new PreparedStatementParser();
-        parser.parseSQL(sql);
-        return parser;
+        return new PreparedStatementParser(sql);
     }
 
     String[][] getParameters() {
@@ -45,16 +43,10 @@ final class PreparedStatementParser {
     }
 
     List<String> getParts() {
-        return Collections.unmodifiableList(parts);
-    }
-
-    private void reset() {
-        parameters.clear();
-        parts.clear();
+        return parts;
     }
 
     private void parseSQL(String sql) {
-        reset();
         List<String> currentParamList = new ArrayList<>();
         boolean afterBackSlash = false;
         boolean inQuotes = false;
