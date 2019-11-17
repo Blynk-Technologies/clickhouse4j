@@ -48,12 +48,12 @@ public class ClickHouseStatementTest {
                      clickHouseStatement.addFormatIfAbsent(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
-        String sql6 = " show ololo FROM ololoed;";
+        String sql6 = " show ololo FROM ololoed;".trim(); //trim is done within the statement
         assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
                      clickHouseStatement.addFormatIfAbsent(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
-        String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;";
+        String sql7 = " show ololo FROM ololoed FORMAT CSVWithNames;".trim(); //trim is done within the statement
         assertEquals("show ololo FROM ololoed FORMAT CSVWithNames;",
                      clickHouseStatement.addFormatIfAbsent(sql7, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
     }

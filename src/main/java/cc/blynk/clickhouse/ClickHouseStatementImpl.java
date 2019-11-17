@@ -94,8 +94,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
      * Adding  FORMAT TabSeparatedWithNamesAndTypes if not added
      * adds format only to select queries
      */
-    String addFormatIfAbsent(final String sql, ClickHouseFormat format) {
-        String cleanSQL = sql.trim();
+    String addFormatIfAbsent(final String cleanSQL, ClickHouseFormat format) {
         if (!isSelect(cleanSQL)) {
             return cleanSQL;
         }
@@ -446,7 +445,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             Map<String, String> additionalRequestParams) throws SQLException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        String cleanSql = addFormatIfAbsent(sql, ClickHouseFormat.RowBinary);
+        String cleanSql = sql.trim();
+        cleanSql = addFormatIfAbsent(cleanSql, ClickHouseFormat.RowBinary);
         sendRequest(cleanSql,
                 out,
                 additionalDBParams,
@@ -658,7 +658,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
-        String cleanSql = addFormatIfAbsent(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
+        String cleanSql = sql.trim();
+        cleanSql = addFormatIfAbsent(cleanSql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
         log.debug("Executing SQL: {}", cleanSql);
 
         additionalClickHouseDBParams = addQueryIdTo(
@@ -666,7 +667,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                         ? new EnumMap<>(ClickHouseQueryParam.class)
                         : additionalClickHouseDBParams);
 
-        boolean ignoreDatabase = cleanSql.trim().regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
+        boolean ignoreDatabase = cleanSql.regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
         URI uri;
         if (externalData == null || externalData.isEmpty()) {
             uri = buildRequestUri(
