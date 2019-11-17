@@ -1,5 +1,7 @@
 package cc.blynk.clickhouse.domain;
 
+import java.util.regex.Pattern;
+
 /**
  * Input / Output formats supported by ClickHouse
  * <p>
@@ -39,11 +41,12 @@ public enum ClickHouseFormat {
     CapnProto;
 
     private static final ClickHouseFormat[] values = values();
+    private static final Pattern PRECOMPILED_PATTERN = Pattern.compile("[;\\s]");
 
     public static ClickHouseFormat detectFormat(String statement) {
         if (statement != null && !statement.isEmpty()) {
             // TODO Proper parsing of comments etc.
-            String s = statement.replaceAll("[;\\s]", "");
+            String s = PRECOMPILED_PATTERN.matcher(statement).replaceAll("");
             for (ClickHouseFormat format : values) {
                 if (s.endsWith(format.name())) {
                     return format;
