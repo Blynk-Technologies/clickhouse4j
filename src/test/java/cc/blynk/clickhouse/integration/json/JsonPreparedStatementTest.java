@@ -71,7 +71,8 @@ public class JsonPreparedStatementTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ClickHouseJsonResponse<DateTimeIntEntry> clickHouseJsonResponse =
-                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<DateTimeIntEntry>>() {});
+                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<DateTimeIntEntry>>() {
+                });
 
         assertNotNull(clickHouseJsonResponse);
 
@@ -90,8 +91,8 @@ public class JsonPreparedStatementTest {
         assertEquals(2, clickHouseJsonResponse.getRows());
 
         ClickHouseJsonResponseStatistics statistics = clickHouseJsonResponse.getStatistics();
-        assertEquals(2, statistics.getRows_read());
-        assertEquals(16, statistics.getBytes_read());
+        assertEquals(2, statistics.getRowsRead());
+        assertEquals(16, statistics.getBytesRead());
 
         DateTimeIntEntry[] entries = clickHouseJsonResponse.getData();
         assertNotNull(entries);
@@ -130,7 +131,8 @@ public class JsonPreparedStatementTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ClickHouseJsonResponse<DateTimeIntEntry> clickHouseJsonResponse =
-                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<DateTimeIntEntry>>() {});
+                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<DateTimeIntEntry>>() {
+                });
 
         assertNotNull(clickHouseJsonResponse);
 
@@ -149,8 +151,8 @@ public class JsonPreparedStatementTest {
         assertEquals(1_000_000, clickHouseJsonResponse.getRows());
 
         ClickHouseJsonResponseStatistics statistics = clickHouseJsonResponse.getStatistics();
-        assertEquals(1_000_000, statistics.getRows_read());
-        assertEquals(8 * 1_000_000, statistics.getBytes_read());
+        assertEquals(1_000_000, statistics.getRowsRead());
+        assertEquals(8 * 1_000_000, statistics.getBytesRead());
 
         DateTimeIntEntry[] entries = clickHouseJsonResponse.getData();
         assertNotNull(entries);
@@ -181,7 +183,8 @@ public class JsonPreparedStatementTest {
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT x FROM test.json_test FORMAT JSON");
         } catch (ClickHouseException che) {
-            assertTrue(che.getMessage().contains("Code: 47, e.displayText() = DB::Exception: Missing columns: 'x' while processing query"));
+            assertTrue(che.getMessage().contains(
+                    "Code: 47, e.displayText() = DB::Exception: Missing columns: 'x' while processing query"));
             throw che;
         }
     }

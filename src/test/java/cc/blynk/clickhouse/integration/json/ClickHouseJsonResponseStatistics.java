@@ -1,12 +1,16 @@
 package cc.blynk.clickhouse.integration.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class ClickHouseJsonResponseStatistics {
 
     private double elapsed;
 
-    private long rows_read;
+    @JsonProperty("rows_read")
+    private long rowsRead;
 
-    private long bytes_read;
+    @JsonProperty("bytes_read")
+    private long bytesRead;
 
     public ClickHouseJsonResponseStatistics() {
     }
@@ -15,11 +19,11 @@ public final class ClickHouseJsonResponseStatistics {
         return elapsed;
     }
 
-    public long getRows_read() {
-        return rows_read;
+    public long getRowsRead() {
+        return rowsRead;
     }
 
-    public long getBytes_read() {
-        return bytes_read;
+    public long getBytesRead() {
+        return bytesRead;
     }
 }
