@@ -9,6 +9,7 @@ The main differences between this and the official driver are:
 - Smaller size - 850kb vs 5.6mb of the original driver (**7x smaller jar size**)
 - A bunch of micro optimizations were applied (for example, **batch inserts are now 40% faster**)
 - [CopyManager](https://github.com/blynkkk/clickhouse4j/blob/master/src/main/java/cc/blynk/clickhouse/copy/CopyManager.java) added;
+- Support for JSON, JSONCompact select;
 - Compiled against Java 8 and many [other things](https://github.com/blynkkk/clickhouse4j/blob/master/CHANGELOG)
 
 ### Usage
@@ -16,36 +17,94 @@ The main differences between this and the official driver are:
 <dependency>
     <groupId>cc.blynk.clickhouse</groupId>
     <artifactId>clickhouse4j</artifactId>
-    <version>1.1.1</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
 ### CopyManager usage
-```CopyManager``` is utility class that helps to read the queries from / to the file.
+```CopyManager``` is utility class that helps to read / write the queries from / to the file/stream/reader.
 
-#### Writing the sql result from the DB directly to the file
+##### Select from DB to File
 
 ```
-String query = "SELECT * from copy_manager_test.csv_data FORMAT CSVWithNames";
+String query = "SELECT * from copy_manager_test.my_table FORMAT CSVWithNames";
 Path outputFile = ...;
 
 try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
     copyManager.copyFromDb(query, outputFile);
 }
-//outputFile now has all the data and headers from the copy_manager_test DB and csv_data table
+//outputFile now has all the data and headers from the copy_manager_test DB and my_table table
 ```
 
-#### Reading from the file and forwarding it to the DB
+##### Select from DB to File with prepared statement
 
 ```
-String query = "INSERT INTO copy_manager_test.csv_data FORMAT CSV";
+try (Connection connection = dataSource.getConnection();
+     PreparedStatement ps = connection.prepareStatement(sql);
+     CopyManager copyManager = CopyManagerFactory.create(connection)) {
+        ps.setLong(1, id);
+        copyManager.copyFromDb(ps, outputStream);
+}
+```
+
+##### Insert from File to DB
+
+```
+String query = "INSERT INTO copy_manager_test.my_table FORMAT CSV";
 Path inputFile = ...;
 
 try (CopyManager copyManager = CopyManagerFactory.create(dataSource)) {
     copyManager.copyToDb(query, inputFile);
 }
 
-//DB copy_manager_test and csv_data table now has all csv data from the inputFile
+//DB copy_manager_test and my_table table now has all csv data from the inputFile
+```
+
+##### Select as JSON
+
+```
+ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM test.my_table FORMAT JSON");
+if (rs.next()) {
+    return rs.getString("json");
+}
+
+//respone example:
+
+{
+	"meta":
+	[
+		{
+			"name": "created",
+			"type": "DateTime"
+		},
+		{
+			"name": "value",
+			"type": "Int32"
+		}
+	],
+
+	"data":
+	[
+		{
+			"created": "2019-11-17 11:31:22",
+			"value": 1
+		},
+		{
+			"created": "2019-11-17 11:31:22",
+			"value": 2
+		}
+	],
+
+	"rows": 2,
+
+	"statistics":
+	{
+		"elapsed": 0.000312306,
+		"rows_read": 2,
+		"bytes_read": 16
+	}
+}
+
 ```
 
 ### Migration from the official driver

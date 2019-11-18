@@ -1,3 +1,12 @@
+1.3.0
+  * Refactorings, cleanup, micro optimizations
+  * Support for JSON, JSONCompact selects
+
+1.2.0
+  * Added more utility methods to the CopyManager
+  * Correctly reset PreparedStatement
+  * correct module info for Java 9
+
 1.1.1
   * CopyManager now implements Closeable
   * Added methods to work with files directly
