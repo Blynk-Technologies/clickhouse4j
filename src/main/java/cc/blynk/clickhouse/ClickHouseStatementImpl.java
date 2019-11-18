@@ -629,7 +629,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                                      properties);
         }
 
-        if (this.selectFormat == ClickHouseFormat.JSON) {
+        if (this.selectFormat == ClickHouseFormat.JSON || this.selectFormat == ClickHouseFormat.JSONCompact) {
             return new ClickHouseJsonResultSet(
                     is,
                     bufferSize,
