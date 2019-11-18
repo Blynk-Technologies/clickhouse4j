@@ -188,4 +188,65 @@ public class JsonPreparedStatementTest {
             throw che;
         }
     }
+
+    @Test
+    public void basicJsonCompactTest() throws Exception {
+        Statement statement = connection.createStatement();
+        statement.execute("DROP TABLE IF EXISTS test.json_test");
+
+        statement.execute(
+                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+        );
+
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+            ps.setLong(1, System.currentTimeMillis() / 1000);
+            ps.setInt(2, 1);
+            ps.addBatch();
+
+            ps.setLong(1, System.currentTimeMillis() / 1000);
+            ps.setInt(2, 2);
+            ps.addBatch();
+            ps.executeBatch();
+        }
+
+        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM test.json_test FORMAT JSONCompact");
+        rs.next();
+
+        String json = rs.getString("json");
+        assertNotNull(json);
+        assertFalse(rs.next());
+        System.out.println(json);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ClickHouseJsonResponse<Object[]> clickHouseJsonResponse =
+                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<Object[]>>() {
+                });
+
+        assertNotNull(clickHouseJsonResponse);
+
+        ClickHouseColumnHeader[] columnHeaders = clickHouseJsonResponse.getMeta();
+        assertNotNull(columnHeaders);
+        assertEquals(2, columnHeaders.length);
+
+        ClickHouseColumnHeader createdHeader = columnHeaders[0];
+        assertEquals("created", createdHeader.getName());
+        assertEquals(ClickHouseDataType.DateTime, createdHeader.getType());
+
+        ClickHouseColumnHeader valueHeader = columnHeaders[1];
+        assertEquals("value", valueHeader.getName());
+        assertEquals(ClickHouseDataType.Int32, valueHeader.getType());
+
+        assertEquals(2, clickHouseJsonResponse.getRows());
+
+        ClickHouseJsonResponseStatistics statistics = clickHouseJsonResponse.getStatistics();
+        assertEquals(2, statistics.getRowsRead());
+        assertEquals(16, statistics.getBytesRead());
+
+        Object[] entries = clickHouseJsonResponse.getData();
+        assertNotNull(entries);
+        assertEquals(2, entries.length);
+        assertEquals(Integer.valueOf(1), ((Object[]) entries[0])[1]);
+        assertEquals(Integer.valueOf(2), ((Object[]) entries[1])[1]);
+    }
 }
