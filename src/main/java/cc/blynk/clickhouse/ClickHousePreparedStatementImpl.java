@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -383,8 +383,9 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         if (!isSelect(sql)) {
             return null;
         }
-        ResultSet myRs = executeQuery(Collections.singletonMap(
-                ClickHouseQueryParam.MAX_RESULT_ROWS, "0"));
+        Map<ClickHouseQueryParam, String> map = new EnumMap<>(ClickHouseQueryParam.class);
+        map.put(ClickHouseQueryParam.MAX_RESULT_ROWS, "0");
+        ResultSet myRs = executeQuery(map);
         return myRs != null ? myRs.getMetaData() : null;
     }
 

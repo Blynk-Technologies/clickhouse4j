@@ -161,15 +161,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                   Map<ClickHouseQueryParam, String> additionalDBParams,
                                   List<ClickHouseExternalData> externalData,
                                   Map<String, String> additionalRequestParams) throws SQLException {
-
-        // forcibly disable extremes for ResultSet queries
-        if (additionalDBParams == null || additionalDBParams.isEmpty()) {
-            additionalDBParams = new EnumMap<>(ClickHouseQueryParam.class);
-        } else {
-            additionalDBParams = new EnumMap<>(additionalDBParams);
-        }
-        additionalDBParams.put(ClickHouseQueryParam.EXTREMES, "0");
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         sendRequest(sql, out, additionalDBParams, externalData, additionalRequestParams);
         InputStream is = new ByteArrayInputStream(out.toByteArray());

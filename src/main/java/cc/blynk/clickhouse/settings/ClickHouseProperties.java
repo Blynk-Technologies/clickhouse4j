@@ -325,8 +325,12 @@ public class ClickHouseProperties {
             params.put(ClickHouseQueryParam.DECOMPRESS, "1");
         }
 
+        //extremes are not supported by the driver
+        //because it requires to change the response parser
+        //so extremes are always ignored if set
         if (extremes) {
-            params.put(ClickHouseQueryParam.EXTREMES, "1");
+            //todo log the warning
+            params.put(ClickHouseQueryParam.EXTREMES, "0");
         }
 
         if (profile == null || profile.isEmpty()) {
