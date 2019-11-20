@@ -53,7 +53,6 @@ public final class ClickHouseArrayUtil {
         return builder.build();
     }
 
-    //for now just for numbers, not escaping for string
     public static String buildCollectionString(int[] collection) {
         if (collection == null || collection.length == 0) {
             return "";
@@ -74,7 +73,7 @@ public final class ClickHouseArrayUtil {
         for (long obj : collection) {
             sb.append(obj).append(",");
         }
-        sb.setLength(sb.length() - 1);
+        sb.setLength(sb.length() - 1); // remove last char
         return sb.toString();
     }
 
@@ -90,7 +89,7 @@ public final class ClickHouseArrayUtil {
                 sb.append(obj).append(",");
             }
         }
-        sb.setLength(sb.length() - 1);
+        sb.setLength(sb.length() - 1); // remove last char
         return sb.toString();
     }
 
