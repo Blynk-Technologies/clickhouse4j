@@ -53,6 +53,47 @@ public final class ClickHouseArrayUtil {
         return builder.build();
     }
 
+    //for now just for numbers, not escaping for string
+    public static String buildCollectionString(int[] collection) {
+        if (collection == null || collection.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int obj : collection) {
+            sb.append(obj).append(",");
+        }
+        sb.setLength(sb.length() - 1); // remove last char
+        return sb.toString();
+    }
+
+    public static String buildCollectionString(long[] collection) {
+        if (collection == null || collection.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (long obj : collection) {
+            sb.append(obj).append(",");
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
+    }
+
+    public static String buildCollectionString(Collection collection) {
+        if (collection == null || collection.size() == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Object obj : collection.toArray()) {
+            if (obj instanceof String) {
+                sb.append("\'").append(obj).append("\'").append(",");
+            } else {
+                sb.append(obj).append(",");
+            }
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
+    }
+
     public static String toString(Collection<?> collection, TimeZone dateTimeZone,
                                   TimeZone dateTimeTimeZone) {
         return toString(collection.toArray(), dateTimeZone, dateTimeTimeZone);

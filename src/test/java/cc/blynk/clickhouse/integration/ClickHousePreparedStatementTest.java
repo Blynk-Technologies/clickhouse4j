@@ -24,6 +24,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -608,6 +609,39 @@ public class ClickHousePreparedStatementTest {
         Assert.assertEquals(rs.getInt(1), 1337);
         Assert.assertEquals(rs.getString(2), "oof");
         Assert.assertFalse(rs.next());
+    }
+
+    @Test
+    public void testInClauseForPrimitiveArray() throws Exception {
+        String unbindedStatement = "SELECT test.example WHERE id IN (?)";
+        ClickHousePreparedStatement statement = (ClickHousePreparedStatement)
+                connection.prepareStatement(unbindedStatement);
+        assertEquals(statement.asSql(), unbindedStatement);
+
+        statement.setIn(1, new int[] {123, 456});
+        assertEquals(statement.asSql(), "SELECT test.example WHERE id IN (123,456)");
+    }
+
+    @Test
+    public void testInClauseForStringCollection() throws Exception {
+        String unbindedStatement = "SELECT test.example WHERE id IN (?)";
+        ClickHousePreparedStatement statement = (ClickHousePreparedStatement)
+                connection.prepareStatement(unbindedStatement);
+        assertEquals(statement.asSql(), unbindedStatement);
+
+        statement.setIn(1, Arrays.asList("a", "b", "c"));
+        assertEquals(statement.asSql(), "SELECT test.example WHERE id IN ('a','b','c')");
+    }
+
+    @Test
+    public void testInClauseForLongCollection() throws Exception {
+        String unbindedStatement = "SELECT test.example WHERE id IN (?)";
+        ClickHousePreparedStatement statement = (ClickHousePreparedStatement)
+                connection.prepareStatement(unbindedStatement);
+        assertEquals(statement.asSql(), unbindedStatement);
+
+        statement.setIn(1, Arrays.asList(1L, 2L, 3L));
+        assertEquals(statement.asSql(), "SELECT test.example WHERE id IN (1,2,3)");
     }
 
     // Issue 153

@@ -15,6 +15,12 @@ public interface ClickHousePreparedStatement extends PreparedStatement, ClickHou
 
     void setArray(int parameterIndex, Object[] array) throws SQLException;
 
+    void setIn(int parameterIndex, int[] array) throws SQLException;
+
+    void setIn(int parameterIndex, long[] array) throws SQLException;
+
+    void setIn(int parameterIndex, Collection collection) throws SQLException;
+
     ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
     ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams,

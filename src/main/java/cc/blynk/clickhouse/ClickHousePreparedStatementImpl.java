@@ -288,6 +288,21 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     @Override
+    public void setIn(int parameterIndex, int[] array) throws SQLException {
+        setBind(parameterIndex, ClickHouseArrayUtil.buildCollectionString(array), false);
+    }
+
+    @Override
+    public void setIn(int parameterIndex, long[] array) throws SQLException {
+        setBind(parameterIndex, ClickHouseArrayUtil.buildCollectionString(array), false);
+    }
+
+    @Override
+    public void setIn(int parameterIndex, Collection array) throws SQLException {
+        setBind(parameterIndex, ClickHouseArrayUtil.buildCollectionString(array), false);
+    }
+
+    @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
         if (x != null) {
             String bind = ClickHouseValueFormatter.formatObject(x, dateTimeZone, dateTimeTimeZone);
