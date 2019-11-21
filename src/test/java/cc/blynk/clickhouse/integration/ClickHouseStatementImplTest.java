@@ -13,7 +13,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.sql.Array;
 import java.sql.Connection;
@@ -40,6 +39,7 @@ public class ClickHouseStatementImplTest {
     @BeforeTest
     public void setUp() throws Exception {
         ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setEnableQueryId(true);
         dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
         connection = dataSource.getConnection();
     }
@@ -122,7 +122,7 @@ public class ClickHouseStatementImplTest {
     }
 
     @Test
-    public void testExternalData() throws SQLException, UnsupportedEncodingException {
+    public void testExternalData() throws SQLException {
         ClickHouseStatement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(
                 "select UserName, GroupName " +
@@ -149,9 +149,8 @@ public class ClickHouseStatementImplTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setExtremes(true);
         ClickHouseDataSource dataSource = new ClickHouseDataSource("jdbc:clickhouse://localhost:8123", properties);
-        Connection connection = dataSource.getConnection();
 
-        try {
+        try (Connection connection = dataSource.getConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("select 1");
             StringBuilder sb = new StringBuilder();
@@ -160,8 +159,6 @@ public class ClickHouseStatementImplTest {
             }
 
             Assert.assertEquals(sb.toString(), "1\n");
-        } finally {
-            connection.close();
         }
     }
 
@@ -223,20 +220,17 @@ public class ClickHouseStatementImplTest {
     public void cancelTestQueryIdIsNotSet() throws Exception {
         final ClickHouseStatement firstStatement = dataSource.getConnection().createStatement();
 
-        final AtomicReference<Exception> exceptionAtomicReference = new AtomicReference<Exception>();
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(
-                            ClickHouseQueryParam.class);
-                    params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
-                    firstStatement.executeQuery("SELECT count() FROM system.numbers", params);
-                } catch (Exception e) {
-                    exceptionAtomicReference.set(e);
-                }
+        final AtomicReference<Exception> exceptionAtomicReference = new AtomicReference<>();
+        Thread thread = new Thread(() -> {
+            try {
+                Map<ClickHouseQueryParam, String> params = new EnumMap<>(
+                        ClickHouseQueryParam.class);
+                params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
+                firstStatement.executeQuery("SELECT count() FROM system.numbers", params);
+            } catch (Exception e) {
+                exceptionAtomicReference.set(e);
             }
-        };
+        });
         thread.setDaemon(true);
         thread.start();
 
@@ -263,22 +257,19 @@ public class ClickHouseStatementImplTest {
         final ClickHouseStatement firstStatement = dataSource.getConnection().createStatement();
 
         final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final AtomicReference<Exception> exceptionAtomicReference = new AtomicReference<Exception>();
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Map<ClickHouseQueryParam, String> params = new EnumMap<ClickHouseQueryParam, String>(
-                            ClickHouseQueryParam.class);
-                    params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
-                    params.put(ClickHouseQueryParam.QUERY_ID, queryId);
-                    countDownLatch.countDown();
-                    firstStatement.executeQuery("SELECT count() FROM system.numbers", params);
-                } catch (Exception e) {
-                    exceptionAtomicReference.set(e);
-                }
+        final AtomicReference<Exception> exceptionAtomicReference = new AtomicReference<>();
+        Thread thread = new Thread(() -> {
+            try {
+                Map<ClickHouseQueryParam, String> params = new EnumMap<>(
+                        ClickHouseQueryParam.class);
+                params.put(ClickHouseQueryParam.CONNECT_TIMEOUT, Long.toString(TimeUnit.MINUTES.toMillis(1)));
+                params.put(ClickHouseQueryParam.QUERY_ID, queryId);
+                countDownLatch.countDown();
+                firstStatement.executeQuery("SELECT count() FROM system.numbers", params);
+            } catch (Exception e) {
+                exceptionAtomicReference.set(e);
             }
-        };
+        });
         thread.setDaemon(true);
         thread.start();
         final long timeout = 10;
@@ -323,17 +314,11 @@ public class ClickHouseStatementImplTest {
         long start = System.currentTimeMillis();
 
         do {
-            ClickHouseStatement statement = null;
-            try {
-                statement = connection.createStatement();
+            try (ClickHouseStatement statement = connection.createStatement()) {
                 statement.execute(String.format("SELECT * FROM system.processes where query_id='%s'", queryId));
                 ResultSet resultSet = statement.getResultSet();
                 if (resultSet.next() == isRunning) {
                     return true;
-                }
-            } finally {
-                if (statement != null) {
-                    statement.close();
                 }
             }
 

@@ -34,7 +34,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ClickHouseStatementImpl implements ClickHouseStatement {
@@ -262,11 +261,9 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public void cancel() throws SQLException {
-        if (this.queryId == null || isClosed()) {
-            return;
+        if (this.queryId != null && !isClosed()) {
+            executeQuery("KILL QUERY WHERE query_id='" + this.queryId + "'");
         }
-
-        executeQuery(String.format("KILL QUERY WHERE query_id='%s'", queryId));
     }
 
     @Override
@@ -639,20 +636,16 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                        properties);
     }
 
-    private Map<ClickHouseQueryParam, String> addQueryIdTo(Map<ClickHouseQueryParam, String> parameters) {
-        if (this.queryId != null) {
-            return parameters;
+    private void addQueryIdTo(Map<ClickHouseQueryParam, String> parameters) {
+        if (this.queryId == null && properties.isEnableQueryId()) {
+            String queryId = parameters.get(ClickHouseQueryParam.QUERY_ID);
+            if (queryId == null) {
+                this.queryId = ClickHouseUtil.generateQueryId();
+                parameters.put(ClickHouseQueryParam.QUERY_ID, this.queryId);
+            } else {
+                this.queryId = queryId;
+            }
         }
-
-        String queryId = parameters.get(ClickHouseQueryParam.QUERY_ID);
-        if (queryId == null) {
-            this.queryId = UUID.randomUUID().toString();
-            parameters.put(ClickHouseQueryParam.QUERY_ID, this.queryId);
-        } else {
-            this.queryId = queryId;
-        }
-
-        return parameters;
     }
 
     private void sendRequest(
@@ -671,10 +664,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
         log.debug("Executing SQL: {}", cleanSql);
 
-        additionalClickHouseDBParams = addQueryIdTo(
-                additionalClickHouseDBParams == null
-                        ? new EnumMap<>(ClickHouseQueryParam.class)
-                        : additionalClickHouseDBParams);
+        if (additionalClickHouseDBParams == null) {
+            additionalClickHouseDBParams = new EnumMap<>(ClickHouseQueryParam.class);
+        }
+        addQueryIdTo(additionalClickHouseDBParams);
 
         boolean ignoreDatabase = cleanSql.regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
         URI uri;

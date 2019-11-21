@@ -322,6 +322,7 @@ public enum ClickHouseQueryParam {
                 "How to calculate TOTALS when HAVING is present, as well as when "
                         + "max_rows_to_group_by and group_by_overflow_mode = 'any' are present."),
 
+    ENABLE_QUERY_ID("enable_query_id", false, Boolean.class, ""),
     QUERY_ID("query_id", null, String.class, ""),
 
     QUEUE_MAX_WAIT_MS("queue_max_wait_ms", null, Integer.class, ""),
