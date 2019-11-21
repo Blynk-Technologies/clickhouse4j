@@ -91,7 +91,7 @@ public class ClickHouseProperties {
     private Long maxInsertBlockSize;
     private Boolean insertDeduplicate;
     private Boolean insertDistributedSync;
-
+    private boolean enableQueryId;
 
     public ClickHouseProperties() {
         this(new Properties());
@@ -159,6 +159,7 @@ public class ClickHouseProperties {
         this.maxInsertBlockSize = getSetting(info, ClickHouseQueryParam.MAX_INSERT_BLOCK_SIZE);
         this.insertDeduplicate = getSetting(info, ClickHouseQueryParam.INSERT_DEDUPLICATE);
         this.insertDistributedSync = getSetting(info, ClickHouseQueryParam.INSERT_DISTRIBUTED_SYNC);
+        this.enableQueryId = getSetting(info, ClickHouseQueryParam.ENABLE_QUERY_ID);
     }
 
     public Properties asProperties() {
@@ -224,6 +225,7 @@ public class ClickHouseProperties {
         ret.put(ClickHouseQueryParam.MAX_INSERT_BLOCK_SIZE.getKey(), maxInsertBlockSize);
         ret.put(ClickHouseQueryParam.INSERT_DEDUPLICATE.getKey(), insertDeduplicate);
         ret.put(ClickHouseQueryParam.INSERT_DISTRIBUTED_SYNC.getKey(), insertDistributedSync);
+        ret.put(ClickHouseQueryParam.ENABLE_QUERY_ID.getKey(), enableQueryId);
 
         return ret.getProperties();
     }
@@ -289,6 +291,7 @@ public class ClickHouseProperties {
         setMaxInsertBlockSize(properties.maxInsertBlockSize);
         setInsertDeduplicate(properties.insertDeduplicate);
         setInsertDistributedSync(properties.insertDistributedSync);
+        setEnableQueryId(properties.enableQueryId);
     }
 
     public Map<ClickHouseQueryParam, String> buildQueryParams(boolean ignoreDatabase) {
@@ -393,7 +396,7 @@ public class ClickHouseProperties {
         }
 
         if (sessionId != null) {
-            params.put(ClickHouseQueryParam.SESSION_ID, String.valueOf(sessionId));
+            params.put(ClickHouseQueryParam.SESSION_ID, sessionId);
         }
 
         if (sessionTimeout != null) {
@@ -945,6 +948,14 @@ public class ClickHouseProperties {
 
     public void setInsertDistributedSync(Boolean insertDistributedSync) {
         this.insertDistributedSync = insertDistributedSync;
+    }
+
+    public boolean isEnableQueryId() {
+        return enableQueryId;
+    }
+
+    public void setEnableQueryId(boolean enableQueryId) {
+        this.enableQueryId = enableQueryId;
     }
 
     public ClickHouseProperties merge(ClickHouseProperties second) {
