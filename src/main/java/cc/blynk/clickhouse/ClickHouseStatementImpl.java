@@ -663,7 +663,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         if (this.isSelect && this.selectFormat == null) {
             cleanSql = addFormat(cleanSql, ClickHouseFormat.TabSeparatedWithNamesAndTypes);
         }
-        log.debug("Executing SQL: {}", cleanSql);
 
         if (additionalClickHouseDBParams == null) {
             additionalClickHouseDBParams = new EnumMap<>(ClickHouseQueryParam.class);
@@ -672,6 +671,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
         boolean ignoreDatabase = cleanSql.regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
         URI uri;
+
         if (externalData == null || externalData.isEmpty()) {
             uri = buildRequestUri(
                     null,
@@ -680,7 +680,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
-            log.debug("Request url: {}", uri);
+            log.debug("Executing SQL: {} {}Url: {}", cleanSql, System.lineSeparator(), uri);
             return httpConnector.post(cleanSql, uri);
         } else {
             // write sql in query params when there is external data
@@ -693,7 +693,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
-            log.debug("Request url: {}", uri);
+            log.debug("Executing SQL: {} {}Url: {}", cleanSql, System.lineSeparator(), uri);
             return httpConnector.post(externalData, uri);
         }
     }

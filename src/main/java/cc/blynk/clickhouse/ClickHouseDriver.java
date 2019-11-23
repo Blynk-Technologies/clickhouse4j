@@ -3,7 +3,6 @@ package cc.blynk.clickhouse;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
-import cc.blynk.clickhouse.util.LogProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,7 @@ public final class ClickHouseDriver implements Driver {
             return null;
         }
         logger.debug("Creating connection");
-        ClickHouseConnectionImpl connection = new ClickHouseConnectionImpl(url, properties);
-        return LogProxy.wrap(ClickHouseConnection.class, connection);
+        return new ClickHouseConnectionImpl(url, properties);
     }
 
     @Override
