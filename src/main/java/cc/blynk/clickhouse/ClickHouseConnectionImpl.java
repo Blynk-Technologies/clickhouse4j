@@ -5,7 +5,6 @@ import cc.blynk.clickhouse.http.HttpConnector;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
-import cc.blynk.clickhouse.util.LogProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,23 +96,12 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     public ClickHouseStatement createStatement(int resultSetType) {
-        return LogProxy.wrap(ClickHouseStatement.class,
-                             new ClickHouseStatementImpl(httpConnector, this, properties, resultSetType));
+        return new ClickHouseStatementImpl(httpConnector, this, properties, resultSetType);
     }
 
     @Override
     public TimeZone getTimeZone() {
         return timezone;
-    }
-
-    private PreparedStatement createPreparedStatement(String sql, int resultSetType) {
-        return LogProxy.wrap(PreparedStatement.class,
-                new ClickHousePreparedStatementImpl(httpConnector,
-                                                                 this,
-                                                                 properties,
-                                                                 sql,
-                                                                 getTimeZone(),
-                                                                 resultSetType));
     }
 
     @Override
@@ -150,7 +138,12 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) {
-        return createPreparedStatement(sql, DEFAULT_RESULTSET_TYPE);
+        return new ClickHousePreparedStatementImpl(httpConnector,
+                                                   this,
+                                                   properties,
+                                                   sql,
+                                                   getTimeZone(),
+                                                   DEFAULT_RESULTSET_TYPE);
     }
 
     @Override
@@ -196,7 +189,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public DatabaseMetaData getMetaData() {
-        return LogProxy.wrap(DatabaseMetaData.class, new ClickHouseDatabaseMetadata(url, this));
+        return new ClickHouseDatabaseMetadata(url, this);
     }
 
     @Override
@@ -247,10 +240,14 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     }
 
-
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) {
-        return createPreparedStatement(sql, resultSetType);
+        return new ClickHousePreparedStatementImpl(this.httpConnector,
+                                                   this,
+                                                   this.properties,
+                                                   sql,
+                                                   getTimeZone(),
+                                                   resultSetType);
     }
 
     @Override
@@ -303,7 +300,12 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
                                               int resultSetType,
                                               int resultSetConcurrency,
                                               int resultSetHoldability) {
-        return createPreparedStatement(sql, resultSetType);
+        return new ClickHousePreparedStatementImpl(this.httpConnector,
+                                                   this,
+                                                   this.properties,
+                                                   sql,
+                                                   getTimeZone(),
+                                                   resultSetType);
     }
 
     @Override
