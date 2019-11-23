@@ -1,3 +1,11 @@
+1.4.0
+  * Fixed issue where full response form DB was read into the memory. Now data is read while you iterate the ResultSet
+  * Removed "extremes=0" from the query as this is default parameter in CH
+  * Removed "query_id=xxx" from the query as this is not mandatory parameter. You need to explicitly enable it
+  * Added support for dynamic number of parameters in IN clause
+  * Removed LogProxy class
+  * Small optimizations and refactortings
+
 1.3.0
   * Refactorings, cleanup, micro optimizations
   * Support for JSON, JSONCompact selects
