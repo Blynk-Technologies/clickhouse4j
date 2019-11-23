@@ -104,8 +104,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 : cleanSQL.length();
         sb.append(cleanSQL, 0, idx)
                 .append(" FORMAT ")
-                .append(format.name())
-                .append(';');
+                .append(format.name());
         return sb.toString();
     }
 
