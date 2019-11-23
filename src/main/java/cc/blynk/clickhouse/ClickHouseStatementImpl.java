@@ -160,8 +160,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                   List<ClickHouseExternalData> externalData,
                                   Map<String, String> additionalRequestParams) throws SQLException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        sendRequest(sql, out, additionalDBParams, externalData, additionalRequestParams);
-        InputStream is = new ByteArrayInputStream(out.toByteArray());
+        InputStream is = sendRequest(sql, out, additionalDBParams, externalData, additionalRequestParams);
 
         try {
             if (this.isSelect) {
@@ -190,7 +189,8 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        sendRequest(sql, null, null, null, null);
+        InputStream is = sendRequest(sql, null, null, null, null);
+        StreamUtils.close(is);
         return 1;
     }
 
@@ -437,13 +437,11 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             cleanSql = addFormat(cleanSql, ClickHouseFormat.RowBinary);
         }
 
-        sendRequest(cleanSql,
+        InputStream is = sendRequest(cleanSql,
                 out,
                 additionalDBParams,
                 null,
                 additionalRequestParams);
-
-        ByteArrayInputStream is = new ByteArrayInputStream(out.toByteArray());
 
         try {
             if (this.isSelect) {
@@ -586,7 +584,11 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                               Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.post(sql, responseContent, uri);
+        try (InputStream is = httpConnector.post(sql, uri)) {
+            StreamUtils.copy(is, responseContent);
+        } catch (Exception e) {
+            log.error("Error", e);
+        }
     }
 
     public void closeOnCompletion() {
@@ -647,7 +649,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
     }
 
-    private void sendRequest(
+    private InputStream sendRequest(
             String sql,
             OutputStream to,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
@@ -679,7 +681,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Request url: {}", uri);
-            httpConnector.post(cleanSql, to, uri);
+            return httpConnector.post(cleanSql, uri);
         } else {
             // write sql in query params when there is external data
             // as it is impossible to pass both external data and sql in body
@@ -692,7 +694,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Request url: {}", uri);
-            httpConnector.post(externalData, to, uri);
+            return httpConnector.post(externalData, uri);
         }
     }
 

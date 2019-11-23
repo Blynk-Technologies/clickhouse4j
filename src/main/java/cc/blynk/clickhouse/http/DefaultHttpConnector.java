@@ -57,9 +57,9 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(InputStream from, OutputStream to, URI uri) throws ClickHouseException {
+    public InputStream post(InputStream from, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
-        sendPostRequest(from, to, connection);
+        return sendPostRequest(from, connection);
     }
 
     @Override
@@ -69,9 +69,9 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(String sql, OutputStream to, URI uri) throws ClickHouseException {
+    public InputStream post(String sql, URI uri) throws ClickHouseException {
         byte[] bytes = getSqlBytes(sql);
-        post(new ByteArrayInputStream(bytes), to, uri);
+        return post(new ByteArrayInputStream(bytes), uri);
     }
 
     @Override
@@ -81,7 +81,7 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void post(List<ClickHouseExternalData> externalData, OutputStream to, URI uri) throws ClickHouseException {
+    public InputStream post(List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException {
         String boundaryString = UUID.randomUUID().toString();
         HttpURLConnection connection = buildConnection(uri);
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
@@ -89,7 +89,7 @@ final class DefaultHttpConnector implements HttpConnector {
         byte[] bytes = buildMultipartData(externalData, boundaryString);
         InputStream from = new ByteArrayInputStream(bytes);
 
-        sendPostRequest(from, to, connection);
+        return sendPostRequest(from, connection);
     }
 
     @Override
@@ -160,10 +160,9 @@ final class DefaultHttpConnector implements HttpConnector {
         return sql.getBytes(UTF_8);
     }
 
-    private void sendPostRequest(InputStream from, OutputStream to, HttpURLConnection connection)
+    private InputStream sendPostRequest(InputStream from, HttpURLConnection connection)
             throws ClickHouseException {
         OutputStream requestStream = null;
-        InputStream responseStream = null;
 
         try {
             requestStream = new DataOutputStream(connection.getOutputStream());
@@ -174,21 +173,16 @@ final class DefaultHttpConnector implements HttpConnector {
             requestStream.flush();
             checkForErrorAndThrow(connection);
 
-            responseStream = properties.isCompress()
+            return properties.isCompress()
                     ? new ClickHouseLZ4Stream(connection.getInputStream())
                     : connection.getInputStream();
 
-            if (to != null) {
-                StreamUtils.copy(responseStream, to);
-                to.flush();
-            }
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         } finally {
             StreamUtils.close(from);
             StreamUtils.close(requestStream);
-            StreamUtils.close(responseStream);
         }
     }
 
