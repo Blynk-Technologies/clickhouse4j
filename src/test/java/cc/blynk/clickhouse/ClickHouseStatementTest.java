@@ -24,12 +24,12 @@ public class ClickHouseStatementTest {
     public void testClickhousify() {
         ClickHouseStatementImpl clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql = "SELECT ololo FROM ololoed;";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
                      clickHouseStatement.addFormat(sql, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql2 = "SELECT ololo FROM ololoed";
-        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+        assertEquals("SELECT ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
                      clickHouseStatement.addFormat(sql2, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         /*
@@ -46,12 +46,12 @@ public class ClickHouseStatementTest {
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql5 = "SHOW ololo FROM ololoed;";
-        assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+        assertEquals("SHOW ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
                      clickHouseStatement.addFormat(sql5, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         clickHouseStatement = new ClickHouseStatementImpl(null, null, null, 1);
         String sql6 = " show ololo FROM ololoed;".trim(); //trim is done within the statement
-        assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes;",
+        assertEquals("show ololo FROM ololoed FORMAT TabSeparatedWithNamesAndTypes",
                      clickHouseStatement.addFormat(sql6, ClickHouseFormat.TabSeparatedWithNamesAndTypes));
 
         /*
