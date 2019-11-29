@@ -1,9 +1,11 @@
 package cc.blynk.clickhouse.integration.json;
 
 import cc.blynk.clickhouse.ClickHouseDataSource;
+import cc.blynk.clickhouse.ClickHouseStatement;
 import cc.blynk.clickhouse.domain.ClickHouseDataType;
 import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
+import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.annotations.AfterTest;
@@ -14,6 +16,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -248,5 +252,73 @@ public class JsonPreparedStatementTest {
         assertEquals(2, entries.length);
         assertEquals(Integer.valueOf(1), ((Object[]) entries[0])[1]);
         assertEquals(Integer.valueOf(2), ((Object[]) entries[1])[1]);
+    }
+
+    @Test
+    public void jsonWith_output_format_json_quote_64bit_integers() throws Exception {
+        Statement statement = connection.createStatement();
+        statement.execute("DROP TABLE IF EXISTS test.json_test");
+
+        statement.execute(
+                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+        );
+
+        long now = System.currentTimeMillis() / 1000 * 1000;
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+            ps.setLong(1, now / 1000);
+            ps.setInt(2, 1);
+            ps.addBatch();
+
+            ps.setLong(1, now / 1000);
+            ps.setInt(2, 2);
+            ps.addBatch();
+            ps.executeBatch();
+        }
+
+        Map<ClickHouseQueryParam, String> params = new HashMap<>();
+        params.put(ClickHouseQueryParam.OUTPUT_FORMAT_JSON_QUOTE_64BIT_INTEGERS, "false");
+        ResultSet rs = ((ClickHouseStatement) connection.createStatement()).executeQuery(
+                "SELECT toUnixTimestamp(created) * 1000 as created, value FROM test.json_test FORMAT JSON", params);
+        rs.next();
+
+        String json = rs.getString("json");
+        assertNotNull(json);
+        assertFalse(rs.next());
+        System.out.println(json);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ClickHouseJsonResponse<LongIntEntry> clickHouseJsonResponse =
+                objectMapper.readValue(json, new TypeReference<ClickHouseJsonResponse<LongIntEntry>>() {
+                });
+
+        assertNotNull(clickHouseJsonResponse);
+
+        ClickHouseColumnHeader[] columnHeaders = clickHouseJsonResponse.getMeta();
+        assertNotNull(columnHeaders);
+        assertEquals(2, columnHeaders.length);
+
+        ClickHouseColumnHeader createdHeader = columnHeaders[0];
+        assertEquals("created", createdHeader.getName());
+        assertEquals(ClickHouseDataType.UInt64, createdHeader.getType());
+
+        ClickHouseColumnHeader valueHeader = columnHeaders[1];
+        assertEquals("value", valueHeader.getName());
+        assertEquals(ClickHouseDataType.Int32, valueHeader.getType());
+
+        assertEquals(2, clickHouseJsonResponse.getRows());
+
+        ClickHouseJsonResponseStatistics statistics = clickHouseJsonResponse.getStatistics();
+        assertEquals(2, statistics.getRowsRead());
+        assertEquals(16, statistics.getBytesRead());
+
+        LongIntEntry[] entries = clickHouseJsonResponse.getData();
+        assertNotNull(entries);
+        assertEquals(2, entries.length);
+        assertEquals(1, entries[0].value);
+        assertEquals(now, entries[0].created);
+
+        assertEquals(2, entries[1].value);
+        assertEquals(now, entries[1].created);
     }
 }
