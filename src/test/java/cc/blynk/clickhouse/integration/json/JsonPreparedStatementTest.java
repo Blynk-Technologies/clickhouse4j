@@ -255,7 +255,7 @@ public class JsonPreparedStatementTest {
     }
 
     @Test
-    public void jsonWith_output_format_json_quote_64bit_integers() throws Exception {
+    public void jsonWithOutputFormatJsonQuote64bitIntegers() throws Exception {
         Statement statement = connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS test.json_test");
 
