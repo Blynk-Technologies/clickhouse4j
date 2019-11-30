@@ -1,5 +1,9 @@
 package cc.blynk.clickhouse;
 
+import cc.blynk.clickhouse.settings.ClickHouseProperties;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -21,6 +25,17 @@ public final class ClickHouseUtil {
             }
         }
         return string;
+    }
+
+    public static URI buildURI(ClickHouseProperties properties, String queryParams) throws URISyntaxException {
+        return new URI(properties.getSsl() ? "https" : "http",
+                       null,
+                       properties.getHost(),
+                       properties.getPort(),
+                       properties.getPath(),
+                       queryParams,
+                       null
+        );
     }
 
     private static String escapeSlow(String s, int index) {

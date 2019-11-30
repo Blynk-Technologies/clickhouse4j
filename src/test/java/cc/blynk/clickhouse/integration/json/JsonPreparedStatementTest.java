@@ -47,14 +47,14 @@ public class JsonPreparedStatementTest {
     @Test
     public void basicJsonTest() throws Exception {
         Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS test.json_test");
+        statement.execute("DROP TABLE IF EXISTS json_test");
 
         statement.execute(
-                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+                "CREATE TABLE IF NOT EXISTS json_test (created DateTime, value Int32) ENGINE = TinyLog"
         );
 
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+                "INSERT INTO json_test (created, value) VALUES (?, ?)")) {
             ps.setLong(1, System.currentTimeMillis() / 1000);
             ps.setInt(2, 1);
             ps.addBatch();
@@ -65,7 +65,7 @@ public class JsonPreparedStatementTest {
             ps.executeBatch();
         }
 
-        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM test.json_test FORMAT JSON");
+        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM json_test FORMAT JSON");
         rs.next();
 
         String json = rs.getString("json");
@@ -108,14 +108,14 @@ public class JsonPreparedStatementTest {
     @Test
     public void basicBigJsonTest() throws Exception {
         Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS test.json_test");
+        statement.execute("DROP TABLE IF EXISTS json_test");
 
         statement.execute(
-                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+                "CREATE TABLE IF NOT EXISTS json_test (created DateTime, value Int32) ENGINE = TinyLog"
         );
 
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+                "INSERT INTO json_test (created, value) VALUES (?, ?)")) {
 
             long now = System.currentTimeMillis() / 1000;
             for (int i = 0; i < 1_000_000; i++) {
@@ -126,7 +126,7 @@ public class JsonPreparedStatementTest {
             ps.executeBatch();
         }
 
-        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM test.json_test FORMAT JSON");
+        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM json_test FORMAT JSON");
         rs.next();
 
         String json = rs.getString("json");
@@ -166,14 +166,14 @@ public class JsonPreparedStatementTest {
     @Test(expectedExceptions = ClickHouseException.class)
     public void testJsonThrowsError() throws Exception {
         Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS test.json_test");
+        statement.execute("DROP TABLE IF EXISTS json_test");
 
         statement.execute(
-                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+                "CREATE TABLE IF NOT EXISTS json_test (created DateTime, value Int32) ENGINE = TinyLog"
         );
 
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+                "INSERT INTO json_test (created, value) VALUES (?, ?)")) {
             ps.setLong(1, System.currentTimeMillis() / 1000);
             ps.setInt(2, 1);
             ps.addBatch();
@@ -185,7 +185,7 @@ public class JsonPreparedStatementTest {
         }
 
         try {
-            ResultSet rs = connection.createStatement().executeQuery("SELECT x FROM test.json_test FORMAT JSON");
+            ResultSet rs = connection.createStatement().executeQuery("SELECT x FROM json_test FORMAT JSON");
         } catch (ClickHouseException che) {
             assertTrue(che.getMessage().contains(
                     "Code: 47, e.displayText() = DB::Exception: Missing columns: 'x' while processing query"));
@@ -196,14 +196,14 @@ public class JsonPreparedStatementTest {
     @Test
     public void basicJsonCompactTest() throws Exception {
         Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS test.json_test");
+        statement.execute("DROP TABLE IF EXISTS json_test");
 
         statement.execute(
-                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+                "CREATE TABLE IF NOT EXISTS json_test (created DateTime, value Int32) ENGINE = TinyLog"
         );
 
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+                "INSERT INTO json_test (created, value) VALUES (?, ?)")) {
             ps.setLong(1, System.currentTimeMillis() / 1000);
             ps.setInt(2, 1);
             ps.addBatch();
@@ -214,7 +214,7 @@ public class JsonPreparedStatementTest {
             ps.executeBatch();
         }
 
-        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM test.json_test FORMAT JSONCompact");
+        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM json_test FORMAT JSONCompact");
         rs.next();
 
         String json = rs.getString("json");
@@ -257,15 +257,15 @@ public class JsonPreparedStatementTest {
     @Test
     public void jsonWithOutputFormatJsonQuote64bitIntegers() throws Exception {
         Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS test.json_test");
+        statement.execute("DROP TABLE IF EXISTS json_test");
 
         statement.execute(
-                "CREATE TABLE IF NOT EXISTS test.json_test (created DateTime, value Int32) ENGINE = TinyLog"
+                "CREATE TABLE IF NOT EXISTS json_test (created DateTime, value Int32) ENGINE = TinyLog"
         );
 
         long now = System.currentTimeMillis() / 1000 * 1000;
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO test.json_test (created, value) VALUES (?, ?)")) {
+                "INSERT INTO json_test (created, value) VALUES (?, ?)")) {
             ps.setLong(1, now / 1000);
             ps.setInt(2, 1);
             ps.addBatch();
@@ -279,7 +279,7 @@ public class JsonPreparedStatementTest {
         Map<ClickHouseQueryParam, String> params = new HashMap<>();
         params.put(ClickHouseQueryParam.OUTPUT_FORMAT_JSON_QUOTE_64BIT_INTEGERS, "false");
         ResultSet rs = ((ClickHouseStatement) connection.createStatement()).executeQuery(
-                "SELECT toUnixTimestamp(created) * 1000 as created, value FROM test.json_test FORMAT JSON", params);
+                "SELECT toUnixTimestamp(created) * 1000 as created, value FROM json_test FORMAT JSON", params);
         rs.next();
 
         String json = rs.getString("json");

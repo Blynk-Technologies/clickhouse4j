@@ -1,27 +1,27 @@
 package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.net.URI;
 import java.util.Properties;
+
+import static org.testng.Assert.assertEquals;
 
 public class ClickhouseJdbcUrlParserTest {
 
     @Test
     public void testParseDashes() throws Exception {
-        Properties props = new Properties();
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/db-name-with-dash", new Properties());
-        Assert.assertEquals(chProps.getDatabase(), "db-name-with-dash");
+        assertEquals(chProps.getDatabase(), "db-name-with-dash");
     }
 
     @Test
     public void testParseTrailingSlash() throws Exception {
-        Properties props = new Properties();
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/", new Properties());
-        Assert.assertEquals(chProps.getDatabase(), "default");
+        assertEquals(chProps.getDatabase(), "default");
     }
 
     @Test
@@ -30,8 +30,8 @@ public class ClickhouseJdbcUrlParserTest {
         props.setDatabase("database-name");
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/database-name", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "database-name");
-        Assert.assertEquals(chProps.getPath(), "/");
+        assertEquals(chProps.getDatabase(), "database-name");
+        assertEquals(chProps.getPath(), "");
     }
 
     @Test
@@ -41,8 +41,8 @@ public class ClickhouseJdbcUrlParserTest {
         props.setUsePathAsDb(false);
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/database-name", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "database-name");
-        Assert.assertEquals(chProps.getPath(), "/database-name");
+        assertEquals(chProps.getDatabase(), "database-name");
+        assertEquals(chProps.getPath(), "/database-name");
     }
 
     @Test
@@ -51,8 +51,18 @@ public class ClickhouseJdbcUrlParserTest {
         props.setPath("/path");
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "default");
-        Assert.assertEquals(chProps.getPath(), "/path");
+        assertEquals(chProps.getDatabase(), "default");
+        assertEquals(chProps.getPath(), "/path");
+    }
+
+    @Test
+    public void testURlIsWithoutUnnecessarySlash() throws Exception {
+        ClickHouseProperties props = new ClickHouseProperties();
+        ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
+                "jdbc:clickhouse://127.0.0.1:1337/dbName", props.asProperties());
+
+        URI uri = ClickHouseUtil.buildURI(chProps, "database=dbName&compress=1");
+        assertEquals("http://127.0.0.1:1337?database=dbName&compress=1", uri.toString());
     }
 
     @Test
@@ -62,8 +72,8 @@ public class ClickhouseJdbcUrlParserTest {
         props.setUsePathAsDb(false);
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "default");
-        Assert.assertEquals(chProps.getPath(), "/"); //uri takes priority
+        assertEquals(chProps.getDatabase(), "default");
+        assertEquals(chProps.getPath(), ""); //uri takes priority
     }
 
     @Test
@@ -71,8 +81,8 @@ public class ClickhouseJdbcUrlParserTest {
         ClickHouseProperties props = new ClickHouseProperties();
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/db?database=dbname", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "db");
-        Assert.assertEquals(chProps.getPath(), "/");
+        assertEquals(chProps.getDatabase(), "db");
+        assertEquals(chProps.getPath(), "");
     }
 
     @Test
@@ -81,8 +91,8 @@ public class ClickhouseJdbcUrlParserTest {
         props.setUsePathAsDb(false);
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://foo.yandex:1337/db?database=dbname", props.asProperties());
-        Assert.assertEquals(chProps.getDatabase(), "dbname");
-        Assert.assertEquals(chProps.getPath(), "/db");
+        assertEquals(chProps.getDatabase(), "dbname");
+        assertEquals(chProps.getPath(), "/db");
     }
 
 }

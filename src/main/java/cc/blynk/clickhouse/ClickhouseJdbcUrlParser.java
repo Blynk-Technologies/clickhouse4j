@@ -46,8 +46,7 @@ public final class ClickhouseJdbcUrlParser {
         String database;
         if (props.isUsePathAsDb()) {
             if (path == null || path.isEmpty() || path.equals("/")) {
-                String defaultsDb = defaults.getProperty(ClickHouseQueryParam.DATABASE.getKey());
-                database = defaultsDb == null ? DEFAULT_DATABASE : defaultsDb;
+                database = defaults.getProperty(ClickHouseQueryParam.DATABASE.getKey(), DEFAULT_DATABASE);
             } else {
                 Matcher m = DB_PATH_PATTERN.matcher(path);
                 if (m.matches()) {
@@ -61,11 +60,7 @@ public final class ClickhouseJdbcUrlParser {
             if (props.getDatabase() == null || props.getDatabase().isEmpty()) {
                 props.setDatabase(DEFAULT_DATABASE);
             }
-            if (path == null || path.isEmpty()) {
-                props.setPath("/");
-            } else {
-                props.setPath(path);
-            }
+            props.setPath((path == null || path.isEmpty()) ? "" : path);
         }
         return props;
     }
