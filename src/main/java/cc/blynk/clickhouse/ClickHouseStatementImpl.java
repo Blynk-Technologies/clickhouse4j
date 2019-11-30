@@ -706,7 +706,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             boolean ignoreDatabase
     ) {
         try {
-            String query = getUrlQueryParams(
+            String queryParams = getUrlQueryParams(
                     sql,
                     externalData,
                     additionalClickHouseDBParams,
@@ -716,7 +716,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
                     .collect(Collectors.joining("&"));
 
-            return ClickHouseUtil.buildURI(this.properties, query);
+            return ClickHouseUtil.buildURI(this.properties, queryParams);
         } catch (URISyntaxException e) {
             log.error("Mailformed URL: {}", e.getMessage());
             throw new IllegalStateException("illegal configuration of db");

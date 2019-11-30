@@ -27,13 +27,13 @@ public final class ClickHouseUtil {
         return string;
     }
 
-    public static URI buildURI(ClickHouseProperties properties, String query) throws URISyntaxException {
+    public static URI buildURI(ClickHouseProperties properties, String queryParams) throws URISyntaxException {
         return new URI(properties.getSsl() ? "https" : "http",
                        null,
                        properties.getHost(),
                        properties.getPort(),
                        properties.getPath(),
-                       query,
+                       queryParams,
                        null
         );
     }

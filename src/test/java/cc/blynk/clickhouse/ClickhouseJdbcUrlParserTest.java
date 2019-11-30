@@ -61,8 +61,8 @@ public class ClickhouseJdbcUrlParserTest {
         ClickHouseProperties chProps = ClickhouseJdbcUrlParser.parse(
                 "jdbc:clickhouse://127.0.0.1:1337/dbName", props.asProperties());
 
-        URI uri = ClickHouseUtil.buildURI(chProps, "SELECT 1");
-        assertEquals("http://127.0.0.1:1337?SELECT%201", uri.toString());
+        URI uri = ClickHouseUtil.buildURI(chProps, "database=dbName&compress=1");
+        assertEquals("http://127.0.0.1:1337?database=dbName&compress=1", uri.toString());
     }
 
     @Test
