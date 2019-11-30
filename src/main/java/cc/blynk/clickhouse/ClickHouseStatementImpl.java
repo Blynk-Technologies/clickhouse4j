@@ -680,7 +680,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
-            log.debug("Executing SQL: {} {}Url: {}", cleanSql, System.lineSeparator(), uri);
+            log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
             return httpConnector.post(cleanSql, uri);
         } else {
             // write sql in query params when there is external data
@@ -693,7 +693,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     additionalRequestParams,
                     ignoreDatabase
             );
-            log.debug("Executing SQL: {} {}Url: {}", cleanSql, System.lineSeparator(), uri);
+            log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
             return httpConnector.post(externalData, uri);
         }
     }
@@ -716,14 +716,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
                     .collect(Collectors.joining("&"));
 
-            return new URI(properties.getSsl() ? "https" : "http",
-                           null,
-                           properties.getHost(),
-                           properties.getPort(),
-                           properties.getPath() == null || properties.getPath().isEmpty() ? "/" : properties.getPath(),
-                           query,
-                           null
-            );
+            return ClickHouseUtil.buildURI(this.properties, query);
         } catch (URISyntaxException e) {
             log.error("Mailformed URL: {}", e.getMessage());
             throw new IllegalStateException("illegal configuration of db");

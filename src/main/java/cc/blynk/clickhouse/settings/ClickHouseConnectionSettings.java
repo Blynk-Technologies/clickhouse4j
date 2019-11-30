@@ -15,7 +15,7 @@ public enum ClickHouseConnectionSettings {
     SSL_ROOT_CERTIFICATE("sslrootcert", "", "SSL/TLS root certificate"),
     SSL_MODE("sslmode", "strict", "verify or not certificate: none (don't verify), strict (verify)"),
     USE_PATH_AS_DB("use_path_as_db", true, "whether URL path should be treated as database name"),
-    PATH("path", "/", "URL path"),
+    PATH("path", "", "URL path"),
     CHECK_FOR_REDIRECTS("check_for_redirects", false,
                         "whether we should check for 307 redirect using GET before sending POST to given URL"),
     MAX_REDIRECTS("max_redirects", 5, "number of redirect checks before using last URL"),
@@ -55,7 +55,7 @@ public enum ClickHouseConnectionSettings {
     private final String key;
     private final Object defaultValue;
     private final String description;
-    private final Class clazz;
+    private final Class<?> clazz;
 
     ClickHouseConnectionSettings(String key, Object defaultValue, String description) {
         this.key = key;
@@ -72,7 +72,7 @@ public enum ClickHouseConnectionSettings {
         return defaultValue;
     }
 
-    public Class getClazz() {
+    public Class<?> getClazz() {
         return clazz;
     }
 

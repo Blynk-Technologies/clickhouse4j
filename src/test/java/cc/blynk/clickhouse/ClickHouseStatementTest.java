@@ -65,6 +65,7 @@ public class ClickHouseStatementTest {
     @Test
     public void testCredentials() {
         ClickHouseProperties properties = new ClickHouseProperties(new Properties());
+        properties.setHost("localhost");
         ClickHouseProperties withCredentials = properties.withCredentials("test_user", "test_password");
         assertNotSame(withCredentials, properties);
         assertNull(properties.getUser());
@@ -85,6 +86,7 @@ public class ClickHouseStatementTest {
     @Test
     public void testMaxExecutionTime() {
         ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setHost("localhost");
         properties.setMaxExecutionTime(20);
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
                                                                         null,
@@ -103,6 +105,7 @@ public class ClickHouseStatementTest {
     @Test
     public void testMaxMemoryUsage() {
         ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setHost("localhost");
         properties.setMaxMemoryUsage(41L);
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
                                                                         null,
@@ -117,6 +120,7 @@ public class ClickHouseStatementTest {
     @Test
     public void testAdditionalRequestParams() {
         ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setHost("localhost");
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
                 HttpConnectorFactory.getConnector(properties),
                 null,
