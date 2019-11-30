@@ -1,9 +1,13 @@
 package cc.blynk.clickhouse.util;
 
+import net.jpountz.lz4.LZ4Factory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class Utils {
+
+    protected static final LZ4Factory factory = LZ4Factory.fastestInstance();
 
     private Utils() {
     }
