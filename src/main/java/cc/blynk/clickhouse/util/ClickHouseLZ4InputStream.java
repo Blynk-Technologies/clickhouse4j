@@ -1,8 +1,6 @@
-package cc.blynk.clickhouse.response;
+package cc.blynk.clickhouse.util;
 
-import cc.blynk.clickhouse.util.ClickHouseBlockChecksum;
 import cc.blynk.clickhouse.util.guava.LittleEndianDataInputStream;
-import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
 import java.io.IOException;
@@ -12,9 +10,7 @@ import java.io.InputStream;
  * Reader from clickhouse in lz4
  */
 
-public class ClickHouseLZ4Stream extends InputStream {
-
-    private static final LZ4Factory factory = LZ4Factory.safeInstance();
+public class ClickHouseLZ4InputStream extends InputStream {
 
     public static final int MAGIC = 0x82;
 
@@ -24,7 +20,7 @@ public class ClickHouseLZ4Stream extends InputStream {
     private byte[] currentBlock;
     private int pointer;
 
-    public ClickHouseLZ4Stream(InputStream stream) {
+    public ClickHouseLZ4InputStream(InputStream stream) {
         this.stream = stream;
         dataWrapper = new LittleEndianDataInputStream(stream);
     }
@@ -118,7 +114,7 @@ public class ClickHouseLZ4Stream extends InputStream {
         }
 
         byte[] decompressed = new byte[uncompressedSize];
-        LZ4FastDecompressor decompressor = factory.fastDecompressor();
+        LZ4FastDecompressor decompressor = Utils.factory.fastDecompressor();
         decompressor.decompress(block, 0, decompressed, 0, uncompressedSize);
         return decompressed;
     }

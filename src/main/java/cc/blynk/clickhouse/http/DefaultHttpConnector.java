@@ -3,8 +3,8 @@ package cc.blynk.clickhouse.http;
 import cc.blynk.clickhouse.ClickHouseExternalData;
 import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.except.ClickHouseExceptionSpecifier;
-import cc.blynk.clickhouse.response.ClickHouseLZ4Stream;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
+import cc.blynk.clickhouse.util.ClickHouseLZ4InputStream;
 import cc.blynk.clickhouse.util.ClickHouseLZ4OutputStream;
 import cc.blynk.clickhouse.util.guava.StreamUtils;
 import cc.blynk.clickhouse.util.ssl.NonValidatingTrustManager;
@@ -174,7 +174,7 @@ final class DefaultHttpConnector implements HttpConnector {
             checkForErrorAndThrow(connection);
 
             return properties.isCompress()
-                    ? new ClickHouseLZ4Stream(connection.getInputStream())
+                    ? new ClickHouseLZ4InputStream(connection.getInputStream())
                     : connection.getInputStream();
 
         } catch (IOException e) {
@@ -278,7 +278,7 @@ final class DefaultHttpConnector implements HttpConnector {
             byte[] bytes = StreamUtils.toByteArray(messageStream);
             if (properties.isCompress()) {
                 try {
-                    messageStream = new ClickHouseLZ4Stream(new ByteArrayInputStream(bytes));
+                    messageStream = new ClickHouseLZ4InputStream(new ByteArrayInputStream(bytes));
                     bytes = StreamUtils.toByteArray(messageStream);
                 } catch (IOException e) {
                     log.warn("Error while read compressed stream. {}", e.getMessage());

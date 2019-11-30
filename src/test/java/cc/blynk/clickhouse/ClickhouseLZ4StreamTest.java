@@ -1,6 +1,6 @@
 package cc.blynk.clickhouse;
 
-import cc.blynk.clickhouse.response.ClickHouseLZ4Stream;
+import cc.blynk.clickhouse.util.ClickHouseLZ4InputStream;
 import cc.blynk.clickhouse.util.ClickHouseLZ4OutputStream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -24,7 +24,7 @@ public class ClickhouseLZ4StreamTest {
         // System.out.println(result.length);
         Assert.assertTrue(result.length < sb.length() / 2);
         ByteArrayInputStream bais = new ByteArrayInputStream(result);
-        ClickHouseLZ4Stream is = new ClickHouseLZ4Stream(bais);
+        ClickHouseLZ4InputStream is = new ClickHouseLZ4InputStream(bais);
         byte[] buf = new byte[20000000];
         int read = is.read(buf);
         // System.out.println(read);

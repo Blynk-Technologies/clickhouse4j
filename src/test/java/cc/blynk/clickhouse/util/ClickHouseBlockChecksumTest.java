@@ -1,6 +1,5 @@
 package cc.blynk.clickhouse.util;
 
-import cc.blynk.clickhouse.response.ClickHouseLZ4Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -19,7 +18,7 @@ public class ClickHouseBlockChecksumTest {
         int uncompressedSizeBytes = 35;
 
         ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock(
-                (byte) ClickHouseLZ4Stream.MAGIC,
+                (byte) ClickHouseLZ4InputStream.MAGIC,
                 compressedData.length + HEADER_SIZE_BYTES,
                 uncompressedSizeBytes,
                 compressedData,
@@ -38,7 +37,7 @@ public class ClickHouseBlockChecksumTest {
         int uncompressedSizeBytes = 8;
 
         ClickHouseBlockChecksum checksum = ClickHouseBlockChecksum.calculateForBlock(
-                (byte) ClickHouseLZ4Stream.MAGIC,
+                (byte) ClickHouseLZ4InputStream.MAGIC,
                 compressedData.length + HEADER_SIZE_BYTES,
                 uncompressedSizeBytes,
                 compressedData,
