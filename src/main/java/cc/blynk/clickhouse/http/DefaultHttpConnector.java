@@ -128,28 +128,21 @@ final class DefaultHttpConnector implements HttpConnector {
         }
     }
 
-    private void sendPostRequest(String sql, InputStream from, HttpURLConnection connection)
-            throws ClickHouseException {
-        OutputStream requestStream = null;
-        try {
-            requestStream = new DataOutputStream(connection.getOutputStream());
-            if (properties.isDecompress()) {
-                requestStream = new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
-            }
-
+    private void sendPostRequest(String sql,
+                                 InputStream from,
+                                 HttpURLConnection connection) throws ClickHouseException {
+        try (OutputStream requestStream = openOutputStream(connection);
+             InputStream fromIS = from) {
             byte[] sqlBytes = getSqlBytes(sql);
             requestStream.write(sqlBytes);
 
-            StreamUtils.copy(from, requestStream);
+            StreamUtils.copy(fromIS, requestStream);
 
             requestStream.flush();
             checkForErrorAndThrow(connection);
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        } finally {
-            StreamUtils.close(from);
-            StreamUtils.close(requestStream);
         }
     }
 
@@ -162,14 +155,9 @@ final class DefaultHttpConnector implements HttpConnector {
 
     private InputStream sendPostRequest(InputStream from, HttpURLConnection connection)
             throws ClickHouseException {
-        OutputStream requestStream = null;
-
-        try {
-            requestStream = new DataOutputStream(connection.getOutputStream());
-            if (properties.isDecompress()) {
-                requestStream = new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
-            }
-            StreamUtils.copy(from, requestStream);
+        try (OutputStream requestStream = openOutputStream(connection);
+             InputStream fromIS = from) {
+            StreamUtils.copy(fromIS, requestStream);
             requestStream.flush();
             checkForErrorAndThrow(connection);
 
@@ -180,19 +168,21 @@ final class DefaultHttpConnector implements HttpConnector {
         } catch (IOException e) {
             log.error("Http POST request failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        } finally {
-            StreamUtils.close(from);
-            StreamUtils.close(requestStream);
         }
+    }
+
+    private OutputStream openOutputStream(HttpURLConnection connection) throws IOException {
+        OutputStream requestStream = new DataOutputStream(connection.getOutputStream());
+        if (properties.isDecompress()) {
+            return new ClickHouseLZ4OutputStream(requestStream, properties.getMaxCompressBufferSize());
+        }
+        return requestStream;
     }
 
     private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString)
             throws ClickHouseException {
-        ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
-        BufferedWriter httpRequestBodyWriter =
-                new BufferedWriter(new OutputStreamWriter(requestBodyStream));
-
-        try {
+        try (ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
+             BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(requestBodyStream))) {
             for (ClickHouseExternalData data : externalData) {
                 httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
                 httpRequestBodyWriter.write("Content-Disposition: form-data;"
@@ -211,13 +201,9 @@ final class DefaultHttpConnector implements HttpConnector {
             httpRequestBodyWriter.flush();
 
             return requestBodyStream.toByteArray();
-
         } catch (IOException e) {
             log.error("Building Multipart Body failed. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        } finally {
-            StreamUtils.close(requestBodyStream);
-            StreamUtils.close(httpRequestBodyWriter);
         }
     }
 
@@ -251,7 +237,6 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     private void configureHttps(HttpsURLConnection connection) throws ClickHouseException {
-
         if (properties.getSsl()) {
             try {
                 SSLContext sslContext = getSSLContext();

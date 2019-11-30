@@ -15,7 +15,7 @@ final class ByteFragmentUtils {
     private static final char ARRAY_ELEMENTS_SEPARATOR = ',';
     private static final char STRING_QUOTATION = '\'';
 
-    private static final Map<Class, Class> WRAPPER_TO_PRIMITIVE_TYPE = new HashMap<Class, Class>() {
+    private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE_TYPE = new HashMap<Class<?>, Class<?>>() {
         {
             put(Boolean.class, boolean.class);
             put(Byte.class, byte.class);
@@ -157,19 +157,20 @@ final class ByteFragmentUtils {
         }
     }
 
-    static Object parseArray(ByteFragment value, Class elementClass) {
+    static Object parseArray(ByteFragment value, Class<?> elementClass) {
         return parseArray(value, elementClass, false, null);
     }
 
-    static Object parseArray(ByteFragment value, Class elementClass, SimpleDateFormat dateFormat) {
+    static Object parseArray(ByteFragment value, Class<?> elementClass, SimpleDateFormat dateFormat) {
         return parseArray(value, elementClass, false, dateFormat);
     }
 
-    static Object parseArray(ByteFragment value, Class elementClass, boolean useObjects) {
+    static Object parseArray(ByteFragment value, Class<?> elementClass, boolean useObjects) {
         return parseArray(value, elementClass, useObjects, null);
     }
 
-    static Object parseArray(ByteFragment value, Class elementClass, boolean useObjects, SimpleDateFormat dateFormat) {
+    static Object parseArray(ByteFragment value, Class<?> elementClass,
+                             boolean useObjects, SimpleDateFormat dateFormat) {
         if (value.isNull()) {
             return null;
         }
@@ -320,9 +321,9 @@ final class ByteFragmentUtils {
         return length;
     }
 
-    private static Class unwrap(Class type) {
+    private static Class<?> unwrap(Class<?> type) {
         Objects.requireNonNull(type);
-        Class unwrapped = WRAPPER_TO_PRIMITIVE_TYPE.get(type);
+        Class<?> unwrapped = WRAPPER_TO_PRIMITIVE_TYPE.get(type);
         return (unwrapped == null) ? type : unwrapped;
     }
 }
