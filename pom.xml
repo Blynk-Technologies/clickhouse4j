@@ -3,7 +3,7 @@
 
     <groupId>cc.blynk.clickhouse</groupId>
     <artifactId>clickhouse4j</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>clickhouse4j</name>
@@ -20,7 +20,7 @@
         <url>https://github.com/blynkkk/clickhouse4j.git</url>
         <connection>scm:git:git@github.com:blynkkk/clickhouse4j.git</connection>
         <developerConnection>scm:git:git@github.com:blynkkk/clickhouse4j.git</developerConnection>
-        <tag>clickhouse4j-1.4.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
