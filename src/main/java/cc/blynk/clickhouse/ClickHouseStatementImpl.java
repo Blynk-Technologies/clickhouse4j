@@ -185,8 +185,12 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        InputStream is = sendRequest(sql, null, null, null);
-        StreamUtils.close(is);
+        try (InputStream is = sendRequest(sql, null, null, null)) {
+            //we have to read fully, just in case
+            StreamUtils.toByteArray(is);
+        } catch (IOException ioe) {
+            log.error("Error on executeUpdate() for {}.", sql, ioe);
+        }
         return 1;
     }
 
@@ -579,7 +583,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         try (InputStream is = httpConnector.post(sql, uri)) {
             StreamUtils.copy(is, responseContent);
         } catch (Exception e) {
-            log.error("Error", e);
+            log.error("Error on sendStreamSQL()", e);
         }
     }
 
