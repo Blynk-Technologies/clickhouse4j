@@ -51,9 +51,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private int currentUpdateCount = -1;
 
-    private int queryTimeout;
-
-    private boolean isQueryTimeoutSet = false;
+    private int queryTimeout = -1;
 
     private int maxRows;
 
@@ -158,8 +156,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                   Map<ClickHouseQueryParam, String> additionalDBParams,
                                   List<ClickHouseExternalData> externalData,
                                   Map<String, String> additionalRequestParams) throws SQLException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        InputStream is = sendRequest(sql, out, additionalDBParams, externalData, additionalRequestParams);
+        InputStream is = sendRequest(sql, additionalDBParams, externalData, additionalRequestParams);
 
         try {
             if (this.isSelect) {
@@ -188,7 +185,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        InputStream is = sendRequest(sql, null, null, null, null);
+        InputStream is = sendRequest(sql, null, null, null);
         StreamUtils.close(is);
         return 1;
     }
@@ -247,7 +244,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void setQueryTimeout(int seconds) {
         queryTimeout = seconds;
-        isQueryTimeoutSet = true;
     }
 
     @Override
@@ -427,7 +423,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             String sql,
             Map<ClickHouseQueryParam, String> additionalDBParams,
             Map<String, String> additionalRequestParams) throws SQLException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
         String cleanSql = sql.trim();
 
         this.isSelect = detectQueryType(cleanSql);
@@ -437,7 +432,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
 
         InputStream is = sendRequest(cleanSql,
-                out,
                 additionalDBParams,
                 null,
                 additionalRequestParams);
@@ -574,14 +568,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         httpConnector.post(sql, content, uri);
     }
 
-    public void sendStreamSQL(String sql, OutputStream responseContent) throws ClickHouseException {
+    public void sendStreamSQL(String sql, OutputStream responseContent) {
         sendStreamSQL(sql, responseContent, null);
     }
 
     @Override
     public void sendStreamSQL(String sql, OutputStream responseContent,
-                              Map<ClickHouseQueryParam, String> additionalDBParams)
-            throws ClickHouseException {
+                              Map<ClickHouseQueryParam, String> additionalDBParams) {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         try (InputStream is = httpConnector.post(sql, uri)) {
             StreamUtils.copy(is, responseContent);
@@ -650,7 +643,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private InputStream sendRequest(
             String sql,
-            OutputStream to,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
@@ -710,7 +702,11 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                                       externalData,
                                       additionalClickHouseDBParams,
                                       additionalRequestParams,
-                                      ignoreDatabase)
+                                      ignoreDatabase,
+                                      this.properties,
+                                      this.initialDatabase,
+                                      this.maxRows,
+                                      this.queryTimeout)
             );
 
             return ClickHouseUtil.buildURI(this.properties, queryParams);
@@ -733,12 +729,16 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         return sb.toString();
     }
 
-    private List<SimpleImmutableEntry<String, String>> getUrlQueryParams(
+    private static List<SimpleImmutableEntry<String, String>> getUrlQueryParams(
             String sql,
             List<ClickHouseExternalData> externalData,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             Map<String, String> additionalRequestParams,
-            boolean ignoreDatabase) {
+            boolean ignoreDatabase,
+            ClickHouseProperties properties,
+            String initialDatabase,
+            int maxRows,
+            int queryTimeout) {
         List<SimpleImmutableEntry<String, String>> result = new ArrayList<>();
 
         if (sql != null) {
@@ -773,7 +773,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             params.putAll(additionalClickHouseDBParams);
         }
 
-        setStatementPropertiesToParams(params);
+        if (maxRows > 0) {
+            params.put(ClickHouseQueryParam.MAX_RESULT_ROWS, String.valueOf(maxRows));
+            params.put(ClickHouseQueryParam.RESULT_OVERFLOW_MODE, "break");
+        }
+        if (queryTimeout > 0) {
+            params.put(ClickHouseQueryParam.MAX_EXECUTION_TIME, String.valueOf(queryTimeout));
+        }
 
         for (Map.Entry<ClickHouseQueryParam, String> entry : params.entrySet()) {
             String s = entry.getValue();
@@ -792,16 +798,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
 
         return result;
-    }
-
-    private void setStatementPropertiesToParams(Map<ClickHouseQueryParam, String> params) {
-        if (maxRows > 0) {
-            params.put(ClickHouseQueryParam.MAX_RESULT_ROWS, String.valueOf(maxRows));
-            params.put(ClickHouseQueryParam.RESULT_OVERFLOW_MODE, "break");
-        }
-        if (isQueryTimeoutSet) {
-            params.put(ClickHouseQueryParam.MAX_EXECUTION_TIME, String.valueOf(queryTimeout));
-        }
     }
 
 }
