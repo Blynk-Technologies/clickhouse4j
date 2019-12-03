@@ -5,7 +5,6 @@ import cc.blynk.clickhouse.except.ClickHouseException;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface HttpConnector {
@@ -20,7 +19,5 @@ public interface HttpConnector {
 
     void post(String sql, List<byte[]> data, URI uri) throws ClickHouseException;
 
-    void cleanConnections();
-
-    void closeClient() throws SQLException;
+    void close();
 }

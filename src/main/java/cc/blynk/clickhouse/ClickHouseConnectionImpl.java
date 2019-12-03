@@ -178,7 +178,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public void close() throws SQLException {
-        httpConnector.closeClient();
+        httpConnector.close();
         closed = true;
     }
 
@@ -388,7 +388,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             return false;
         } finally {
             if (isAnotherHttpClient) {
-                connector.closeClient();
+                connector.close();
             }
         }
     }
@@ -456,10 +456,6 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     public int getNetworkTimeout() {
         return 0;
-    }
-
-    void cleanConnections() {
-        httpConnector.cleanConnections();
     }
 
     String getUrl() {
