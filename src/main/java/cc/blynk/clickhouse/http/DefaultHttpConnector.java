@@ -96,7 +96,9 @@ final class DefaultHttpConnector implements HttpConnector {
 
     @Override
     public void close() {
-        this.httpURLConnection.disconnect();
+        if (this.httpURLConnection != null) {
+            this.httpURLConnection.disconnect();
+        }
     }
 
     private void sendPostRequest(String sql, List<byte[]> batches, HttpURLConnection connection)
