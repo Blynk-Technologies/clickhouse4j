@@ -34,7 +34,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 public class ClickHouseStatementImpl implements ClickHouseStatement {
 
@@ -706,15 +705,13 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             boolean ignoreDatabase
     ) {
         try {
-            String queryParams = getUrlQueryParams(
-                    sql,
-                    externalData,
-                    additionalClickHouseDBParams,
-                    additionalRequestParams,
-                    ignoreDatabase
-            ).stream()
-                    .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
-                    .collect(Collectors.joining("&"));
+            String queryParams = toParamsString(
+                    getUrlQueryParams(sql,
+                                      externalData,
+                                      additionalClickHouseDBParams,
+                                      additionalRequestParams,
+                                      ignoreDatabase)
+            );
 
             return ClickHouseUtil.buildURI(this.properties, queryParams);
         } catch (URISyntaxException e) {
@@ -723,13 +720,25 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
     }
 
+    private static String toParamsString(List<SimpleImmutableEntry<String, String>> queryParams) {
+        if (queryParams.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (SimpleImmutableEntry<String, String> pair : queryParams) {
+            sb.append(pair.getKey()).append("=").append(pair.getValue())
+                    .append("&");
+        }
+        sb.setLength(sb.length() - 1); //remove last &
+        return sb.toString();
+    }
+
     private List<SimpleImmutableEntry<String, String>> getUrlQueryParams(
             String sql,
             List<ClickHouseExternalData> externalData,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             Map<String, String> additionalRequestParams,
-            boolean ignoreDatabase
-    ) {
+            boolean ignoreDatabase) {
         List<SimpleImmutableEntry<String, String>> result = new ArrayList<>();
 
         if (sql != null) {
@@ -781,7 +790,6 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                 }
             }
         }
-
 
         return result;
     }
