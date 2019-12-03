@@ -1,3 +1,8 @@
+1.4.1
+  * Remove unnecessary slash in DB url (now every request is 1 byte smaller :) )
+  * Lz4 forced to use the fastest coded
+  * Removed param descriptions to minimize driver size (-2.5kb to the size)
+
 1.4.0
   * Fixed issue where full response form DB was read into the memory. Now data is read while you iterate the ResultSet
   * Removed "extremes=0" from the query as this is default parameter in CH
