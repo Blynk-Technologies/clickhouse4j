@@ -50,7 +50,9 @@ final class DefaultHttpConnector implements HttpConnector {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultHttpConnector.class);
 
-    protected final ClickHouseProperties properties;
+    private final ClickHouseProperties properties;
+
+    private HttpURLConnection httpURLConnection;
 
     DefaultHttpConnector(ClickHouseProperties properties) {
         this.properties = properties;
@@ -93,13 +95,10 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public void cleanConnections() {
-
-    }
-
-    @Override
-    public void closeClient() {
-
+    public void close() {
+        if (this.httpURLConnection != null) {
+            this.httpURLConnection.disconnect();
+        }
     }
 
     private void sendPostRequest(String sql, List<byte[]> batches, HttpURLConnection connection)
@@ -212,22 +211,28 @@ final class DefaultHttpConnector implements HttpConnector {
 
     private HttpURLConnection buildConnection(URI uri) throws ClickHouseException {
         try {
-            URL url = uri.toURL();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setInstanceFollowRedirects(true);
-            connection.setRequestMethod("POST");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-
-            connection.setConnectTimeout(properties.getConnectionTimeout());
-
-            setDefaultHeaders(connection);
-
-            if (connection instanceof HttpsURLConnection) {
-                configureHttps((HttpsURLConnection) connection);
+            HttpURLConnection prevConnection = this.httpURLConnection;
+            if (prevConnection != null) {
+                prevConnection.disconnect();
             }
 
-            return connection;
+            URL url = uri.toURL();
+            HttpURLConnection newConnection = (HttpURLConnection) url.openConnection();
+            newConnection.setInstanceFollowRedirects(true);
+            newConnection.setRequestMethod("POST");
+            newConnection.setDoInput(true);
+            newConnection.setDoOutput(true);
+
+            newConnection.setConnectTimeout(properties.getConnectionTimeout());
+
+            setDefaultHeaders(newConnection);
+
+            if (newConnection instanceof HttpsURLConnection) {
+                configureHttps((HttpsURLConnection) newConnection);
+            }
+
+            this.httpURLConnection = newConnection;
+            return newConnection;
         } catch (IOException e) {
             log.error("Can't build connection. {}", e.getMessage());
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
