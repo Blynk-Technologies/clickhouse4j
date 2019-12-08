@@ -77,7 +77,7 @@ public class ClickHouseStatementTest {
                 HttpConnectorFactory.getConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
         );
 
-        URI uri = statement.buildRequestUri(null, null, null, null, false);
+        URI uri = statement.buildRequestUri(null, null, null, false);
         String query = uri.getQuery();
         assertTrue(query.contains("password=test_password"));
         assertTrue(query.contains("user=test_user"));
@@ -92,12 +92,12 @@ public class ClickHouseStatementTest {
                                                                         null,
                                                                         properties,
                                                                         ResultSet.TYPE_FORWARD_ONLY);
-        URI uri = statement.buildRequestUri(null, null, null, null, false);
+        URI uri = statement.buildRequestUri(null, null, null, false);
         String query = uri.getQuery();
         assertTrue(query.contains("max_execution_time=20"), "max_execution_time param is missing in URL");
 
         statement.setQueryTimeout(10);
-        uri = statement.buildRequestUri(null, null, null, null, false);
+        uri = statement.buildRequestUri(null, null, null, false);
         query = uri.getQuery();
         assertTrue(query.contains("max_execution_time=10"), "max_execution_time param is missing in URL");
     }
@@ -112,7 +112,7 @@ public class ClickHouseStatementTest {
                                                                         properties,
                                                                         ResultSet.TYPE_FORWARD_ONLY);
 
-        URI uri = statement.buildRequestUri(null, null, null, null, false);
+        URI uri = statement.buildRequestUri(null, null, null, false);
         String query = uri.getQuery();
         assertTrue(query.contains("max_memory_usage=41"), "max_memory_usage param is missing in URL");
     }
@@ -132,7 +132,6 @@ public class ClickHouseStatementTest {
         params.put("cache_namespace", "aaaa");
 
         URI uri = statement.buildRequestUri(
-                null,
                 null,
                 null,
                 params,
