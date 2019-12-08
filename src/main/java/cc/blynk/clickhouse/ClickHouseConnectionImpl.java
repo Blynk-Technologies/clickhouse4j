@@ -361,19 +361,16 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             return false;
         }
 
-        boolean isAnotherHttpClient = false;
-        HttpConnector connector = httpConnector;
-
         try {
             if (timeout != 0) {
                 ClickHouseProperties properties = new ClickHouseProperties(this.properties);
                 properties.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(timeout));
                 properties.setMaxExecutionTime(timeout);
-                connector = HttpConnectorFactory.getConnector(properties);
-                isAnotherHttpClient = true;
             }
 
-            Statement statement = new ClickHouseStatementImpl(connector, this, properties, ResultSet.TYPE_FORWARD_ONLY);
+            Statement statement = new ClickHouseStatementImpl(
+                    this.httpConnector, this, properties, ResultSet.TYPE_FORWARD_ONLY
+            );
 
             statement.execute("SELECT 1");
             statement.close();
@@ -386,10 +383,6 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             }
 
             return false;
-        } finally {
-            if (isAnotherHttpClient) {
-                connector.close();
-            }
         }
     }
 
