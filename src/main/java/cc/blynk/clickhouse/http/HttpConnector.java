@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface HttpConnector {
 
-    InputStream post(InputStream from, URI uri) throws ClickHouseException;
-
     InputStream post(String sql, URI uri) throws ClickHouseException;
 
     void post(String sql, InputStream from, URI uri) throws ClickHouseException;
