@@ -3,7 +3,7 @@ package cc.blynk.clickhouse;
 import cc.blynk.clickhouse.domain.ClickHouseFormat;
 import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.except.ClickHouseExceptionSpecifier;
-import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.http.BaseHttpConnector;
 import cc.blynk.clickhouse.response.AbstractResultSet;
 import cc.blynk.clickhouse.response.ClickHouseJsonResultSet;
 import cc.blynk.clickhouse.response.ClickHouseResultSet;
@@ -39,7 +39,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseStatementImpl.class);
 
-    final HttpConnector httpConnector;
+    final BaseHttpConnector baseHttpConnector;
 
     protected final ClickHouseProperties properties;
 
@@ -75,14 +75,14 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     private static final String[] selectKeywords = new String[]{"SELECT", "WITH", "SHOW", "DESC", "EXISTS"};
     private static final String databaseKeyword = "CREATE DATABASE";
 
-    ClickHouseStatementImpl(HttpConnector connector, ClickHouseConnection connection,
+    ClickHouseStatementImpl(BaseHttpConnector connector, ClickHouseConnection connection,
                             ClickHouseProperties properties, int resultSetType) {
         this.connection = connection;
         this.properties = properties == null ? new ClickHouseProperties() : properties;
         this.initialDatabase = this.properties.getDatabase();
         this.isResultSetScrollable = (resultSetType != ResultSet.TYPE_FORWARD_ONLY);
 
-        this.httpConnector = connector;
+        this.baseHttpConnector = connector;
     }
 
     @Override
@@ -540,7 +540,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             callback.writeTo(stream);
 
             InputStream in = new ByteArrayInputStream(out.toByteArray());
-            httpConnector.post(sql, in, uri);
+            baseHttpConnector.post(sql, in, uri);
         } catch (IOException e) {
             throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
@@ -557,7 +557,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             throws ClickHouseException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated;
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.post(sql, stream, uri);
+        baseHttpConnector.post(sql, stream, uri);
     }
 
     @Override
@@ -569,7 +569,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendStreamSQL(InputStream content, String sql,
                               Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        httpConnector.post(sql, content, uri);
+        baseHttpConnector.post(sql, content, uri);
     }
 
     public void sendStreamSQL(String sql, OutputStream responseContent) {
@@ -580,7 +580,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     public void sendStreamSQL(String sql, OutputStream responseContent,
                               Map<ClickHouseQueryParam, String> additionalDBParams) {
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
-        try (InputStream is = httpConnector.post(sql, uri)) {
+        try (InputStream is = baseHttpConnector.post(sql, uri)) {
             StreamUtils.copy(is, responseContent);
         } catch (Exception e) {
             log.error("Error on sendStreamSQL()", e);
@@ -676,7 +676,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
-            return httpConnector.post(cleanSql, uri);
+            return baseHttpConnector.post(cleanSql, uri);
         } else {
             // write sql in query params when there is external data
             // as it is impossible to pass both external data and sql in body
@@ -689,7 +689,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                     ignoreDatabase
             );
             log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
-            return httpConnector.post(externalData, uri);
+            return baseHttpConnector.post(externalData, uri);
         }
     }
 

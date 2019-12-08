@@ -1,5 +1,7 @@
 package cc.blynk.clickhouse;
 
+import cc.blynk.clickhouse.http.DefaultHttpConnectorFactory;
+import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
@@ -26,6 +28,8 @@ public final class ClickHouseDriver implements Driver {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickHouseDriver.class);
 
+    private final HttpConnectorFactory httpConnectorFactory;
+
     static {
         ClickHouseDriver driver = new ClickHouseDriver();
         try {
@@ -34,6 +38,10 @@ public final class ClickHouseDriver implements Driver {
             throw new RuntimeException(e);
         }
         logger.info("Driver registered");
+    }
+
+    public ClickHouseDriver() {
+        this.httpConnectorFactory = new DefaultHttpConnectorFactory();
     }
 
     @Override
@@ -46,7 +54,7 @@ public final class ClickHouseDriver implements Driver {
             return null;
         }
         logger.debug("Creating connection");
-        return new ClickHouseConnectionImpl(url, properties);
+        return new ClickHouseConnectionImpl(url, this.httpConnectorFactory, properties);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.domain.ClickHouseFormat;
-import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.http.BaseHttpConnector;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
 import cc.blynk.clickhouse.util.ClickHouseArrayUtil;
@@ -56,7 +56,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     private final String[][] parameterList;
     private final List<byte[]> batchRows = new ArrayList<>();
 
-    ClickHousePreparedStatementImpl(HttpConnector connector,
+    ClickHousePreparedStatementImpl(BaseHttpConnector connector,
                                     ClickHouseConnection connection,
                                     ClickHouseProperties properties,
                                     String sql,
@@ -358,7 +358,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated;
 
-        httpConnector.post(insertSql, batchRows, uri);
+        baseHttpConnector.post(insertSql, batchRows, uri);
         int[] result = new int[batchRows.size()];
         Arrays.fill(result, 1);
         batchRows.clear();

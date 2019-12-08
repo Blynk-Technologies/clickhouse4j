@@ -1,6 +1,6 @@
 package cc.blynk.clickhouse;
 
-import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.http.BaseHttpConnector;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
@@ -234,7 +234,7 @@ public class ClickHousePreparedStatementTest {
     private static ClickHousePreparedStatement createStatement(TimeZone timezone,
                                                                ClickHouseProperties props) throws Exception {
         return new ClickHousePreparedStatementImpl(
-                Mockito.mock(HttpConnector.class),
+                Mockito.mock(BaseHttpConnector.class),
                 Mockito.mock(ClickHouseConnection.class),
                 props,
                 "INSERT INTO foo (bar) VALUES (?)",

@@ -1,7 +1,7 @@
 package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.domain.ClickHouseDataType;
-import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.http.BaseHttpConnector;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
@@ -38,7 +38,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     private static final int DEFAULT_RESULTSET_TYPE = ResultSet.TYPE_FORWARD_ONLY;
 
-    private final HttpConnector httpConnector;
+    private final BaseHttpConnector baseHttpConnector;
 
     private final ClickHouseProperties properties;
 
@@ -49,7 +49,9 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     private TimeZone timezone;
     private volatile String serverVersion;
 
-    ClickHouseConnectionImpl(String url, ClickHouseProperties properties) {
+    ClickHouseConnectionImpl(String url,
+                             HttpConnectorFactory httpConnectorFactory,
+                             ClickHouseProperties properties) {
         this.url = url;
         log.debug("Create a new connection to {}", url);
 
@@ -59,7 +61,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             throw new IllegalArgumentException(e);
         }
 
-        this.httpConnector = HttpConnectorFactory.getConnector(properties);
+        this.baseHttpConnector = httpConnectorFactory.getConnector(properties);
         initTimeZone(this.properties);
     }
 
@@ -96,7 +98,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     public ClickHouseStatement createStatement(int resultSetType) {
-        return new ClickHouseStatementImpl(httpConnector, this, properties, resultSetType);
+        return new ClickHouseStatementImpl(baseHttpConnector, this, properties, resultSetType);
     }
 
     @Override
@@ -138,7 +140,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) {
-        return new ClickHousePreparedStatementImpl(httpConnector,
+        return new ClickHousePreparedStatementImpl(baseHttpConnector,
                                                    this,
                                                    properties,
                                                    sql,
@@ -177,8 +179,8 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     }
 
     @Override
-    public void close() throws SQLException {
-        httpConnector.close();
+    public void close() {
+        baseHttpConnector.close();
         closed = true;
     }
 
@@ -242,7 +244,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) {
-        return new ClickHousePreparedStatementImpl(this.httpConnector,
+        return new ClickHousePreparedStatementImpl(this.baseHttpConnector,
                                                    this,
                                                    this.properties,
                                                    sql,
@@ -300,7 +302,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
                                               int resultSetType,
                                               int resultSetConcurrency,
                                               int resultSetHoldability) {
-        return new ClickHousePreparedStatementImpl(this.httpConnector,
+        return new ClickHousePreparedStatementImpl(this.baseHttpConnector,
                                                    this,
                                                    this.properties,
                                                    sql,
@@ -361,19 +363,16 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             return false;
         }
 
-        boolean isAnotherHttpClient = false;
-        HttpConnector connector = httpConnector;
-
         try {
             if (timeout != 0) {
                 ClickHouseProperties properties = new ClickHouseProperties(this.properties);
                 properties.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(timeout));
                 properties.setMaxExecutionTime(timeout);
-                connector = HttpConnectorFactory.getConnector(properties);
-                isAnotherHttpClient = true;
             }
 
-            Statement statement = new ClickHouseStatementImpl(connector, this, properties, ResultSet.TYPE_FORWARD_ONLY);
+            Statement statement = new ClickHouseStatementImpl(
+                    baseHttpConnector, this, properties, ResultSet.TYPE_FORWARD_ONLY
+            );
 
             statement.execute("SELECT 1");
             statement.close();
@@ -386,10 +385,6 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             }
 
             return false;
-        } finally {
-            if (isAnotherHttpClient) {
-                connector.close();
-            }
         }
     }
 

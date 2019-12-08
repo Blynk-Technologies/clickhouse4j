@@ -2,12 +2,8 @@ package cc.blynk.clickhouse.http;
 
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 
-public final class HttpConnectorFactory {
+public interface HttpConnectorFactory {
 
-    private HttpConnectorFactory() {
-    }
+    BaseHttpConnector getConnector(ClickHouseProperties properties);
 
-    public static HttpConnector getConnector(ClickHouseProperties properties) {
-        return new DefaultHttpConnector(properties);
-    }
 }

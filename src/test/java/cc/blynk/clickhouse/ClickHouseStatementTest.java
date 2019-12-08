@@ -2,6 +2,7 @@ package cc.blynk.clickhouse;
 
 
 import cc.blynk.clickhouse.domain.ClickHouseFormat;
+import cc.blynk.clickhouse.http.DefaultHttpConnectorFactory;
 import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.annotations.Test;
@@ -19,6 +20,8 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 public class ClickHouseStatementTest {
+
+    private final HttpConnectorFactory httpConnectorFactory = new DefaultHttpConnectorFactory();
 
     @Test
     public void testClickhousify() {
@@ -74,7 +77,7 @@ public class ClickHouseStatementTest {
         assertEquals(withCredentials.getPassword(), "test_password");
 
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                HttpConnectorFactory.getConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
+                httpConnectorFactory.getConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
         );
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
@@ -88,7 +91,7 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         properties.setMaxExecutionTime(20);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(httpConnectorFactory.getConnector(properties),
                                                                         null,
                                                                         properties,
                                                                         ResultSet.TYPE_FORWARD_ONLY);
@@ -107,7 +110,7 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         properties.setMaxMemoryUsage(41L);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(HttpConnectorFactory.getConnector(properties),
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(httpConnectorFactory.getConnector(properties),
                                                                         null,
                                                                         properties,
                                                                         ResultSet.TYPE_FORWARD_ONLY);
@@ -122,7 +125,7 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                HttpConnectorFactory.getConnector(properties),
+                httpConnectorFactory.getConnector(properties),
                 null,
                 properties,
                 ResultSet.TYPE_FORWARD_ONLY
