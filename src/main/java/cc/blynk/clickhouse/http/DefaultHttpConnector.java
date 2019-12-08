@@ -59,12 +59,6 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     @Override
-    public InputStream post(InputStream from, URI uri) throws ClickHouseException {
-        HttpURLConnection connection = buildConnection(uri);
-        return sendPostRequest(from, connection);
-    }
-
-    @Override
     public void post(String sql, List<byte[]> data, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
         sendPostRequest(sql, data, connection);
@@ -73,7 +67,8 @@ final class DefaultHttpConnector implements HttpConnector {
     @Override
     public InputStream post(String sql, URI uri) throws ClickHouseException {
         byte[] bytes = getSqlBytes(sql);
-        return post(new ByteArrayInputStream(bytes), uri);
+        HttpURLConnection connection = buildConnection(uri);
+        return sendPostRequest(new ByteArrayInputStream(bytes), connection);
     }
 
     @Override
