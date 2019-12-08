@@ -1,3 +1,8 @@
+1.4.2
+  * Force connection close to avoid connections in CLOSE_WAIT state
+  * Less allocations on connection
+  * Cleanup
+
 1.4.1
   * Remove unnecessary slash in DB url (now every request is 1 byte smaller :) )
   * Lz4 forced to use the fastest coded
