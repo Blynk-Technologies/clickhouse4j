@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Map;
 
 public interface ClickHouseStatement extends Statement {
@@ -29,13 +28,8 @@ public interface ClickHouseStatement extends Statement {
     ResultSet executeQuery(String sql, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
     ResultSet executeQuery(String sql,
-                           Map<ClickHouseQueryParam, String> additionalDBParams,
-                           List<ClickHouseExternalData> externalData) throws SQLException;
-
-    ResultSet executeQuery(String sql,
                            Map<ClickHouseQueryParam,
                            String> additionalDBParams,
-                           List<ClickHouseExternalData> externalData,
                            Map<String, String> additionalRequestParams) throws SQLException;
 
     void sendStream(InputStream content,
