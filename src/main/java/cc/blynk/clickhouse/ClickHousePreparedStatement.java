@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface ClickHousePreparedStatement extends PreparedStatement, ClickHouseStatement {
@@ -22,9 +21,6 @@ public interface ClickHousePreparedStatement extends PreparedStatement, ClickHou
     void setIn(int parameterIndex, Collection collection) throws SQLException;
 
     ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
-
-    ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams,
-                           List<ClickHouseExternalData> externalData) throws SQLException;
 
     int[] executeBatch(Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException;
 
