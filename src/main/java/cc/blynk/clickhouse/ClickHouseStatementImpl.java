@@ -715,9 +715,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         }
 
         Map<ClickHouseQueryParam, String> params = properties.buildQueryParams(true);
-        if (!ignoreDatabase
-            && initialDatabase != null
-            && !initialDatabase.equals(ClickhouseJdbcUrlParser.DEFAULT_DATABASE)) {
+        if (!ignoreDatabase && !ClickhouseJdbcUrlParser.DEFAULT_DATABASE.equals(initialDatabase)) {
             params.put(ClickHouseQueryParam.DATABASE, initialDatabase);
         }
 
