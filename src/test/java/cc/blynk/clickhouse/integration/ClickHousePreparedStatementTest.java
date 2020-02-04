@@ -364,8 +364,7 @@ public class ClickHousePreparedStatementTest {
     @Test
     public void testTrailingParameter() throws Exception {
         String sqlStatement =
-                "SELECT 42 AS foo, 23 AS bar "
-                        + "ORDER BY foo DESC LIMIT ?, ?";
+                "SELECT 42 AS foo, 23 AS bar from numbers(100) ORDER BY foo DESC LIMIT ?, ?";
         PreparedStatement stmt = connection.prepareStatement(sqlStatement);
         stmt.setInt(1, 42);
         stmt.setInt(2, 23);
