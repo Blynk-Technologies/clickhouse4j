@@ -190,7 +190,10 @@ final class DefaultHttpConnector implements HttpConnector {
     }
 
     private void setDefaultHeaders(HttpURLConnection connection) {
-        connection.addRequestProperty("Authorization", properties.getHttpAuthorization());
+        String httpAuthorization = properties.getHttpAuthorization();
+        if (httpAuthorization != null) {
+            connection.addRequestProperty("Authorization", httpAuthorization);
+        }
         connection.addRequestProperty("Content-Type", "text/plain; charset=UTF-8");
     }
 
