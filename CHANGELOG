@@ -1,3 +1,7 @@
+1.4.3.
+  * "No authentication information found: Basic authentication expected" issue fixed because of JDK changes
+  * Removed External Data support
+
 1.4.2
   * Force connection close to avoid connections in CLOSE_WAIT state
   * Less allocations on connection
