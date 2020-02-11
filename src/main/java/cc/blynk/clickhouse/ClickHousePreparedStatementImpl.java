@@ -138,6 +138,12 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
     }
 
     @Override
+    public ResultSet executeQuery(Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData) throws SQLException {
+        return super.executeQuery(buildSql(), additionalDBParams, externalData);
+    }
+
+    @Override
     public int executeUpdate() throws SQLException {
         return super.executeUpdate(buildSql());
     }
@@ -349,7 +355,7 @@ public final class ClickHousePreparedStatementImpl extends ClickHouseStatementIm
         int valuePosition = matcher.start();
         String insertSql = sql.substring(0, valuePosition);
 
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         insertSql = insertSql + " FORMAT " + ClickHouseFormat.TabSeparated;
 
         httpConnector.post(insertSql, batchRows, uri);

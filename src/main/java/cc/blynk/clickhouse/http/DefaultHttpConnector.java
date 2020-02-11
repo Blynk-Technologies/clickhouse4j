@@ -1,5 +1,6 @@
 package cc.blynk.clickhouse.http;
 
+import cc.blynk.clickhouse.ClickHouseExternalData;
 import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.except.ClickHouseExceptionSpecifier;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
@@ -17,13 +18,16 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -38,6 +42,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -70,6 +75,18 @@ final class DefaultHttpConnector implements HttpConnector {
     public void post(String sql, InputStream from, URI uri) throws ClickHouseException {
         HttpURLConnection connection = buildConnection(uri);
         sendPostRequest(sql, from, connection);
+    }
+
+    @Override
+    public InputStream post(List<ClickHouseExternalData> externalData, URI uri) throws ClickHouseException {
+        String boundaryString = UUID.randomUUID().toString();
+        HttpURLConnection connection = buildConnection(uri);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
+
+        byte[] bytes = buildMultipartData(externalData, boundaryString);
+        InputStream from = new ByteArrayInputStream(bytes);
+
+        return sendPostRequest(from, connection);
     }
 
     @Override
@@ -156,6 +173,34 @@ final class DefaultHttpConnector implements HttpConnector {
             return new ClickHouseLZ4OutputStream(outputStream, properties.getMaxCompressBufferSize());
         } else {
             return new DataOutputStream(outputStream);
+        }
+    }
+
+    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString)
+            throws ClickHouseException {
+        try (ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
+             BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(requestBodyStream))) {
+            for (ClickHouseExternalData data : externalData) {
+                httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
+                httpRequestBodyWriter.write("Content-Disposition: form-data;"
+                        + " name=\"" + data.getName() + "\";"
+                        + " filename=\"" + data.getName() + "\"" + "\r\n");
+                httpRequestBodyWriter.write("Content-Type: application/octet-stream" + "\r\n");
+                httpRequestBodyWriter.write("Content-Transfer-Encoding: binary" + "\r\n" + "\r\n");
+                httpRequestBodyWriter.flush();
+
+                StreamUtils.copy(data.getContent(), requestBodyStream);
+
+                requestBodyStream.flush();
+            }
+
+            httpRequestBodyWriter.write("\r\n" + "--" + boundaryString + "--" + "\r\n");
+            httpRequestBodyWriter.flush();
+
+            return requestBodyStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Building Multipart Body failed. {}", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
         }
     }
 

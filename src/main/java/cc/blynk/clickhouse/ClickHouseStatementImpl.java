@@ -146,8 +146,17 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public ResultSet executeQuery(String sql,
                                   Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData)
+            throws SQLException {
+        return executeQuery(sql, additionalDBParams, externalData, null);
+    }
+
+    @Override
+    public ResultSet executeQuery(String sql,
+                                  Map<ClickHouseQueryParam, String> additionalDBParams,
+                                  List<ClickHouseExternalData> externalData,
                                   Map<String, String> additionalRequestParams) throws SQLException {
-        InputStream is = sendRequest(sql, additionalDBParams, additionalRequestParams);
+        InputStream is = sendRequest(sql, additionalDBParams, externalData, additionalRequestParams);
 
         try {
             if (this.isSelect) {
@@ -176,7 +185,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        try (InputStream is = sendRequest(sql, null, null)) {
+        try (InputStream is = sendRequest(sql, null, null, null)) {
             //we have to read fully, just in case
             StreamUtils.toByteArray(is);
         } catch (IOException ioe) {
@@ -426,7 +435,10 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
             cleanSql = addFormat(cleanSql, ClickHouseFormat.RowBinary);
         }
 
-        InputStream is = sendRequest(cleanSql, additionalDBParams, additionalRequestParams);
+        InputStream is = sendRequest(cleanSql,
+                additionalDBParams,
+                null,
+                additionalRequestParams);
 
         try {
             if (this.isSelect) {
@@ -502,7 +514,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendRowBinaryStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                     ClickHouseStreamCallback callback) throws SQLException {
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         sql = sql + " FORMAT " + ClickHouseFormat.RowBinary;
         sendStream(sql, callback, uri);
     }
@@ -515,7 +527,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendNativeStream(String sql, Map<ClickHouseQueryParam, String> additionalDBParams,
                                  ClickHouseStreamCallback callback) throws SQLException {
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         sql = sql + " FORMAT " + ClickHouseFormat.Native;
         sendStream(sql, callback, uri);
     }
@@ -544,7 +556,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
                            Map<ClickHouseQueryParam, String> additionalDBParams)
             throws ClickHouseException {
         String sql = "INSERT INTO " + table + " FORMAT " + ClickHouseFormat.TabSeparated;
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.post(sql, stream, uri);
     }
 
@@ -556,7 +568,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendStreamSQL(InputStream content, String sql,
                               Map<ClickHouseQueryParam, String> additionalDBParams) throws ClickHouseException {
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         httpConnector.post(sql, content, uri);
     }
 
@@ -567,7 +579,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     @Override
     public void sendStreamSQL(String sql, OutputStream responseContent,
                               Map<ClickHouseQueryParam, String> additionalDBParams) {
-        URI uri = buildRequestUri(null, additionalDBParams, null, false);
+        URI uri = buildRequestUri(null, null, additionalDBParams, null, false);
         try (InputStream is = httpConnector.post(sql, uri)) {
             StreamUtils.copy(is, responseContent);
         } catch (Exception e) {
@@ -636,6 +648,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
     private InputStream sendRequest(
             String sql,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
+            List<ClickHouseExternalData> externalData,
             Map<String, String> additionalRequestParams
     ) throws ClickHouseException {
         String cleanSql = sql.trim();
@@ -652,24 +665,45 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
         addQueryIdTo(additionalClickHouseDBParams);
 
         boolean ignoreDatabase = cleanSql.regionMatches(true, 0, databaseKeyword, 0, databaseKeyword.length());
-        URI uri = buildRequestUri(
+        URI uri;
+
+        if (externalData == null || externalData.isEmpty()) {
+            uri = buildRequestUri(
+                    null,
                     null,
                     additionalClickHouseDBParams,
                     additionalRequestParams,
                     ignoreDatabase
             );
-        log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
-        return httpConnector.post(cleanSql, uri);
+            log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
+            return httpConnector.post(cleanSql, uri);
+        } else {
+            // write sql in query params when there is external data
+            // as it is impossible to pass both external data and sql in body
+            // TODO move sql to request body when it is supported in clickhouse
+            uri = buildRequestUri(
+                    cleanSql,
+                    externalData,
+                    additionalClickHouseDBParams,
+                    additionalRequestParams,
+                    ignoreDatabase
+            );
+            log.debug("Executing SQL: \"{}\", url: {}", cleanSql, uri);
+            return httpConnector.post(externalData, uri);
+        }
     }
 
     URI buildRequestUri(
             String sql,
+            List<ClickHouseExternalData> externalData,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             Map<String, String> additionalRequestParams,
-            boolean ignoreDatabase) {
+            boolean ignoreDatabase
+    ) {
         try {
             String queryParams = toParamsString(
                     getUrlQueryParams(sql,
+                                      externalData,
                                       additionalClickHouseDBParams,
                                       additionalRequestParams,
                                       ignoreDatabase,
@@ -701,6 +735,7 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
     private static List<SimpleImmutableEntry<String, String>> getUrlQueryParams(
             String sql,
+            List<ClickHouseExternalData> externalData,
             Map<ClickHouseQueryParam, String> additionalClickHouseDBParams,
             Map<String, String> additionalRequestParams,
             boolean ignoreDatabase,
@@ -712,6 +747,25 @@ public class ClickHouseStatementImpl implements ClickHouseStatement {
 
         if (sql != null) {
             result.add(new SimpleImmutableEntry<>("query", sql));
+        }
+
+        if (externalData != null) {
+            for (ClickHouseExternalData externalDataItem : externalData) {
+                String name = externalDataItem.getName();
+                String format = externalDataItem.getFormat();
+                String types = externalDataItem.getTypes();
+                String structure = externalDataItem.getStructure();
+
+                if (format != null && !format.isEmpty()) {
+                    result.add(new SimpleImmutableEntry<>(name + "_format", format));
+                }
+                if (types != null && !types.isEmpty()) {
+                    result.add(new SimpleImmutableEntry<>(name + "_types", types));
+                }
+                if (structure != null && !structure.isEmpty()) {
+                    result.add(new SimpleImmutableEntry<>(name + "_structure", structure));
+                }
+            }
         }
 
         Map<ClickHouseQueryParam, String> params = properties.buildQueryParams(true);
