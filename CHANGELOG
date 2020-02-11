@@ -1,4 +1,8 @@
-1.4.3.
+1.4.4
+  * External data support returned
+  * Added implementation of getDate(int, Calendar)
+
+1.4.3
   * "No authentication information found: Basic authentication expected" issue fixed because of JDK changes
   * Removed External Data support
 
