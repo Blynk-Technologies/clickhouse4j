@@ -252,26 +252,26 @@ public class ClickHouseResultSet extends AbstractResultSet {
         return getBytes(asColNum(column));
     }
 
-    public Long getTimestampAsLong(String column) {
+    private long getTimestampAsLong(String column) {
         return getTimestampAsLong(asColNum(column));
     }
 
     @Override
     public Timestamp getTimestamp(String column) throws SQLException {
-        Long value = getTimestampAsLong(column);
-        return value == null ? null : new Timestamp(value);
+        long value = getTimestampAsLong(column);
+        return value == -1 ? null : new Timestamp(value);
     }
 
     @Override
     public Timestamp getTimestamp(String column, Calendar cal) throws SQLException {
-        Long value = getTimestampAsLong(asColNum(column), cal.getTimeZone());
-        return value == null ? null : new Timestamp(value);
+        long value = getTimestampAsLong(asColNum(column), cal.getTimeZone());
+        return value == -1 ? null : new Timestamp(value);
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        Long value = getTimestampAsLong(columnIndex, cal.getTimeZone());
-        return value == null ? null : new Timestamp(value);
+        long value = getTimestampAsLong(columnIndex, cal.getTimeZone());
+        return value == -1 ? null : new Timestamp(value);
     }
 
     @Override
@@ -385,7 +385,7 @@ public class ClickHouseResultSet extends AbstractResultSet {
         return toBytes(getValue(colNum));
     }
 
-    public Long getTimestampAsLong(int colNum) {
+    private long getTimestampAsLong(int colNum) {
         ClickHouseColumnInfo info = columns[colNum - 1];
         TimeZone timeZone = info.getTimeZone() != null
             ? info.getTimeZone()
@@ -393,14 +393,14 @@ public class ClickHouseResultSet extends AbstractResultSet {
         return toTimestamp(getValue(colNum), timeZone);
     }
 
-    public Long getTimestampAsLong(int colNum, TimeZone tz) {
+    private long getTimestampAsLong(int colNum, TimeZone tz) {
         return toTimestamp(getValue(colNum), tz);
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        Long value = getTimestampAsLong(columnIndex);
-        return value == null ? null : new Timestamp(value.longValue());
+        long value = getTimestampAsLong(columnIndex);
+        return value == -1 ? null : new Timestamp(value);
     }
 
     @Override
@@ -448,6 +448,30 @@ public class ClickHouseResultSet extends AbstractResultSet {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    @Override
+    public Date getDate(int columnIndex, Calendar cal) throws SQLException {
+        if (cal == null) {
+            return getDate(columnIndex);
+        }
+        // date is passed as a string from clickhouse
+        ByteFragment value = getValue(columnIndex);
+        if (value.isNull() || value.asString().equals("0000-00-00")) {
+            return null;
+        }
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
+            simpleDateFormat.setTimeZone(cal.getTimeZone());
+            return new Date(simpleDateFormat.parse(value.asString()).getTime());
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Date getDate(String columnLabel, Calendar cal) throws SQLException {
+        return getDate(asColNum(columnLabel), cal);
     }
 
     @Override
@@ -580,9 +604,9 @@ public class ClickHouseResultSet extends AbstractResultSet {
         return result;
     }
 
-    private Long toTimestamp(ByteFragment value, TimeZone timeZone) {
+    private long toTimestamp(ByteFragment value, TimeZone timeZone) {
         if (value.isNull() || value.asString().equals("0000-00-00 00:00:00")) {
-            return null;
+            return -1;
         }
         try {
             dateTimeFormat.setTimeZone(timeZone);
