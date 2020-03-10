@@ -1,5 +1,6 @@
 package cc.blynk.clickhouse.http;
 
+import cc.blynk.clickhouse.except.ClickHouseException;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 
 public final class HttpConnectorFactory {
@@ -8,6 +9,11 @@ public final class HttpConnectorFactory {
     }
 
     public static HttpConnector getConnector(ClickHouseProperties properties) {
-        return new DefaultHttpConnector(properties);
+        try {
+            return new AsyncHttpConnector(properties);
+        } catch (ClickHouseException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }

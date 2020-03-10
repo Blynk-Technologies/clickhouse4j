@@ -22,7 +22,8 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 final class CopyManagerImpl implements CopyManager {
 
-    private final ClickHouseConnection connection;
+    private final Connection connection;
+    private final ClickHouseConnection unwrappedConnection;
     private final Map<ClickHouseQueryParam, String> additionalDBParams;
 
     CopyManagerImpl(Connection connection) throws SQLException {
@@ -30,7 +31,8 @@ final class CopyManagerImpl implements CopyManager {
     }
 
     CopyManagerImpl(Connection connection, Map<ClickHouseQueryParam, String> additionalDBParams) throws SQLException {
-        this.connection = connection.unwrap(ClickHouseConnection.class);
+        this.connection = connection;
+        this.unwrappedConnection = connection.unwrap(ClickHouseConnection.class);
         this.additionalDBParams = additionalDBParams;
     }
 
@@ -40,7 +42,7 @@ final class CopyManagerImpl implements CopyManager {
     @Override
     public void copyToDb(String sql, InputStream from) throws SQLException {
         validate(sql, from);
-        connection.createStatement().sendStreamSQL(from, sql, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(from, sql, additionalDBParams);
     }
 
     /**
@@ -70,7 +72,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyToDb(String sql, InputStream from, int bufferSize) throws SQLException {
         validate(sql, from);
         BufferedInputStream bufferedStream = new BufferedInputStream(from, Math.max(32, bufferSize));
-        connection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
     }
 
     /**
@@ -80,7 +82,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyToDb(String sql, Reader from) throws SQLException {
         validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
-        connection.createStatement().sendStreamSQL(inputStream, sql, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(inputStream, sql, additionalDBParams);
     }
 
     /**
@@ -91,7 +93,7 @@ final class CopyManagerImpl implements CopyManager {
         validate(sql, from);
         ReaderInputStream inputStream = new ReaderInputStream(from);
         BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, Math.max(32, bufferSize));
-        connection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(bufferedStream, sql, additionalDBParams);
     }
 
     /**
@@ -100,7 +102,7 @@ final class CopyManagerImpl implements CopyManager {
     @Override
     public void copyFromDb(String sql, OutputStream to) throws SQLException {
         validate(sql, to);
-        connection.createStatement().sendStreamSQL(sql, to, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(sql, to, additionalDBParams);
     }
 
     /**
@@ -110,7 +112,7 @@ final class CopyManagerImpl implements CopyManager {
     public void copyFromDb(String sql, Writer to) throws SQLException {
         validate(sql, to);
         WriterOutputStream outputStream = new WriterOutputStream(to);
-        connection.createStatement().sendStreamSQL(sql, outputStream, additionalDBParams);
+        unwrappedConnection.createStatement().sendStreamSQL(sql, outputStream, additionalDBParams);
     }
 
     /**
@@ -225,7 +227,7 @@ final class CopyManagerImpl implements CopyManager {
      */
     @Override
     public void close() throws Exception {
-        connection.close();
+        connection.close(); //allow to delegate connection closing
     }
 
     private static void validate(String sql, Object stream) throws SQLException {

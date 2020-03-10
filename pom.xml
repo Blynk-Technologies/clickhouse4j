@@ -56,6 +56,7 @@
 
         <slf4j-api.version>1.7.28</slf4j-api.version>
         <lz4-java.version>1.6.0</lz4-java.version>
+        <async-http-client.version>2.10.5</async-http-client.version>
 
         <!-- test dependencies -->
         <testng.version>6.8.21</testng.version>
@@ -132,6 +133,12 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.asynchttpclient</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>${async-http-client.version}</version>
         </dependency>
     </dependencies>
 
