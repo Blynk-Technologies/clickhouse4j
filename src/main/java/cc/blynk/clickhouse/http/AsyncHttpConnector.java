@@ -7,10 +7,6 @@ import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.util.ClickHouseLZ4InputStream;
 import cc.blynk.clickhouse.util.ClickHouseLZ4OutputStream;
 import cc.blynk.clickhouse.util.guava.StreamUtils;
-import cc.blynk.clickhouse.util.ssl.NonValidatingTrustManager;
-import io.netty.channel.epoll.Epoll;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.JdkSslContext;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -19,41 +15,26 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static cc.blynk.clickhouse.http.HttpConnector.buildMultipartData;
+import static cc.blynk.clickhouse.http.HttpConnector.getSqlBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class AsyncHttpConnector implements HttpConnector {
+final class AsyncHttpConnector implements HttpConnector {
 
     private static final Logger log = LoggerFactory.getLogger(AsyncHttpConnector.class);
 
@@ -61,23 +42,10 @@ public final class AsyncHttpConnector implements HttpConnector {
 
     private final AsyncHttpClient asyncHttpClient;
 
-    public AsyncHttpConnector(ClickHouseProperties properties) throws ClickHouseException {
+    AsyncHttpConnector(ClickHouseProperties properties,
+                       DefaultAsyncHttpClientConfig asyncHttpClientConfig) {
         this.properties = properties;
-
-        DefaultAsyncHttpClientConfig.Builder httpClientBuilder = new DefaultAsyncHttpClientConfig.Builder()
-                .setUserAgent(null)
-                .setKeepAlive(true)
-                .setConnectTimeout(properties.getConnectionTimeout())
-                .setMaxConnections(properties.getMaxTotal())
-                .setUseNativeTransport(Epoll.isAvailable());
-        if (properties.getSsl()) {
-            try {
-                httpClientBuilder.setSslContext(new JdkSslContext(getSSLContext(), true, ClientAuth.REQUIRE));
-            } catch (Exception e) {
-                throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-            }
-        }
-        this.asyncHttpClient = new DefaultAsyncHttpClient(httpClientBuilder.build());
+        this.asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
     }
 
     @Override
@@ -140,7 +108,13 @@ public final class AsyncHttpConnector implements HttpConnector {
 
     private ByteArrayInputStream prepareInputStream(List<ClickHouseExternalData> externalData, String boundaryString)
             throws ClickHouseException {
-        byte[] bytes = buildMultipartData(externalData, boundaryString);
+        byte[] bytes;
+        try {
+            bytes = buildMultipartData(externalData, boundaryString);
+        } catch (IOException e) {
+            log.error("Building Multipart Body failed. {}", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        }
         ByteArrayOutputStream maybeCompressed = openOutputStream(bytes, null);
 
         return new ByteArrayInputStream(maybeCompressed.toByteArray());
@@ -151,41 +125,6 @@ public final class AsyncHttpConnector implements HttpConnector {
         ByteArrayOutputStream maybeCompressed = openOutputStream(sqlBytes, data);
 
         return new ByteArrayInputStream(maybeCompressed.toByteArray());
-    }
-
-    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString)
-            throws ClickHouseException {
-        try (ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
-             BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(requestBodyStream))) {
-            for (ClickHouseExternalData data : externalData) {
-                httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
-                httpRequestBodyWriter.write("Content-Disposition: form-data;"
-                        + " name=\"" + data.getName() + "\";"
-                        + " filename=\"" + data.getName() + "\"" + "\r\n");
-                httpRequestBodyWriter.write("Content-Type: application/octet-stream" + "\r\n");
-                httpRequestBodyWriter.write("Content-Transfer-Encoding: binary" + "\r\n" + "\r\n");
-                httpRequestBodyWriter.flush();
-
-                StreamUtils.copy(data.getContent(), requestBodyStream);
-
-                requestBodyStream.flush();
-            }
-
-            httpRequestBodyWriter.write("\r\n" + "--" + boundaryString + "--" + "\r\n");
-            httpRequestBodyWriter.flush();
-
-            return requestBodyStream.toByteArray();
-        } catch (IOException e) {
-            log.error("Building Multipart Body failed. {}", e.getMessage());
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        }
-    }
-
-    private byte[] getSqlBytes(String sql) {
-        if (!sql.endsWith("\n")) {
-            sql += "\n";
-        }
-        return sql.getBytes(UTF_8);
     }
 
     private ByteArrayOutputStream openOutputStream(String sql, InputStream inputStream) throws ClickHouseException {
@@ -283,71 +222,6 @@ public final class AsyncHttpConnector implements HttpConnector {
 
             throw ClickHouseExceptionSpecifier.specify(chMessage, properties.getHost(), properties.getPort());
         }
-    }
-
-    private SSLContext getSSLContext()
-            throws CertificateException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, KeyManagementException {
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        TrustManager[] tms = null;
-        KeyManager[] kms = null;
-        SecureRandom sr = null;
-
-        switch (properties.getSslMode()) {
-            case "none":
-                tms = new TrustManager[]{new NonValidatingTrustManager()};
-                kms = new KeyManager[]{};
-                sr = new SecureRandom();
-                break;
-            case "strict":
-                if (!properties.getSslRootCertificate().isEmpty()) {
-                    TrustManagerFactory tmf = TrustManagerFactory
-                            .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-
-                    tmf.init(getKeyStore());
-                    tms = tmf.getTrustManagers();
-                    kms = new KeyManager[]{};
-                    sr = new SecureRandom();
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("unknown ssl mode '" + properties.getSslMode() + "'");
-        }
-
-        ctx.init(kms, tms, sr);
-        return ctx;
-    }
-
-    private KeyStore getKeyStore()
-            throws NoSuchAlgorithmException, IOException, CertificateException, KeyStoreException {
-        KeyStore ks;
-        try {
-            ks = KeyStore.getInstance("jks");
-            ks.load(null, null); // needed to initialize the key store
-        } catch (KeyStoreException e) {
-            throw new NoSuchAlgorithmException("jks KeyStore not available");
-        }
-
-        InputStream caInputStream;
-        try {
-            caInputStream = new FileInputStream(properties.getSslRootCertificate());
-        } catch (FileNotFoundException ex) {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            caInputStream = cl.getResourceAsStream(properties.getSslRootCertificate());
-            if (caInputStream == null) {
-                throw new IOException(
-                        "Could not open SSL/TLS root certificate file '" + properties
-                                .getSslRootCertificate() + "'", ex);
-            }
-        }
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        Iterator<? extends Certificate> caIt = cf.generateCertificates(caInputStream).iterator();
-        StreamUtils.close(caInputStream);
-        for (int i = 0; caIt.hasNext(); i++) {
-            ks.setCertificateEntry("cert" + i, caIt.next());
-        }
-
-        return ks;
     }
 
 }

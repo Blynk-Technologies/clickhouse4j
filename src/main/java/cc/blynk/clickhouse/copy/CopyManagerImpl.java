@@ -22,7 +22,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 final class CopyManagerImpl implements CopyManager {
 
-    private final Connection connection;
+    private final Connection connection; //to allow a delegation of the connection closing
     private final ClickHouseConnection unwrappedConnection;
     private final Map<ClickHouseQueryParam, String> additionalDBParams;
 
