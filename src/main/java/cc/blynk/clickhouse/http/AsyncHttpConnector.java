@@ -15,12 +15,14 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,8 +32,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import static cc.blynk.clickhouse.http.HttpConnector.buildMultipartData;
-import static cc.blynk.clickhouse.http.HttpConnector.getSqlBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class AsyncHttpConnector implements HttpConnector {
@@ -108,13 +108,7 @@ final class AsyncHttpConnector implements HttpConnector {
 
     private ByteArrayInputStream prepareInputStream(List<ClickHouseExternalData> externalData, String boundaryString)
             throws ClickHouseException {
-        byte[] bytes;
-        try {
-            bytes = buildMultipartData(externalData, boundaryString);
-        } catch (IOException e) {
-            log.error("Building Multipart Body failed. {}", e.getMessage());
-            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
-        }
+        byte[] bytes = buildMultipartData(externalData, boundaryString);
         ByteArrayOutputStream maybeCompressed = openOutputStream(bytes, null);
 
         return new ByteArrayInputStream(maybeCompressed.toByteArray());
@@ -126,6 +120,42 @@ final class AsyncHttpConnector implements HttpConnector {
 
         return new ByteArrayInputStream(maybeCompressed.toByteArray());
     }
+
+    private byte[] buildMultipartData(List<ClickHouseExternalData> externalData, String boundaryString)
+            throws ClickHouseException {
+        try (ByteArrayOutputStream requestBodyStream = new ByteArrayOutputStream();
+             BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(requestBodyStream))) {
+            for (ClickHouseExternalData data : externalData) {
+                httpRequestBodyWriter.write("--" + boundaryString + "\r\n");
+                httpRequestBodyWriter.write("Content-Disposition: form-data;"
+                        + " name=\"" + data.getName() + "\";"
+                        + " filename=\"" + data.getName() + "\"" + "\r\n");
+                httpRequestBodyWriter.write("Content-Type: application/octet-stream" + "\r\n");
+                httpRequestBodyWriter.write("Content-Transfer-Encoding: binary" + "\r\n" + "\r\n");
+                httpRequestBodyWriter.flush();
+
+                StreamUtils.copy(data.getContent(), requestBodyStream);
+
+                requestBodyStream.flush();
+            }
+
+            httpRequestBodyWriter.write("\r\n" + "--" + boundaryString + "--" + "\r\n");
+            httpRequestBodyWriter.flush();
+
+            return requestBodyStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Building Multipart Body failed. {}", e.getMessage());
+            throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+        }
+    }
+
+    private byte[] getSqlBytes(String sql) {
+        if (!sql.endsWith("\n")) {
+            sql += "\n";
+        }
+        return sql.getBytes(UTF_8);
+    }
+
 
     private ByteArrayOutputStream openOutputStream(String sql, InputStream inputStream) throws ClickHouseException {
         byte[] sqlBytes = getSqlBytes(sql);

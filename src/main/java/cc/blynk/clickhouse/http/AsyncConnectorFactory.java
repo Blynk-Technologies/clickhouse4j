@@ -5,6 +5,7 @@ import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.JdkSslContext;
+import io.netty.handler.ssl.OpenSsl;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
 public class AsyncConnectorFactory extends HttpConnectorFactory {
@@ -31,7 +32,8 @@ public class AsyncConnectorFactory extends HttpConnectorFactory {
                 .setKeepAlive(true)
                 .setConnectTimeout(properties.getConnectionTimeout())
                 .setMaxConnections(maxConnections)
-                .setUseNativeTransport(Epoll.isAvailable());
+                .setUseNativeTransport(Epoll.isAvailable())
+                .setUseOpenSsl(OpenSsl.isAvailable());
         if (properties.getSsl()) {
             try {
                 JdkSslContext sslContext = new JdkSslContext(getSSLContext(properties), true, ClientAuth.REQUIRE);

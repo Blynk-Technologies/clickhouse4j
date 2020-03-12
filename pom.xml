@@ -139,6 +139,7 @@
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
             <version>${async-http-client.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
