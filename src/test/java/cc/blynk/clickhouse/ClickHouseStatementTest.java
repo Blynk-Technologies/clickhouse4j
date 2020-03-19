@@ -2,6 +2,7 @@ package cc.blynk.clickhouse;
 
 
 import cc.blynk.clickhouse.domain.ClickHouseFormat;
+import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.testng.annotations.Test;
 
@@ -73,7 +74,7 @@ public class ClickHouseStatementTest {
         assertEquals(withCredentials.getPassword(), "test_password");
 
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                ClickHouseDriver.getHttpConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
+                HttpConnectorFactory.getHttpConnector(properties), null, withCredentials, ResultSet.TYPE_FORWARD_ONLY
         );
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
@@ -87,10 +88,11 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         properties.setMaxExecutionTime(20);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(ClickHouseDriver.getHttpConnector(properties),
-                                                                        null,
-                                                                        properties,
-                                                                        ResultSet.TYPE_FORWARD_ONLY);
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
+                HttpConnectorFactory.getHttpConnector(properties),
+                null,
+                properties,
+                ResultSet.TYPE_FORWARD_ONLY);
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();
         assertTrue(query.contains("max_execution_time=20"), "max_execution_time param is missing in URL");
@@ -106,10 +108,11 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         properties.setMaxMemoryUsage(41L);
-        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(ClickHouseDriver.getHttpConnector(properties),
-                                                                        null,
-                                                                        properties,
-                                                                        ResultSet.TYPE_FORWARD_ONLY);
+        ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
+                HttpConnectorFactory.getHttpConnector(properties),
+                null,
+                properties,
+                ResultSet.TYPE_FORWARD_ONLY);
 
         URI uri = statement.buildRequestUri(null, null, null, null, false);
         String query = uri.getQuery();
@@ -121,7 +124,7 @@ public class ClickHouseStatementTest {
         ClickHouseProperties properties = new ClickHouseProperties();
         properties.setHost("localhost");
         ClickHouseStatementImpl statement = new ClickHouseStatementImpl(
-                ClickHouseDriver.getHttpConnector(properties),
+                HttpConnectorFactory.getHttpConnector(properties),
                 null,
                 properties,
                 ResultSet.TYPE_FORWARD_ONLY

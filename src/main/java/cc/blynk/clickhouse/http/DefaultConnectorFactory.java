@@ -9,4 +9,9 @@ public final class DefaultConnectorFactory extends HttpConnectorFactory {
         return new DefaultHttpConnector(properties);
     }
 
+    @Override
+    public void close() {
+        //empty because default connection factory uses HTTPUrlConnection that
+        //is closed within connection.close()
+    }
 }

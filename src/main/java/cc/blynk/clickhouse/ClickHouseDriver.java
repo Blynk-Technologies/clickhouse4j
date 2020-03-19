@@ -27,10 +27,10 @@ import java.util.Properties;
 public final class ClickHouseDriver implements Driver {
 
     private static final Logger log = LoggerFactory.getLogger(ClickHouseDriver.class);
-    private static HttpConnector httpConnector;
+    static final ClickHouseDriver driver;
 
     static {
-        ClickHouseDriver driver = new ClickHouseDriver();
+        driver = new ClickHouseDriver();
         try {
             DriverManager.registerDriver(driver);
         } catch (SQLException e) {
@@ -48,21 +48,8 @@ public final class ClickHouseDriver implements Driver {
         if (!acceptsURL(url)) {
             return null;
         }
-        HttpConnector httpConnector = getHttpConnector(properties);
+        HttpConnector httpConnector = HttpConnectorFactory.getHttpConnector(properties);
         return new ClickHouseConnectionImpl(httpConnector, url, properties);
-    }
-
-    public static HttpConnector getHttpConnector(ClickHouseProperties properties) {
-        if (httpConnector == null) {
-            synchronized (HttpConnectorFactory.class) {
-                if (httpConnector == null) {
-                    String connectorType = properties.getConnectorType();
-                    HttpConnectorFactory httpConnectorFactory = HttpConnectorFactory.create(connectorType);
-                    httpConnector = httpConnectorFactory.create(properties);
-                }
-            }
-        }
-        return httpConnector;
     }
 
     @Override

@@ -1,8 +1,11 @@
 package cc.blynk.clickhouse;
 
+import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 
 import javax.sql.DataSource;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -10,9 +13,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public final class ClickHouseDataSource implements DataSource {
+public final class ClickHouseDataSource implements DataSource, Closeable {
 
-    private final ClickHouseDriver driver = new ClickHouseDriver();
     protected final String url;
     private PrintWriter printWriter;
     private int loginTimeoutSeconds = 0;
@@ -40,12 +42,12 @@ public final class ClickHouseDataSource implements DataSource {
 
     @Override
     public ClickHouseConnection getConnection() throws SQLException {
-        return driver.connect(url, properties);
+        return ClickHouseDriver.driver.connect(url, properties);
     }
 
     @Override
     public ClickHouseConnection getConnection(String username, String password) throws SQLException {
-        return driver.connect(url, properties.withCredentials(username, password));
+        return ClickHouseDriver.driver.connect(url, properties.withCredentials(username, password));
     }
 
     public String getHost() {
@@ -105,4 +107,8 @@ public final class ClickHouseDataSource implements DataSource {
         return iface.isAssignableFrom(getClass());
     }
 
+    @Override
+    public void close() throws IOException {
+        HttpConnectorFactory.shutdown();
+    }
 }

@@ -6,13 +6,24 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.OpenSsl;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+
+import java.io.IOException;
 
 public final class AsyncConnectorFactory extends HttpConnectorFactory {
 
+    private final AsyncHttpClient asyncHttpClient;
+
+    public AsyncConnectorFactory(ClickHouseProperties properties) {
+        //todo it is not correct to create asyncHttpClient based on ClickHouseProperties
+        this.asyncHttpClient = new DefaultAsyncHttpClient(initClientConfig(properties));
+    }
+
     @Override
     public HttpConnector create(ClickHouseProperties properties) {
-        return new AsyncHttpConnector(properties, initClientConfig(properties));
+        return new AsyncHttpConnector(asyncHttpClient, properties);
     }
 
     private static DefaultAsyncHttpClientConfig initClientConfig(ClickHouseProperties properties) {
@@ -36,4 +47,10 @@ public final class AsyncConnectorFactory extends HttpConnectorFactory {
         return clientConfigBuilder.build();
     }
 
+    @Override
+    public void close() throws IOException {
+        //asyncHttpClient is shared instance per Driver, so we have to close it
+        //when datasource is closed
+        asyncHttpClient.close();
+    }
 }

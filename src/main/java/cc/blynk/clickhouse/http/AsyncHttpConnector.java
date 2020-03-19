@@ -8,8 +8,6 @@ import cc.blynk.clickhouse.util.ClickHouseLZ4InputStream;
 import cc.blynk.clickhouse.util.ClickHouseLZ4OutputStream;
 import cc.blynk.clickhouse.util.guava.StreamUtils;
 import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
 import org.slf4j.Logger;
@@ -42,10 +40,10 @@ final class AsyncHttpConnector implements HttpConnector {
 
     private final AsyncHttpClient asyncHttpClient;
 
-    AsyncHttpConnector(ClickHouseProperties properties,
-                       DefaultAsyncHttpClientConfig asyncHttpClientConfig) {
+    AsyncHttpConnector(AsyncHttpClient asyncHttpClient,
+                       ClickHouseProperties properties) {
+        this.asyncHttpClient = asyncHttpClient;
         this.properties = properties;
-        this.asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
     }
 
     @Override
@@ -92,11 +90,16 @@ final class AsyncHttpConnector implements HttpConnector {
 
     @Override
     public void close() {
-        try {
-            this.asyncHttpClient.close();
-        } catch (IOException e) {
-            log.error("Error on closing HTTP client. {}", e.getMessage());
-        }
+        //we do not close async http connector on purpose
+        //because it is shared instance across the driver with pool inside
+        //so it should be closed via datasource.close() method
+        //THIS MAY CAUSE MEMORY LEAKS
+
+        //try {
+        //    this.asyncHttpClient.close();
+        //} catch (IOException e) {
+        //    log.error("Error on closing HTTP client. {}", e.getMessage());
+        //}
     }
 
     private ByteArrayInputStream prepareInputStream(String sql) throws ClickHouseException {
@@ -235,19 +238,18 @@ final class AsyncHttpConnector implements HttpConnector {
             } catch (IOException e) {
                 log.warn("Error while read compressed stream. {}", e.getMessage());
                 throw ClickHouseExceptionSpecifier.specify(e, properties.getHost(), properties.getPort());
+            } finally {
+                StreamUtils.close(responseBody);
             }
 
-            InputStream messageStream = null;
             if (properties.isCompress()) {
-                try {
-                    messageStream = new ClickHouseLZ4InputStream(new ByteArrayInputStream(bytes));
+                try (InputStream messageStream = new ClickHouseLZ4InputStream(new ByteArrayInputStream(bytes))) {
                     bytes = StreamUtils.toByteArray(messageStream);
                 } catch (IOException e) {
                     log.warn("Error while read compressed stream. {}", e.getMessage());
                 }
             }
 
-            StreamUtils.close(messageStream);
             String chMessage = new String(bytes, UTF_8);
 
             throw ClickHouseExceptionSpecifier.specify(chMessage, properties.getHost(), properties.getPort());

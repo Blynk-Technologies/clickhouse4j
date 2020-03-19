@@ -10,6 +10,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,19 +25,42 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 
-public abstract class HttpConnectorFactory {
+public abstract class HttpConnectorFactory implements Closeable {
 
-    private static final Logger log = LoggerFactory.getLogger(AsyncConnectorFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpConnectorFactory.class);
 
     public HttpConnectorFactory() {
     }
 
-    public static HttpConnectorFactory create(String connectorType) {
+    private static HttpConnectorFactory httpConnectorFactory;
+
+    private static HttpConnectorFactory getHttpConnectorFactory(ClickHouseProperties properties) {
+        if (httpConnectorFactory == null) {
+            synchronized (HttpConnectorFactory.class) {
+                if (httpConnectorFactory == null) {
+                    httpConnectorFactory = createFactory(properties);
+                }
+            }
+        }
+        return httpConnectorFactory;
+    }
+
+    public static HttpConnector getHttpConnector(ClickHouseProperties properties) {
+        return getHttpConnectorFactory(properties).create(properties);
+    }
+
+    public static void shutdown() throws IOException {
+        if (httpConnectorFactory != null) {
+            httpConnectorFactory.close();
+        }
+    }
+
+    private static HttpConnectorFactory createFactory(ClickHouseProperties properties) {
         String client;
         HttpConnectorFactory connectorFactory;
-        if ("ASYNC".equals(connectorType)) {
+        if ("ASYNC".equals(properties.getConnectorType())) {
             client = "Async Http Client";
-            connectorFactory = new AsyncConnectorFactory();
+            connectorFactory = new AsyncConnectorFactory(properties);
         } else {
             client = "HttpUrlConnection Client";
             connectorFactory = new DefaultConnectorFactory();
