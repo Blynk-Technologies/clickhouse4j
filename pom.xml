@@ -55,8 +55,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <slf4j-api.version>1.7.28</slf4j-api.version>
-        <lz4-java.version>1.6.0</lz4-java.version>
-        <async-http-client.version>2.10.5</async-http-client.version>
+        <lz4-java.version>1.7.1</lz4-java.version>
+        <async-http-client.version>2.11.0</async-http-client.version>
 
         <!-- test dependencies -->
         <testng.version>6.8.21</testng.version>
