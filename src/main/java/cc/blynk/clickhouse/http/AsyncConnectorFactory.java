@@ -8,17 +8,17 @@ import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.OpenSsl;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
-public class AsyncConnectorFactory extends HttpConnectorFactory {
+final class AsyncConnectorFactory extends HttpConnectorFactory {
 
     private final DefaultAsyncHttpClientConfig asyncHttpClientConfig;
 
-    public AsyncConnectorFactory(DefaultAsyncHttpClientConfig asyncHttpClientConfig, ClickHouseProperties properties) {
+    AsyncConnectorFactory(DefaultAsyncHttpClientConfig asyncHttpClientConfig, ClickHouseProperties properties) {
         super(properties);
         this.asyncHttpClientConfig = asyncHttpClientConfig;
     }
 
-    public AsyncConnectorFactory(int maxConnections, ClickHouseProperties properties) {
-        this(initClientConfig(maxConnections, properties), properties);
+    AsyncConnectorFactory(ClickHouseProperties properties) {
+        this(initClientConfig(properties), properties);
     }
 
     @Override
@@ -26,12 +26,12 @@ public class AsyncConnectorFactory extends HttpConnectorFactory {
         return new AsyncHttpConnector(properties, asyncHttpClientConfig);
     }
 
-    private static DefaultAsyncHttpClientConfig initClientConfig(int maxConnections, ClickHouseProperties properties) {
+    private static DefaultAsyncHttpClientConfig initClientConfig(ClickHouseProperties properties) {
         DefaultAsyncHttpClientConfig.Builder clientConfigBuilder = new DefaultAsyncHttpClientConfig.Builder()
                 .setUserAgent(null)
                 .setKeepAlive(true)
                 .setConnectTimeout(properties.getConnectionTimeout())
-                .setMaxConnections(maxConnections)
+                .setMaxConnections(properties.getMaxConnections())
                 .setUseNativeTransport(Epoll.isAvailable())
                 .setUseOpenSsl(OpenSsl.isAvailable());
         if (properties.getSsl()) {

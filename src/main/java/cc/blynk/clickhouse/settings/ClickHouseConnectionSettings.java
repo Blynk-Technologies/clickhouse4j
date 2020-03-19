@@ -6,6 +6,8 @@ import java.util.Properties;
 
 public enum ClickHouseConnectionSettings {
 
+    CONNECTOR_TYPE("connector_type", "DEFAULT"),
+    MAX_CONNECTIONS("max_connexctions", 100),
     ASYNC("async", false),
     BUFFER_SIZE("buffer_size", 65536),
     APACHE_BUFFER_SIZE("apache_buffer_size", 65536),

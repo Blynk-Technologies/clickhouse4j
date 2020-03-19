@@ -8,6 +8,8 @@ import java.util.Properties;
 public class ClickHouseProperties {
 
     // connection settings
+    private String connectorType;
+    private int maxConnections;
     private boolean async;
     private int bufferSize;
     private int apacheBufferSize;
@@ -43,7 +45,6 @@ public class ClickHouseProperties {
      * This is a workaround to issues with properly following HTTP POST redirects.
      * Namely, Apache HTTP client's inability to process early responses,
      * and difficulties with resending non-repeatable
-     * {@link org.apache.http.entity.InputStreamEntity InputStreamEntity}
      */
     private boolean checkForRedirects;
     //additional
@@ -98,6 +99,8 @@ public class ClickHouseProperties {
     }
 
     public ClickHouseProperties(Properties info) {
+        this.connectorType = getSetting(info, ClickHouseConnectionSettings.CONNECTOR_TYPE);
+        this.maxConnections = getSetting(info, ClickHouseConnectionSettings.MAX_CONNECTIONS);
         this.async = getSetting(info, ClickHouseConnectionSettings.ASYNC);
         this.bufferSize = getSetting(info, ClickHouseConnectionSettings.BUFFER_SIZE);
         this.apacheBufferSize = getSetting(info, ClickHouseConnectionSettings.APACHE_BUFFER_SIZE);
@@ -164,6 +167,7 @@ public class ClickHouseProperties {
 
     public Properties asProperties() {
         PropertiesBuilder ret = new PropertiesBuilder();
+        ret.put(ClickHouseConnectionSettings.CONNECTOR_TYPE.getKey(), String.valueOf(connectorType));
         ret.put(ClickHouseConnectionSettings.ASYNC.getKey(), String.valueOf(async));
         ret.put(ClickHouseConnectionSettings.BUFFER_SIZE.getKey(), String.valueOf(bufferSize));
         ret.put(ClickHouseConnectionSettings.APACHE_BUFFER_SIZE.getKey(), String.valueOf(apacheBufferSize));
@@ -492,6 +496,14 @@ public class ClickHouseProperties {
 
     public void setDecompress(boolean decompress) {
         this.decompress = decompress;
+    }
+
+    public String getConnectorType() {
+        return connectorType;
+    }
+
+    public int getMaxConnections() {
+        return maxConnections;
     }
 
     public boolean isAsync() {

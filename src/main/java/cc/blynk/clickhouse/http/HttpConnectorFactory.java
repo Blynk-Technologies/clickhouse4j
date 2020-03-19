@@ -3,6 +3,8 @@ package cc.blynk.clickhouse.http;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.util.guava.StreamUtils;
 import cc.blynk.clickhouse.util.ssl.NonValidatingTrustManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -24,36 +26,27 @@ import java.util.Iterator;
 
 public abstract class HttpConnectorFactory {
 
+    private static final Logger log = LoggerFactory.getLogger(HttpConnectorFactory.class);
+
     protected final ClickHouseProperties properties;
 
-    public HttpConnectorFactory(ClickHouseProperties properties) {
+    HttpConnectorFactory(ClickHouseProperties properties) {
         this.properties = properties;
     }
 
     public static HttpConnector getConnector(ClickHouseProperties properties) {
-        return getConnector(HttpConnectorType.DEFAULT, properties);
-    }
-
-    public static HttpConnector getConnector(HttpConnectorType type, ClickHouseProperties properties) {
-        int maxConnections = properties.getMaxTotal();
-        return getConnector(type, maxConnections, properties);
-    }
-
-    public static HttpConnector getConnector(HttpConnectorType type,
-                                             int maxConnections, ClickHouseProperties properties) {
-        HttpConnectorFactory connectorFactory = getConnectorFactory(type, maxConnections, properties);
-        return connectorFactory.create();
-    }
-
-    private static HttpConnectorFactory getConnectorFactory(HttpConnectorType type,
-                                                            int maxConnections, ClickHouseProperties properties) {
-        switch (type) {
-            case ASYNC:
-                return new AsyncConnectorFactory(maxConnections, properties);
-            case DEFAULT:
-            default:
-                return new DefaultConnectorFactory(properties);
+        HttpConnectorFactory connectorFactory;
+        String client;
+        if ("ASYNC".equals(properties.getConnectorType())) {
+            client = "Async Http Client";
+            connectorFactory = new AsyncConnectorFactory(properties);
+        } else {
+            client = "HttpUrlConnection Client";
+            connectorFactory = new DefaultConnectorFactory(properties);
         }
+        log.info("Using {} for clickhouse.", client);
+
+        return connectorFactory.create();
     }
 
     public abstract HttpConnector create();

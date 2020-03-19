@@ -2,9 +2,9 @@ package cc.blynk.clickhouse.http;
 
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 
-public class DefaultConnectorFactory extends HttpConnectorFactory {
+final class DefaultConnectorFactory extends HttpConnectorFactory {
 
-    public DefaultConnectorFactory(ClickHouseProperties properties) {
+    DefaultConnectorFactory(ClickHouseProperties properties) {
         super(properties);
     }
 
