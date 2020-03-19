@@ -83,7 +83,8 @@ final class DefaultHttpConnector implements HttpConnector {
         HttpURLConnection connection = buildConnection(uri);
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
 
-        byte[] bytes = buildMultipartData(externalData, boundaryString);
+        byte[] bytes;
+        bytes = buildMultipartData(externalData, boundaryString);
         InputStream from = new ByteArrayInputStream(bytes);
 
         return sendPostRequest(from, connection);
@@ -346,4 +347,5 @@ final class DefaultHttpConnector implements HttpConnector {
 
         return ks;
     }
+
 }

@@ -18,4 +18,5 @@ public interface HttpConnector {
     void post(String sql, List<byte[]> data, URI uri) throws ClickHouseException;
 
     void close();
+
 }
