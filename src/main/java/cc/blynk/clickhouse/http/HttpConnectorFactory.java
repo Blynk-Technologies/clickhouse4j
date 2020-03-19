@@ -31,7 +31,7 @@ public abstract class HttpConnectorFactory {
     }
 
     public static HttpConnector getConnector(ClickHouseProperties properties) {
-        return getConnector(HttpConnectorType.ASYNC, properties);
+        return getConnector(HttpConnectorType.DEFAULT, properties);
     }
 
     public static HttpConnector getConnector(HttpConnectorType type, ClickHouseProperties properties) {
