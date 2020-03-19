@@ -2,7 +2,6 @@ package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.domain.ClickHouseDataType;
 import cc.blynk.clickhouse.http.HttpConnector;
-import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import org.slf4j.Logger;
@@ -49,9 +48,11 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
     private TimeZone timezone;
     private volatile String serverVersion;
 
-    ClickHouseConnectionImpl(String url, ClickHouseProperties properties) {
+    ClickHouseConnectionImpl(HttpConnector httpConnector,
+                             String url,
+                             ClickHouseProperties properties) {
         this.url = url;
-        log.debug("Create a new connection to {}", url);
+        log.debug("Create a new clickhouse connection object to {}", url);
 
         try {
             this.properties = ClickhouseJdbcUrlParser.parse(url, properties.asProperties());
@@ -59,7 +60,7 @@ public final class ClickHouseConnectionImpl implements ClickHouseConnection {
             throw new IllegalArgumentException(e);
         }
 
-        this.httpConnector = HttpConnectorFactory.getConnector(properties);
+        this.httpConnector = httpConnector;
         initTimeZone(this.properties);
     }
 

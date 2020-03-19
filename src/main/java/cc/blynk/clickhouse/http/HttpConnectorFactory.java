@@ -26,30 +26,26 @@ import java.util.Iterator;
 
 public abstract class HttpConnectorFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpConnectorFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(AsyncConnectorFactory.class);
 
-    protected final ClickHouseProperties properties;
-
-    HttpConnectorFactory(ClickHouseProperties properties) {
-        this.properties = properties;
+    public HttpConnectorFactory() {
     }
 
-    public static HttpConnector getConnector(ClickHouseProperties properties) {
-        HttpConnectorFactory connectorFactory;
+    public static HttpConnectorFactory create(String connectorType) {
         String client;
-        if ("ASYNC".equals(properties.getConnectorType())) {
+        HttpConnectorFactory connectorFactory;
+        if ("ASYNC".equals(connectorType)) {
             client = "Async Http Client";
-            connectorFactory = new AsyncConnectorFactory(properties);
+            connectorFactory = new AsyncConnectorFactory();
         } else {
             client = "HttpUrlConnection Client";
-            connectorFactory = new DefaultConnectorFactory(properties);
+            connectorFactory = new DefaultConnectorFactory();
         }
         log.info("Using {} for clickhouse.", client);
-
-        return connectorFactory.create();
+        return connectorFactory;
     }
 
-    public abstract HttpConnector create();
+    public abstract HttpConnector create(ClickHouseProperties properties);
 
     static SSLContext getSSLContext(ClickHouseProperties properties)
             throws CertificateException, NoSuchAlgorithmException,

@@ -1,5 +1,7 @@
 package cc.blynk.clickhouse;
 
+import cc.blynk.clickhouse.http.HttpConnector;
+import cc.blynk.clickhouse.http.HttpConnectorFactory;
 import cc.blynk.clickhouse.settings.ClickHouseConnectionSettings;
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 import cc.blynk.clickhouse.settings.ClickHouseQueryParam;
@@ -24,7 +26,8 @@ import java.util.Properties;
  */
 public final class ClickHouseDriver implements Driver {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClickHouseDriver.class);
+    private static final Logger log = LoggerFactory.getLogger(ClickHouseDriver.class);
+    private static HttpConnector httpConnector;
 
     static {
         ClickHouseDriver driver = new ClickHouseDriver();
@@ -33,20 +36,33 @@ public final class ClickHouseDriver implements Driver {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        logger.info("Driver registered");
+        log.info("Driver registered");
     }
 
     @Override
-    public ClickHouseConnection connect(String url, Properties info) {
-        return connect(url, new ClickHouseProperties(info));
+    public ClickHouseConnection connect(String url, Properties properties) {
+        return connect(url, new ClickHouseProperties(properties));
     }
 
     ClickHouseConnection connect(String url, ClickHouseProperties properties) {
         if (!acceptsURL(url)) {
             return null;
         }
-        logger.debug("Creating connection");
-        return new ClickHouseConnectionImpl(url, properties);
+        HttpConnector httpConnector = getHttpConnector(properties);
+        return new ClickHouseConnectionImpl(httpConnector, url, properties);
+    }
+
+    public static HttpConnector getHttpConnector(ClickHouseProperties properties) {
+        if (httpConnector == null) {
+            synchronized (HttpConnectorFactory.class) {
+                if (httpConnector == null) {
+                    String connectorType = properties.getConnectorType();
+                    HttpConnectorFactory httpConnectorFactory = HttpConnectorFactory.create(connectorType);
+                    httpConnector = httpConnectorFactory.create(properties);
+                }
+            }
+        }
+        return httpConnector;
     }
 
     @Override
@@ -62,7 +78,7 @@ public final class ClickHouseDriver implements Driver {
             properties = ClickhouseJdbcUrlParser.parse(url, copy).asProperties();
         } catch (Exception ex) {
             properties = copy;
-            logger.error("could not parse url {}", url, ex);
+            log.error("could not parse url {}", url, ex);
         }
 
         ClickHouseQueryParam[] querySettings = ClickHouseQueryParam.values();
