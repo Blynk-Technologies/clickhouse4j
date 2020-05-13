@@ -255,6 +255,18 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>cc.blynk.clickhouse.org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.jpountz</pattern>
+                                    <shadedPattern>cc.blynk.clickhouse.net.jpountz</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
