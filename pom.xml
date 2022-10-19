@@ -63,7 +63,7 @@
         <mockito-all.version>1.10.19</mockito-all.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jmh-core.version>1.21</jmh-core.version>
-        <jackson.version>2.10.1</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
 
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
